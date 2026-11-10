@@ -299,6 +299,27 @@ class Rvfit:
     def __init__(self):
         self.arguments = None
         self.res_dict = {}
+        self.transit_model = self.transit_model_jd = None
+        self.transit_model_with_offset = self.transit_model_dataset = None
+        self.transit_models = {}
+        self.transit_models_with_offset = {}
+        self.transit_model_status = 'not calculated'
+        self.native_likelihood = None
+        self.native_loglik = self.native_rv_loglik = self.native_transit_loglik = None
+        self.native_likelihood_status = 'not calculated'
+        self.native_ttv_likelihood = None
+        self.native_ttv_loglik = self.native_ttv_results = None
+        self.native_ttv_likelihood_status = 'not calculated'
+        self.transit_data_jd = {}
+        self.transit_events = {}
+        self.transit_events_status = "not calculated"
+        self.ttv_model = np.empty((0, 5))
+        self.transit_data_models = {}
+        self.transit_data_models_with_baseline = {}
+        self.transit_data_models_with_offset = {}
+        self.transit_data_rv = {}
+        self.transit_data_model = self.transit_data_model_dataset = None
+        self.transit_data_phase = self.transit_data_mean_anomaly = self.transit_data_t0 = None
 
         self.res, self.model_rvs, self.rvs, self.o_c, self.rv_err, \
             self.t0, self.RR, self.aR, self.m, self.tw, self.h, self.k, \
@@ -360,7 +381,7 @@ class Rvfit:
                   ndset=None, ndata=None, nplanet=None,
                   rv_ofset=None, rv_jitt=None,
                   lin_trend_in=None, quad_trend_in=None,
-                  dyn_planets=None, coplar_inc=0, jit_flag=0, npl_pos=None):
+                  dyn_planets=None, coplar_inc=0, jit_flag=0, npl_pos=None, optimizer_options=None):
 
         data_array = np.asarray(data_array, dtype=float)
         if data_array.ndim != 2 or data_array.shape[1] != 4 or len(data_array) == 0:
@@ -459,6 +480,7 @@ class Rvfit:
         self.coplar_inc = coplar_inc
         self.npl_pos = npl_pos
         self.jit_flag = jit_flag
+        self.optimizer_options = optimizer_options
 
         # Concatenate some of the arguments to be in the right form for Fortran code
         files_param = np.concatenate([rv_ofset, rv_jitt], axis=1)
@@ -539,7 +561,8 @@ class Rvfit:
         # that cannot be exposed as Python wrappers. Compile the whole source,
         # but generate wrappers only for the supported Python API.
         command += ["only:", "kepfit_amoeba", "kepfit_lm", "dynfit_amoeba",
-                    "dynfit_lm", "rv_capacity_check", "rv_get_status", ":"]
+                    "dynfit_lm", "rv_capacity_check", "rv_get_status", "rv_transit_model", "rv_transit_nbody",
+                    "rv_transit_model_parts", "rv_transit_nbody_parts", "rv_transit_phased_model", ":"]
         # Use the running interpreter, preserve the caller's working directory,
         # and report build failures rather than continuing with a stale binary.
         subprocess.run(command, cwd=path, env=env, check=True)
@@ -591,6 +614,9 @@ class Rvfit:
                 self.f_compile(path=path, __version__=version)
                 if not (path / expected).is_file():
                     raise RuntimeError(f"RV build did not produce {expected}")
+        source = path / 'rvmod_for.f95'
+        if source.exists() and source.stat().st_mtime > (path / expected).stat().st_mtime:
+            self.f_compile(path=path, __version__=version)
         return version
 
     @staticmethod
@@ -623,13 +649,13 @@ class Rvfit:
         self._require_capacity_backend()
         if mtype == "kep":
             try:
-                res = rvmod_for.kepfit_amoeba(*self.arguments)
+                res = rvmod_for.kepfit_amoeba(*self.arguments, **({"optimizer_options": self.optimizer_options} if getattr(self, "optimizer_options", None) is not None else {}))
             except Exception as e:
                 print(repr(e))
                 return 0
         elif mtype == "dyn":
             try:
-                res = rvmod_for.dynfit_amoeba(*self.arguments)
+                res = rvmod_for.dynfit_amoeba(*self.arguments, **({"optimizer_options": self.optimizer_options} if getattr(self, "optimizer_options", None) is not None else {}))
             except Exception as e:
                 print(repr(e))
                 return 0
@@ -650,13 +676,13 @@ class Rvfit:
         self._require_capacity_backend()
         if mtype == "kep":
             try:
-                res = rvmod_for.kepfit_lm(*self.arguments)
+                res = rvmod_for.kepfit_lm(*self.arguments, **({"optimizer_options": self.optimizer_options} if getattr(self, "optimizer_options", None) is not None else {}))
             except Exception as e:
                 print(repr(e))
                 return 0
         elif mtype == "dyn":
             try:
-                res = rvmod_for.dynfit_lm(*self.arguments)
+                res = rvmod_for.dynfit_lm(*self.arguments, **({"optimizer_options": self.optimizer_options} if getattr(self, "optimizer_options", None) is not None else {}))
             except Exception as e:
                 print(repr(e))
                 return 0

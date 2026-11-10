@@ -1,3 +1,23 @@
+! Per-call controls for the established, non-reentrant RV backend.
+module rv_optimizer_state
+    implicit none
+    real(8) :: rvopt(9)
+    integer :: opt_evals=0
+    logical :: opt_active=.false.
+contains
+    subroutine configure_optimizer(options)
+        real(8),optional,intent(in) :: options(9)
+        rvopt=[0.d0,0.d0,0.d0,0.d0,0.d0,1.d0,0.001d0,1.d0,1.d-6]
+        if(present(options)) then
+            where(options>0.d0) rvopt=options
+        endif
+        opt_evals=0;opt_active=.true.
+    end subroutine
+    logical function budget_reached()
+        budget_reached=opt_active .and. rvopt(2)>0.d0 .and. opt_evals>=int(rvopt(2))
+    end function
+end module rv_optimizer_state
+
 !cc   By Trifon Trifonov trifon@hku.hk
 !cc   You can modify if as you want, but please
 !cc   do not distribute without permision. 
@@ -45,8 +65,10 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
         final_params, &
         res_array, fit_return, &
         bestpar_1, bestpar_2, bestpar_3, bestpar_4, &
-        fit_array, dynamical_planets, coplar_inc)
+        fit_array, dynamical_planets, coplar_inc, optimizer_options)
+    use rv_optimizer_state
     implicit none
+    real(8), optional, intent(in) :: optimizer_options(9)
     integer :: rv_status
     common /RVERROR/ rv_status
 
@@ -107,6 +129,8 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
     external rvkep_kepamo, compute_abs_loglik_kep
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
     
+    call configure_optimizer(optimizer_options)
+    if(amoebastarts==0) opt_active=.false.
     call rv_capacity_check(ndset_in, npl_in, ndata, nt, writeflag_fit)
     if (rv_status.ne.0) return
     allocate(x(max(ndata,nt)), y(ndata), sig(ndata), y_in(ndata), &
@@ -149,6 +173,7 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
     PI = 3.14159265358979d0
     twopi = 2.d0 * PI
     ftol = 0.000001d0
+    if(rvopt(3)>0.d0) ftol=rvopt(3)
  
 
     call io_read_data(ndata, x, ts, y, sig, jitt, epoch, &
@@ -166,8 +191,8 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
     
     call cpu_time(t_init)    
     
-    do while (dabs(dloglikk)>=0.000001d0)
-        if (i.eq.amoebastarts) then
+    do while (dabs(dloglikk)>=rvopt(9))
+        if (i.eq.amoebastarts .or. budget_reached()) then
             i = 0
             exit
         endif
@@ -215,6 +240,7 @@ subroutine kepfit_amoeba(epsil, deltat, amoebastarts, &
         endif
     enddo
 
+    opt_active=.false.
     if (amoebastarts.gt.0 .and. mfit.gt.0) then
         call simplex_covariance(0, ndata, x, y, sig, ts, a, ia, ma, mfit, &
                 hkl, jit_flag, dble(epsil), dble(deltat), npl, &
@@ -391,8 +417,12 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
         final_params, &
         res_array, fit_return, &
         bestpar_1, bestpar_2, bestpar_3, bestpar_4, &
-        fit_array, dynamical_planets, coplar_inc)
+        fit_array, dynamical_planets, coplar_inc, optimizer_options)
+    use rv_optimizer_state
     implicit none
+    real(8), optional, intent(in) :: optimizer_options(9)
+    real(8) :: opt_ftol, a_before(200)
+    integer :: opt_maxiter
     integer :: rv_status
     common /RVERROR/ rv_status
  
@@ -453,6 +483,12 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
     
+    call configure_optimizer(optimizer_options)
+    if(amoebastarts==0) opt_active=.false.
+    opt_maxiter=200
+    if(rvopt(1)>0.d0) opt_maxiter=int(rvopt(1))
+    opt_ftol=1.d-2
+    if(rvopt(3)>0.d0) opt_ftol=rvopt(3)
     call rv_capacity_check(ndset_in, npl_in, ndata, nt, writeflag_fit)
     if (rv_status.ne.0) return
     allocate(x(max(ndata,nt)), y(ndata), sig(ndata), y_in(ndata), &
@@ -522,7 +558,9 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
 !        t_init = time()
         
         call cpu_time(t_init)            
-        do while ((chisq>=ochisq).or.(dchisq<-1.d-2))
+        do while ((chisq>=ochisq).or.(dchisq<-opt_ftol))
+            if(budget_reached()) exit
+            a_before=a
             i = i + 1
 !            write(*,*) alamda
             ochisq = chisq
@@ -530,10 +568,13 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
                     chisq, rvkep_keplm, alamda, loglik, jitt, hkl)
 
             dchisq = chisq - ochisq
+        if(rvopt(4)>0.d0 .and. chisq<ochisq) then
+            if(maxval(abs(a-a_before)/max(1.d0,abs(a_before)))<rvopt(4)) exit
+        endif
 !            if (i.eq.10) then
 !                i = 0
 !            endif
-            if ((i.eq.200).or.(alamda>=1d6)) then
+            if ((i>=opt_maxiter).or.(alamda>=1d6)) then
                 i = 0
                 exit
             endif
@@ -549,6 +590,7 @@ subroutine kepfit_lm(epsil, deltat, amoebastarts, &
         enddo
     endif
 
+    opt_active=.false.
     alamda = 0.d0
     call MRQMIN_dynamo (x, y, sig, ndata, a, ia, ma, ts, covar, alpha, MMAX, &
             chisq, rvkep_keplm, alamda, loglik, jitt, hkl)
@@ -661,8 +703,10 @@ subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
         final_params, &
         res_array, fit_return, &
         bestpar_1, bestpar_2, bestpar_3, bestpar_4, &
-        fit_array, dynamical_planets, coplar_inc)
+        fit_array, dynamical_planets, coplar_inc, optimizer_options)
+    use rv_optimizer_state
     implicit none
+    real(8), optional, intent(in) :: optimizer_options(9)
     integer :: rv_status
     common /RVERROR/ rv_status
     
@@ -745,6 +789,8 @@ subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
 !    allocate(ymod_pl(npl_in,20000), ymod_pl2(npl_in,20000)) 
 
 
+    call configure_optimizer(optimizer_options)
+    if(amoebastarts==0) opt_active=.false.
     call rv_capacity_check(ndset_in, npl_in, ndata, nt, writeflag_fit)
     if (rv_status.ne.0) return
     gr_flag = gr_flag_in
@@ -764,6 +810,7 @@ subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
 
     loglikk = 0
     ftol = 0.001d0
+    if(rvopt(3)>0.d0) ftol=rvopt(3)
 
     call io_read_data (ndata, t, ts, ys, sigs, jitt, &
             epoch, t0, t_max, a, ia, ma, mfit, incl, cap0m, & 
@@ -780,8 +827,8 @@ subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
   
 
     
-    do while (dabs(dloglikk)>=0.000001d0)
-        if (i.eq.amoebastarts) then
+    do while (dabs(dloglikk)>=rvopt(9))
+        if (i.eq.amoebastarts .or. budget_reached()) then
             i = 0
             exit
         endif
@@ -829,6 +876,7 @@ subroutine dynfit_amoeba(epsil, deltat, amoebastarts, &
     rms = 0.0d0
     
 
+    opt_active=.false.
     if (amoebastarts.gt.0 .and. mfit.gt.0) then
         call simplex_covariance(1, ndata, t, ys, sigs, ts, a, ia, ma, mfit, &
                 hkl, jit_flag, epsil, deltat, npl, &
@@ -864,8 +912,12 @@ subroutine dynfit_lm(epsil, deltat, amoebastarts, &
         final_params, &
         res_array, fit_return, &
         bestpar_1, bestpar_2, bestpar_3, bestpar_4, &
-        fit_array, dynamical_planets, coplar_inc)
+        fit_array, dynamical_planets, coplar_inc, optimizer_options)
+    use rv_optimizer_state
     implicit none
+    real(8), optional, intent(in) :: optimizer_options(9)
+    real(8) :: opt_ftol, a_before(200)
+    integer :: opt_maxiter
     integer :: rv_status
     common /RVERROR/ rv_status
     
@@ -944,6 +996,12 @@ subroutine dynfit_lm(epsil, deltat, amoebastarts, &
 !f2py depend(ndata) data_array
 !f2py depend(dt) fit_array
  
+    call configure_optimizer(optimizer_options)
+    if(amoebastarts==0) opt_active=.false.
+    opt_maxiter=200
+    if(rvopt(1)>0.d0) opt_maxiter=int(rvopt(1))
+    opt_ftol=1.d-5
+    if(rvopt(3)>0.d0) opt_ftol=rvopt(3)
     call rv_capacity_check(ndset_in, npl_in, ndata, nt, writeflag_fit)
     if (rv_status.ne.0) return
     PI = 3.14159265358979d0
@@ -999,16 +1057,18 @@ subroutine dynfit_lm(epsil, deltat, amoebastarts, &
     i = 0
     dchisq = 10.d0
     ochisq = chisq
-    do while ((chisq>=ochisq).or.(dchisq<-1d-5))
+    do while ((chisq>=ochisq).or.(dchisq<-opt_ftol))
         call cpu_time(t_stop)
         if (when_to_kill.gt.0.0.and.(t_stop-t_init)>=when_to_kill) then
             write(*,*) 'Max. time=', when_to_kill, &
                 'sec exceeded elapsed CPU time =', t_stop-t_init, 'sec'
             exit
         endif
-        if (i.eq.amoebastarts) then
+        if (i.eq.amoebastarts .and. rvopt(1)==0.d0) then
             exit
         endif
+        if(budget_reached()) exit
+        a_before=a
         i = i + 1
         ochisq = chisq
 !        write(*,*) alamda        
@@ -1017,8 +1077,11 @@ subroutine dynfit_lm(epsil, deltat, amoebastarts, &
         dynamical_planets)
 
         dchisq = chisq - ochisq
+        if(rvopt(4)>0.d0 .and. chisq<ochisq) then
+            if(maxval(abs(a-a_before)/max(1.d0,abs(a_before)))<rvopt(4)) exit
+        endif
 
-        if ((i.eq.200).or.(alamda>=1d6)) then
+        if ((i>=opt_maxiter).or.(alamda>=1d6)) then
             i = 0
             exit
         endif
@@ -1033,6 +1096,7 @@ subroutine dynfit_lm(epsil, deltat, amoebastarts, &
     enddo
 
     !*******final output******************
+    opt_active=.false.
     alamda = 0.d0
 
     call MRQMIN_dynlm (t, ts, ys, sigs, ndata, a, ia, ma, covar, alpha, MMAX, &
@@ -1052,6 +1116,7 @@ end subroutine dynfit_lm
 
 subroutine compute_abs_loglik_kep(ndata, x, y, a2, dyda, ma, mfit, ts, &
         sig, loglik, a, ia, hkl,jit_flag)
+    use rv_optimizer_state
     implicit none
 
     integer :: MMAX, NDSMAX, npl, ndset, idset, mfit, gr_flag, jit_flag
@@ -1066,6 +1131,10 @@ subroutine compute_abs_loglik_kep(ndata, x, y, a2, dyda, ma, mfit, ts, &
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
 
+    if(budget_reached()) then
+        loglik=huge(1.d0)/100.d0;return
+    endif
+    if(opt_active) opt_evals=opt_evals+1
     loglik = 0.d0
     j = 0
     do i = 1, ma
@@ -1114,6 +1183,7 @@ subroutine compute_abs_loglik_dyn(ndata, x, y, a2, ma, mfit, ts, &
         sig, loglik, a, ia, epsil, deltat, hkl, dynamical_planets, &
         coplar_inc,jit_flag)
 
+    use rv_optimizer_state
     implicit none
     integer :: MMAX, npl, ndset, NDSMAX, idset, mfit, hkl, gr_flag,ndata
     parameter (MMAX = 200, NDSMAX = 20)
@@ -1145,6 +1215,10 @@ subroutine compute_abs_loglik_dyn(ndata, x, y, a2, ma, mfit, ts, &
         enddo
     endif
     
+    if(budget_reached()) then
+        loglik=huge(1.d0)/100.d0;return
+    endif
+    if(opt_active) opt_evals=opt_evals+1
     loglik = 0.d0
 
     call RVKEP_dynamo (x, a3, y2, y_pl, ma, ndata, epsil, deltat, hkl, &
@@ -1533,6 +1607,7 @@ end
 
 subroutine prepare_for_amoeba_kep(p, mp, np, y, a, ia, ma, mfit, funk, &
         ndata, x, z, dyda, ts, sig, hkl,jit_flag)
+    use rv_optimizer_state
     implicit none
     integer :: ndata, MMAX, NDSMAX, ma, ts(ndata), mp, np
     integer :: mfit,idset,ndset,npl,jit_flag
@@ -1570,6 +1645,11 @@ subroutine prepare_for_amoeba_kep(p, mp, np, y, a, ia, ma, mfit, funk, &
             enddo
         endif
     enddo
+    if(rvopt(6)/=1.d0) then
+        do i=2,mfit+1
+            p(i,1:mfit)=p(1,1:mfit)+rvopt(6)*(p(i,1:mfit)-p(1,1:mfit))
+        enddo
+    endif
     do i = 1, mfit + 1
         do j = 1, mfit
             a2(j) = p(i, j)
@@ -1583,6 +1663,7 @@ end
 
 SUBROUTINE amoeba_kep(p, y, mp, np, ndim, ftol, funk, iter, ndata, x, z, &
         dyda, ma, ts, sig, a, ia, ytry, hkl,jit_flag)
+    use rv_optimizer_state
     implicit none
     integer :: ndata 
     integer :: iter, mp, ndim, np, NMAX, ITMAX, MMAX, ma, ts(ndata)
@@ -1592,7 +1673,10 @@ SUBROUTINE amoeba_kep(p, y, mp, np, ndim, ftol, funk, iter, ndata, x, z, &
     EXTERNAL funk
     integer :: i, ihi, ilo, inhi, j, m, n, ia(MMAX), hkl, jit_flag
     REAL(8) :: rtol, summ, swap, ysave, ytry, psum(ndim), amotry_kep
+    integer :: opt_iterations
+    logical :: opt_stop
     iter = 0
+    opt_iterations=0
 1   do n = 1, ndim
         summ = 0.d0
         do m = 1, ndim + 1
@@ -1618,7 +1702,17 @@ SUBROUTINE amoeba_kep(p, y, mp, np, ndim, ftol, funk, iter, ndata, x, z, &
         endif
     enddo
     rtol = 2.d0 * abs(y(ihi) - y(ilo)) / (abs(y(ihi)) + abs(y(ilo)))
-    if (rtol<ftol) then
+    opt_stop=budget_reached()
+    if(rvopt(1)>0.d0) opt_stop=opt_stop .or. opt_iterations>=int(rvopt(1))
+    if(rvopt(4)>0.d0 .and. rtol<ftol) then
+        do i=1,ndim+1
+            if(maxval(abs(p(i,1:ndim)-p(ilo,1:ndim))/max(1.d0,abs(p(ilo,1:ndim))))>rvopt(4)) exit
+        enddo
+        opt_stop=opt_stop .or. i>ndim+1
+    else if(rvopt(4)==0.d0) then
+        opt_stop=opt_stop .or. rtol<ftol
+    endif
+    if (opt_stop) then
         swap = y(1)
         y(1) = y(ilo)
         y(ilo) = swap
@@ -1629,10 +1723,11 @@ SUBROUTINE amoeba_kep(p, y, mp, np, ndim, ftol, funk, iter, ndata, x, z, &
         enddo
         return
     endif
-    if (iter>=ITMAX) then
+    if (iter>=ITMAX .and. rvopt(2)==0.d0) then
         write (*, *) 'ITMAX exceeded in amoeba'
         return
     endif
+    opt_iterations=opt_iterations+1
     iter = iter + 2
     ytry = amotry_kep(p, y, psum, mp, np, ndim, funk, ihi, -1.0d0, ndata, x, z, &
             dyda, ma, ts, sig, a, ia, hkl,jit_flag)
@@ -1669,6 +1764,7 @@ END
 subroutine prepare_for_amoeba_dyn(p, mp, np, y, a, ia, ma, mfit, funk, &
         ndata, x, z, ts, sig, epsil, deltat, hkl, & 
         dynamical_planets, coplar_inc, jit_flag)
+    use rv_optimizer_state
     implicit none        
     integer :: MMAX, NDSMAX, ma, ndset,  npl, ndata, idset
     integer :: mp, np, mfit, hkl, ts(ndata)
@@ -1736,6 +1832,11 @@ subroutine prepare_for_amoeba_dyn(p, mp, np, y, a, ia, ma, mfit, funk, &
         endif
     enddo
 
+    if(rvopt(6)/=1.d0) then
+        do i=2,mfit+1
+            p(i,1:mfit)=p(1,1:mfit)+rvopt(6)*(p(i,1:mfit)-p(1,1:mfit))
+        enddo
+    endif
     do i = 1, mfit + 1
         do j = 1, mfit
             a2(j) = p(i, j)
@@ -1752,6 +1853,7 @@ end
 SUBROUTINE amoeba_dyn(p, y, mp, np, ndim, ftol, funk, iter, ndata, x, z, &
         ma, ts, sig, a, ia, epsil, deltat, hkl, npl, &
         dynamical_planets, coplar_inc, jit_flag)
+    use rv_optimizer_state
     implicit none
     integer :: iter, mp, ndim, np, NMAX, ITMAX, MMAX, ma, ts(ndata), ndata
     REAL(8) :: ftol, p(mp, np), y(mp), x(ndata), z(ndata)
@@ -1761,7 +1863,10 @@ SUBROUTINE amoeba_dyn(p, y, mp, np, ndim, ftol, funk, iter, ndata, x, z, &
     integer :: i, ihi, ilo, inhi, j, m, n, ia(MMAX), hkl, npl, jit_flag
     integer :: dynamical_planets(npl), coplar_inc
     REAL(8) :: rtol, summ, swap, ysave, ytry, psum(ndim), amotry_dyn, epsil
+    integer :: opt_iterations
+    logical :: opt_stop
     iter = 0
+    opt_iterations=0
 11  do n = 1, ndim
         summ = 0.d0
         do m = 1, ndim + 1
@@ -1787,7 +1892,17 @@ SUBROUTINE amoeba_dyn(p, y, mp, np, ndim, ftol, funk, iter, ndata, x, z, &
         endif
     enddo
     rtol = 2.d0 * abs(y(ihi) - y(ilo)) / (abs(y(ihi)) + abs(y(ilo)))
-    if (rtol<ftol) then
+    opt_stop=budget_reached()
+    if(rvopt(1)>0.d0) opt_stop=opt_stop .or. opt_iterations>=int(rvopt(1))
+    if(rvopt(4)>0.d0 .and. rtol<ftol) then
+        do i=1,ndim+1
+            if(maxval(abs(p(i,1:ndim)-p(ilo,1:ndim))/max(1.d0,abs(p(ilo,1:ndim))))>rvopt(4)) exit
+        enddo
+        opt_stop=opt_stop .or. i>ndim+1
+    else if(rvopt(4)==0.d0) then
+        opt_stop=opt_stop .or. rtol<ftol
+    endif
+    if (opt_stop) then
         swap = y(1)
         y(1) = y(ilo)
         y(ilo) = swap
@@ -1798,7 +1913,7 @@ SUBROUTINE amoeba_dyn(p, y, mp, np, ndim, ftol, funk, iter, ndata, x, z, &
         enddo
         return
     endif
-    if (iter>=ITMAX) then
+    if (iter>=ITMAX .and. rvopt(2)==0.d0) then
         write (*, *) 'ITMAX exceeded in amoeba'
         return
     endif
@@ -1806,6 +1921,7 @@ SUBROUTINE amoeba_dyn(p, y, mp, np, ndim, ftol, funk, iter, ndata, x, z, &
     
     
     
+    opt_iterations=opt_iterations+1
     iter = iter + 2
     ytry = amotry_dyn(p, y, psum, mp, np, ndim, funk, ihi, -1.0d0, ndata, x, z, &
             ma, ts, sig, a, ia, epsil, deltat, hkl, npl, &
@@ -2831,6 +2947,7 @@ end
 ! LM evaluates the same mixed model as Simplex, including its Jacobian.
 subroutine RVKEP_ewcop_fin(t, a, ymod, ymod_pl, dyda, ma, ndata, epsil, &
         deltat, hkl, coplar_inc, dynamical_planets, ia)
+    use rv_optimizer_state
     implicit none
     integer :: ma, ndata, hkl, coplar_inc, npl, ndset, idset, gr_flag
     integer :: ia(ma)
@@ -2862,6 +2979,7 @@ subroutine RVKEP_ewcop_fin(t, a, ymod, ymod_pl, dyda, ma, ndata, epsil, &
         case default ! eccentricity, h/k, or angles in radians
             step = 1.d-5
         end select
+        step=step*rvopt(8)
         trial = a
         trial(i) = a(i) + step
         call RVKEP_dynamo(t, trial, yp, scratch, ma, ndata, epsil, deltat, &
@@ -2876,6 +2994,7 @@ end
 
 subroutine RVKEP_ewcop_all (t, a, ymod, ymod_pl, dyda, ma, ndata, epsil, &
         deltat, hkl, coplar_inc)
+    use rv_optimizer_state
     implicit none
     real(8) :: PI, TWOPI, eps, epsil, deltat
     parameter (PI = 3.14159265358979d0, eps = 1.d-6)
@@ -2989,11 +3108,11 @@ subroutine RVKEP_ewcop_all (t, a, ymod, ymod_pl, dyda, ma, ndata, epsil, &
             enddo
         enddo
 
-        factor = 1.0d0
+        factor = rvopt(8)
 
         do i = 0, npl - 1
             ahh(7 * i + 1) = 0.05d0 * factor
-            ahh(7 * i + 2) = 8640d0
+            ahh(7 * i + 2) = 8640d0 * factor
             ahh(7 * i + 3) = 0.0001d0 * factor
             ahh(7 * i + 4) = 0.01d0 * factor
             ahh(7 * i + 5) = 0.01d0 * factor
@@ -3434,6 +3553,7 @@ end
 ! From Numerical Recipes.
 subroutine MRQMIN_dynamo (x, y, sig, ndata, a, ia, ma, ts, covar, alpha, &
         nca, chisq, funcs, alamda, loglik, jitt, hkl)
+    use rv_optimizer_state
     implicit none
     integer ::  ma, nca, ndata, ia(ma), MMAX, NDSMAX 
     integer ::  ts(ndata)    
@@ -3451,7 +3571,7 @@ subroutine MRQMIN_dynamo (x, y, sig, ndata, a, ia, ma, ts, covar, alpha, &
         do j = 1, ma
             if (ia(j).ne.0) mfit = mfit + 1
         enddo
-        alamda = 0.001d0
+        alamda = rvopt(7)
 
         call MRQCOF_dynamo (x, y, sig, ndata, a, ia, ma, ts, &
                 alpha, beta, nca, chisq, funcs, loglik, jitt, hkl)
@@ -3519,6 +3639,7 @@ end
 subroutine MRQMIN_dynlm (x, ts, y, sig, ndata, a, ia, ma, covar, alpha, &
         nca, chisq, funcs, alamda, loglik, jitt, epsil, deltat, hkl, coplar_inc, &
         dynamical_planets)
+    use rv_optimizer_state
     implicit none
     integer ::  ma, nca, ndata, ia(ma), MMAX, NDSMAX, ts(ndata)
     parameter (MMAX = 200, NDSMAX = 20)
@@ -3541,7 +3662,7 @@ subroutine MRQMIN_dynlm (x, ts, y, sig, ndata, a, ia, ma, covar, alpha, &
         do j = 1, ma
             if (ia(j).ne.0) mfit = mfit + 1
         enddo
-        alamda = 0.001d0
+        alamda = rvopt(7)
 
         call MRQCOF_dynlm (x, ts, y, sig, ndata, a, ia, ma, alpha, beta, &
                 nca, chisq, funcs, loglik, jitt, epsil, deltat, hkl, coplar_inc, &
@@ -3612,6 +3733,7 @@ end
 ! From Numerical Recipes.
 subroutine MRQCOF_dynamo (x, y, sig, ndata, a, ia, ma, ts, alpha, &
         beta, nalp, chisq, funcs, loglik, jitt, hkl)
+    use rv_optimizer_state
     implicit none
     integer ::  npl, ndset, idset, ma, nalp, ndata, ia(ma), NDSMAX, MMAX
     parameter (NDSMAX = 20, MMAX = 200)
@@ -3625,6 +3747,11 @@ subroutine MRQCOF_dynamo (x, y, sig, ndata, a, ia, ma, ts, alpha, &
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
 
+    if(budget_reached()) then
+        chisq=huge(1.d0)/100.d0;loglik=-chisq
+        alpha=0.d0;beta=0.d0;return
+    endif
+    if(opt_active) opt_evals=opt_evals+1
     mfit = 0
     do j = 1, ma
         if (ia(j).ne.0) mfit = mfit + 1
@@ -3685,6 +3812,7 @@ end
 subroutine MRQCOF_dynlm (x, ts, y, sig, ndata, a, ia, ma, alpha, beta, nalp, &
         chisq, funcs, loglik, jitt, epsil, deltat, hkl, coplar_inc, &
         dynamical_planets)
+    use rv_optimizer_state
     implicit none
     integer ::  npl, ndset, idset, ma, nalp, ndata, ia(ma), NDSMAX, MMAX
     parameter (NDSMAX = 20, MMAX = 200)
@@ -3701,6 +3829,11 @@ subroutine MRQCOF_dynlm (x, ts, y, sig, ndata, a, ia, ma, alpha, beta, nalp, &
 
     common /DSBLK/ npl, ndset, idsmax, idset, gr_flag
 
+    if(budget_reached()) then
+        chisq=huge(1.d0)/100.d0;loglik=-chisq
+        alpha=0.d0;beta=0.d0;return
+    endif
+    if(opt_active) opt_evals=opt_evals+1
     mfit = 0
     do j = 1, ma
         if (ia(j).ne.0) mfit = mfit + 1
@@ -5610,3 +5743,1208 @@ contains
         endif
     end subroutine evaluate
 end subroutine simplex_covariance
+
+! Opt-in Keplerian RV + primary-transit model. Existing fitting APIs are unchanged.
+! planets: K[m/s], P[day], e, omega[deg], M(epoch)[deg], i[deg], node[deg], a/Rstar, Rp/Rstar.
+! Dataset IDs are 1..60. set_parameters: offset, jitter, four LD coefficients.
+! No observations, likelihood, random noise, or optimization are evaluated here.
+subroutine rv_transit_model(times, dataset, planets, stellar_radius, epoch, &
+        ld_laws, set_parameters, exposure, samples, nquad, &
+        rv, flux, model_flux, jitter, planet_radius, status, nobs, npl)
+    implicit none
+    integer, intent(in) :: nobs,npl,nquad,dataset(nobs),ld_laws(60),samples(60)
+    real(8), intent(in) :: times(nobs),planets(npl,9),stellar_radius,epoch
+    real(8), intent(in) :: set_parameters(60,6),exposure(60)
+    real(8), intent(out) :: rv(nobs),flux(nobs),model_flux(nobs),jitter(nobs),planet_radius(npl)
+    integer, intent(out) :: status
+    real(8) :: rv_parts(nobs,npl)
+    call rv_transit_model_parts(times, dataset, planets, stellar_radius, epoch, &
+        ld_laws, set_parameters, exposure, samples, nquad, &
+        rv, flux, model_flux, jitter, planet_radius, &
+        rv_parts, status, nobs, npl)
+end subroutine rv_transit_model
+
+subroutine rv_transit_model_parts(times, dataset, planets, stellar_radius, epoch, &
+        ld_laws, set_parameters, exposure, samples, nquad, &
+        rv, flux, model_flux, jitter, planet_radius, rv_parts, status, nobs, npl)
+    use, intrinsic :: ieee_arithmetic, only: ieee_is_finite
+    implicit none
+    integer, intent(in) :: nobs,npl,nquad,dataset(nobs),ld_laws(60),samples(60)
+    real(8), intent(in) :: times(nobs),planets(npl,9),stellar_radius,epoch
+    real(8), intent(in) :: set_parameters(60,6),exposure(60)
+    real(8), intent(out) :: rv(nobs),flux(nobs),model_flux(nobs),jitter(nobs),planet_radius(npl)
+    real(8), intent(out) :: rv_parts(nobs,npl)
+    integer, intent(out) :: status
+    real(8), parameter :: pi=3.1415926535897932384626433832795d0
+    real(8) :: gx(nquad),gw(nquad),ld_coeff(4),norm,norms(60),time,anomaly,ecc,omega,inc,node
+    real(8) :: ea,lo,hi,residual,trial,den,sq,x,y,xx,yy,zz,cf,sf,rv_sum,flux_sum
+    real(8) :: distances(9),sizes(9),angles(9)
+    real(8) :: cw(npl),sw(npl),ci(npl),si(npl),sqecc(npl),phase0(npl),lambda0(npl),motion(npl),nodes(npl)
+    real(8) :: theta,ct,st,ce,se
+    integer :: i,j,k,s,d,n,law
+    status=1; rv_parts=0.d0; rv=0.d0; flux=1.d0; model_flux=1.d0; jitter=0.d0; planet_radius=0.d0
+    if(nobs<0 .or. npl<0 .or. npl>9 .or. nquad<16 .or. nquad>1024) return
+    if(.not.all(ieee_is_finite(times)) .or. .not.all(ieee_is_finite(planets))) return
+    if(.not.all(ieee_is_finite(set_parameters)) .or. .not.all(ieee_is_finite(exposure))) return
+    if(.not.ieee_is_finite(stellar_radius) .or. .not.ieee_is_finite(epoch)) return
+    if(stellar_radius<=0.d0 .or. any(dataset<1) .or. any(dataset>60)) return
+    if(any(ld_laws<0) .or. any(ld_laws>6) .or. any(samples<1) .or. any(samples>1001)) return
+    if(any(exposure<0.d0) .or. any(set_parameters(:,2)<0.d0)) return
+    if(any(planets(:,1)<0.d0) .or. any(planets(:,2)<=0.d0)) return
+    if(any(planets(:,3)<0.d0) .or. any(planets(:,3)>=1.d0)) return
+    if(any(planets(:,6)<0.d0) .or. any(planets(:,6)>180.d0)) return
+    if(any(planets(:,8)<=0.d0) .or. any(planets(:,9)<0.d0)) return
+    call rv_transit_quadrature(nquad,gx,gw)
+    ! Validate profiles before filling any observation model, including unused slots.
+    do d=1,60
+        ld_coeff=set_parameters(d,3:6)
+        call rv_transit_profile(ld_laws(d),ld_coeff,norms(d),status)
+        if(status/=0) return
+    enddo
+    planet_radius=planets(:,9)*stellar_radius
+    do j=1,npl
+        omega=planets(j,4)*pi/180.d0; inc=planets(j,6)*pi/180.d0
+        cw(j)=cos(omega); sw(j)=sin(omega); ci(j)=cos(inc); si(j)=sin(inc)
+        sqecc(j)=sqrt(1.d0-planets(j,3)**2)
+        phase0(j)=modulo(planets(j,5)*pi/180.d0,2.d0*pi)
+        lambda0(j)=phase0(j)+omega; motion(j)=2.d0*pi/planets(j,2)
+        nodes(j)=planets(j,7)*pi/180.d0
+    enddo
+    do i=1,nobs
+        d=dataset(i); law=ld_laws(d); ld_coeff=set_parameters(d,3:6)
+        norm=norms(d)
+        rv_sum=0.d0; flux_sum=0.d0
+        do s=1,samples(d)
+            time=times(i)-epoch
+            if(samples(d)>1) time=time+exposure(d)*((s-1.d0)/(samples(d)-1.d0)-0.5d0)
+            n=0
+            do j=1,npl
+                ecc=planets(j,3)
+                if(ecc==0.d0) then
+                    ! Circular orbits need no eccentric anomaly solve or
+                    ! per-sample rotation of the orbital-plane coordinates.
+                    theta=lambda0(j)+motion(j)*modulo(time,planets(j,2))
+                    ct=cos(theta); st=sin(theta)
+                    trial=planets(j,1)*ct
+                    xx=planets(j,8)*ct; yy=planets(j,8)*st*ci(j); zz=planets(j,8)*st*si(j)
+                else
+                    anomaly=modulo(phase0(j)+motion(j)*modulo(time,planets(j,2))+pi,2.d0*pi)-pi
+                    lo=-pi; hi=pi; ea=anomaly
+                    do k=1,100
+                        se=sin(ea); ce=cos(ea)
+                        residual=ea-ecc*se-anomaly
+                        if(abs(residual)<2.d-15) exit
+                        if(residual<0.d0) then
+                            lo=ea
+                        else
+                            hi=ea
+                        endif
+                        trial=ea-residual/(1.d0-ecc*ce)
+                        if(trial<=lo .or. trial>=hi) trial=0.5d0*(lo+hi)
+                        ea=trial
+                    enddo
+                    if(k>100) then
+                        status=2; return
+                    endif
+                    den=1.d0-ecc*ce
+                    cf=(ce-ecc)/den; sf=sqecc(j)*se/den
+                    trial=planets(j,1)*(cw(j)*(cf+ecc)-sw(j)*sf)
+                    x=planets(j,8)*(ce-ecc); y=planets(j,8)*sqecc(j)*se
+                    xx=x*cw(j)-y*sw(j)
+                    yy=(x*sw(j)+y*cw(j))*ci(j); zz=(x*sw(j)+y*cw(j))*si(j)
+                endif
+                rv_sum=rv_sum+trial; rv_parts(i,j)=rv_parts(i,j)+trial/samples(d)
+                if(zz<=0.d0 .or. planets(j,9)==0.d0) cycle
+                if(sqrt(xx*xx+yy*yy)>=1.d0+planets(j,9)) cycle
+                n=n+1; distances(n)=sqrt(xx*xx+yy*yy); sizes(n)=planets(j,9)
+                angles(n)=atan2(yy,xx)+nodes(j)
+            enddo
+            call rv_transit_disk(n,distances(1:n),sizes(1:n),angles(1:n), &
+                law,ld_coeff,nquad,gx,gw,norm,trial)
+            flux_sum=flux_sum+trial
+        enddo
+        rv(i)=rv_sum/samples(d); flux(i)=flux_sum/samples(d)
+        ! GUI convention compares observed_flux + offset with physical flux.
+        model_flux(i)=flux(i)-set_parameters(d,1); jitter(i)=set_parameters(d,2)
+    enddo
+    status=0
+end subroutine rv_transit_model_parts
+
+! Shared limb-darkening validation and normalization for both orbit models.
+subroutine rv_transit_profile(law,ld_coeff,norm,status)
+    use, intrinsic :: ieee_arithmetic, only: ieee_is_finite
+    implicit none
+    integer, intent(in) :: law
+    real(8), intent(in) :: ld_coeff(4)
+    real(8), intent(out) :: norm
+    integer, intent(out) :: status
+    integer :: iteration,k
+    real(8) :: mu,v,rv_transit_intensity
+    external :: rv_transit_intensity
+    status=1; norm=0.d0
+    if(law<0 .or. law>6 .or. .not.all(ieee_is_finite(ld_coeff))) return
+    if(law==6 .and. ld_coeff(2)<=0.d0) return
+        select case(law)
+        case(0); norm=1.d0
+        case(1); norm=1.d0-ld_coeff(1)/3.d0
+        case(2); norm=1.d0-ld_coeff(1)/3.d0-ld_coeff(2)/6.d0
+        case(3); norm=1.d0
+            do iteration=1,4
+                norm=norm-ld_coeff(iteration)*iteration/(iteration+4.d0)
+            enddo
+        case(4); norm=1.d0-ld_coeff(1)/3.d0-ld_coeff(2)/5.d0
+        case(5); norm=1.d0-ld_coeff(1)/3.d0+2.d0*ld_coeff(2)/9.d0
+        case(6); norm=1.d0-ld_coeff(1)*ld_coeff(2)/(ld_coeff(2)+2.d0)
+        end select
+    if(.not.ieee_is_finite(norm) .or. norm<=0.d0) return
+    if(law<=2) then
+        v=1.d0-ld_coeff(1)
+        if(law==0) v=1.d0
+        if(law==2) v=v-ld_coeff(2)
+        if(v<-1.d-12) return
+        if(law==2 .and. ld_coeff(2)<0.d0) then
+            mu=-ld_coeff(1)/(2.d0*ld_coeff(2))
+            if(mu>0.d0 .and. mu<1.d0) then
+                v=1.d0-ld_coeff(1)*mu-ld_coeff(2)*mu*mu
+                if(v<-1.d-12) return
+            endif
+        endif
+        status=0; return
+    endif
+    do k=0,1000
+        mu=k/1000.d0; v=rv_transit_intensity(law,ld_coeff,mu)
+        if(.not.ieee_is_finite(v) .or. v<-1.d-12) return
+    enddo
+    status=0
+end subroutine rv_transit_profile
+
+real(8) function rv_transit_intensity(law,ld_coeff,mu) result(v)
+        implicit none
+        integer,intent(in) :: law
+        real(8),intent(in) :: ld_coeff(4)
+        real(8),intent(in) :: mu
+        integer :: k
+        select case(law)
+        case(0); v=1.d0
+        case(1); v=1.d0-ld_coeff(1)*(1.d0-mu)
+        case(2); v=1.d0-ld_coeff(1)*(1.d0-mu)-ld_coeff(2)*(1.d0-mu)**2
+        case(3); v=1.d0
+            do k=1,4
+                v=v-ld_coeff(k)*(1.d0-mu**(0.5d0*k))
+            enddo
+        case(4); v=1.d0-ld_coeff(1)*(1.d0-mu)-ld_coeff(2)*(1.d0-sqrt(mu))
+        case(5); v=1.d0-ld_coeff(1)*(1.d0-mu)
+            if(mu>0.d0) v=v-ld_coeff(2)*mu*log(mu)
+        case(6); v=1.d0-ld_coeff(1)*(1.d0-mu**ld_coeff(2))
+        end select
+end function rv_transit_intensity
+
+
+subroutine rv_transit_quadrature(nquad,gx,gw)
+        implicit none
+        integer,intent(in) :: nquad
+        real(8),intent(out) :: gx(nquad),gw(nquad)
+        real(8),parameter :: pi=3.1415926535897932384626433832795d0
+        integer,save :: cached_order=0
+        real(8),save :: cached_x(1024),cached_w(1024)
+        integer :: iteration
+        integer :: k,l
+        real(8) :: a,b,p1,p2,p3,derivative
+        if(nquad==cached_order) then
+            gx=cached_x(1:nquad); gw=cached_w(1:nquad); return
+        endif
+        do k=1,(nquad+1)/2
+            a=cos(pi*(k-0.25d0)/(nquad+0.5d0))
+            do l=1,100
+                p1=1.d0; p2=0.d0
+                do iteration=1,nquad
+                    p3=p2; p2=p1
+                    p1=((2.d0*iteration-1.d0)*a*p2-(iteration-1.d0)*p3)/iteration
+                enddo
+                derivative=nquad*(a*p1-p2)/(a*a-1.d0)
+                b=a; a=b-p1/derivative
+                if(abs(a-b)<2.d-15) exit
+            enddo
+            gx(k)=-a; gx(nquad+1-k)=a
+            gw(k)=2.d0/((1.d0-a*a)*derivative**2); gw(nquad+1-k)=gw(k)
+        enddo
+        cached_x(1:nquad)=gx; cached_w(1:nquad)=gw; cached_order=nquad
+end subroutine rv_transit_quadrature
+
+
+! The same annular occultation integral is used by Keplerian and N-body models.
+subroutine rv_transit_disk(n,d,p,phi,law,ld_coeff,nquad,gx,gw,norm,value)
+    implicit none
+    integer,intent(in) :: n,law,nquad
+    real(8),intent(in) :: d(n),p(n),phi(n),ld_coeff(4),gx(nquad),gw(nquad),norm
+    real(8),intent(out) :: value
+    real(8),parameter :: pi=3.1415926535897932384626433832795d0
+    real(8) :: rv_transit_intensity,linear,quadratic
+    logical :: analytic_ok
+    external :: rv_transit_intensity
+    if(n==1 .and. (law==1 .or. law==2)) then
+        linear=ld_coeff(1); quadratic=0.d0
+        if(law==2) quadratic=ld_coeff(2)
+        call rv_transit_quadratic(d(1),p(1),linear,quadratic,value,analytic_ok)
+        if(analytic_ok) return
+    endif
+    value=disk_flux(n,d,p,phi)
+contains
+    real(8) function disk_flux(n,d,p,phi) result(value)
+        integer,intent(in) :: n
+        real(8),intent(in) :: d(n),p(n),phi(n)
+        real(8) :: edges(20),lo,hi,r,theta,jac,blocked,total,tmp,mu,area,ca,cb
+        integer :: k,l,m,ne
+        value=1.d0
+        if(n==0) return
+        if(n==1 .and. law==0) then
+            if(d(1)>=1.d0+p(1) .or. p(1)==0.d0) return
+            if(d(1)<=abs(1.d0-p(1))) then
+                value=1.d0-min(1.d0,p(1)**2); return
+            endif
+            ca=max(-1.d0,min(1.d0,(d(1)**2+1.d0-p(1)**2)/(2.d0*d(1))))
+            cb=max(-1.d0,min(1.d0,(d(1)**2+p(1)**2-1.d0)/(2.d0*d(1)*p(1))))
+            area=acos(ca)+p(1)**2*acos(cb)-0.5d0*sqrt(max(0.d0, &
+                (-d(1)+1.d0+p(1))*(d(1)+1.d0-p(1))*(d(1)-1.d0+p(1))*(d(1)+1.d0+p(1))))
+            value=max(0.d0,min(1.d0,1.d0-area/pi)); return
+        endif
+        edges=0.d0; edges(2)=1.d0; ne=2
+        do k=1,n
+            ne=ne+1; edges(ne)=max(0.d0,min(1.d0,abs(d(k)-p(k))))
+            ne=ne+1; edges(ne)=max(0.d0,min(1.d0,d(k)+p(k)))
+        enddo
+        do k=2,ne
+            tmp=edges(k); l=k-1
+            do while(l>=1)
+                if(edges(l)<=tmp) exit
+                edges(l+1)=edges(l); l=l-1
+            enddo
+            edges(l+1)=tmp
+        enddo
+        total=0.d0
+        do k=1,ne-1
+            lo=edges(k); hi=edges(k+1)
+            if(hi<=lo) cycle
+            do m=1,nquad
+                theta=(gx(m)+1.d0)*pi/4.d0
+                r=lo+(hi-lo)*sin(theta)**2
+                jac=(hi-lo)*sin(2.d0*theta)*pi/4.d0
+                mu=sqrt(max(0.d0,1.d0-r*r))
+                blocked=arc_union(r,n,d,p,phi)
+                total=total+gw(m)*2.d0*r*rv_transit_intensity(law,ld_coeff,mu)*blocked*jac
+            enddo
+        enddo
+        value=max(0.d0,min(1.d0,1.d0-total/norm))
+    end function
+
+    real(8) function arc_union(r,n,d,p,phi) result(fraction)
+        integer,intent(in) :: n
+        real(8),intent(in) :: r,d(n),p(n),phi(n)
+        real(8) :: starts(18),ends(18),half,centre,a,b,tmp,lo,hi,length
+        integer :: k,l,ns
+        ns=0; fraction=0.d0
+        do k=1,n
+            if(p(k)>=r+d(k)) then
+                fraction=1.d0; return
+            endif
+            if(d(k)>=r+p(k) .or. r>=d(k)+p(k)) cycle
+            half=acos(max(-1.d0,min(1.d0,(r*r+d(k)**2-p(k)**2)/(2.d0*r*d(k)))))
+            centre=modulo(phi(k),2.d0*pi); a=centre-half; b=centre+half
+            if(a<0.d0) then
+                ns=ns+1; starts(ns)=a+2.d0*pi; ends(ns)=2.d0*pi; a=0.d0
+            endif
+            if(b>2.d0*pi) then
+                ns=ns+1; starts(ns)=0.d0; ends(ns)=b-2.d0*pi; b=2.d0*pi
+            endif
+            ns=ns+1; starts(ns)=a; ends(ns)=b
+        enddo
+        if(ns==0) return
+        do k=2,ns
+            a=starts(k); b=ends(k); l=k-1
+            do while(l>=1)
+                if(starts(l)<=a) exit
+                starts(l+1)=starts(l); ends(l+1)=ends(l); l=l-1
+            enddo
+            starts(l+1)=a; ends(l+1)=b
+        enddo
+        length=0.d0; lo=starts(1); hi=ends(1)
+        do k=2,ns
+            if(starts(k)>hi) then
+                length=length+hi-lo; lo=starts(k); hi=ends(k)
+            else
+                hi=max(hi,ends(k))
+            endif
+        enddo
+        fraction=(length+hi-lo)/(2.d0*pi)
+    end function
+end subroutine rv_transit_disk
+
+! Newtonian N-body model at sorted elapsed times (days from RV epoch).
+! Elements are P,e,omega,M(epoch),inclination,node; masses in solar units.
+! Planets must be in increasing-period Jacobi order. No data or fitting here.
+subroutine rv_transit_nbody(times,dataset,elements,planet_mass,radius_ratio, &
+        stellar_mass,stellar_radius,ld_laws,set_parameters,nquad,step_days,tolerance,max_steps, &
+        rv,flux,model_flux,jitter,planet_radius,status,nobs,npl)
+    implicit none
+    integer,intent(in) :: nobs,npl,nquad,max_steps,dataset(nobs),ld_laws(60)
+    real(8),intent(in) :: times(nobs),elements(npl,6),planet_mass(npl),radius_ratio(npl)
+    real(8),intent(in) :: stellar_mass,stellar_radius,set_parameters(60,6),step_days,tolerance
+    real(8),intent(out) :: rv(nobs),flux(nobs),model_flux(nobs),jitter(nobs),planet_radius(npl)
+    integer,intent(out) :: status
+    real(8) :: rv_parts(nobs,npl)
+    call rv_transit_nbody_parts(times, dataset, elements, planet_mass, radius_ratio, &
+        stellar_mass, stellar_radius, ld_laws, set_parameters, nquad, &
+        step_days, tolerance, max_steps, rv, flux, &
+        model_flux, jitter, planet_radius, rv_parts, status, &
+        nobs, npl)
+end subroutine rv_transit_nbody
+
+subroutine rv_transit_nbody_parts(times,dataset,elements,planet_mass,radius_ratio, &
+        stellar_mass,stellar_radius,ld_laws,set_parameters,nquad,step_days,tolerance,max_steps, &
+        rv,flux,model_flux,jitter,planet_radius,rv_parts,status,nobs,npl)
+    use, intrinsic :: ieee_arithmetic, only: ieee_is_finite
+    implicit none
+    integer,intent(in) :: nobs,npl,nquad,max_steps,dataset(nobs),ld_laws(60)
+    real(8),intent(in) :: times(nobs),elements(npl,6),planet_mass(npl),radius_ratio(npl)
+    real(8),intent(in) :: stellar_mass,stellar_radius,set_parameters(60,6),step_days,tolerance
+    real(8),intent(out) :: rv(nobs),flux(nobs),model_flux(nobs),jitter(nobs),planet_radius(npl)
+    real(8),intent(out) :: rv_parts(nobs,npl)
+    integer,intent(out) :: status
+    call rv_transit_nbody_core( &
+        times,dataset,elements,planet_mass,radius_ratio, &
+        stellar_mass,stellar_radius,ld_laws,set_parameters,nquad, &
+        step_days,tolerance,max_steps,0,rv, &
+        flux,model_flux,jitter,planet_radius,rv_parts, &
+        status,nobs,npl)
+end subroutine rv_transit_nbody_parts
+
+subroutine rv_transit_nbody_ttvfast_parts(times,dataset,elements,planet_mass,radius_ratio, &
+        stellar_mass,stellar_radius,ld_laws,set_parameters,nquad,step_days,tolerance,max_steps, &
+        rv,flux,model_flux,jitter,planet_radius,rv_parts,status,nobs,npl)
+    use, intrinsic :: ieee_arithmetic, only: ieee_is_finite
+    implicit none
+    integer,intent(in) :: nobs,npl,nquad,max_steps,dataset(nobs),ld_laws(60)
+    real(8),intent(in) :: times(nobs),elements(npl,6),planet_mass(npl),radius_ratio(npl)
+    real(8),intent(in) :: stellar_mass,stellar_radius,set_parameters(60,6),step_days,tolerance
+    real(8),intent(out) :: rv(nobs),flux(nobs),model_flux(nobs),jitter(nobs),planet_radius(npl)
+    real(8),intent(out) :: rv_parts(nobs,npl)
+    integer,intent(out) :: status
+    call rv_transit_nbody_core( &
+        times,dataset,elements,planet_mass,radius_ratio, &
+        stellar_mass,stellar_radius,ld_laws,set_parameters,nquad, &
+        step_days,tolerance,max_steps,1,rv, &
+        flux,model_flux,jitter,planet_radius,rv_parts, &
+        status,nobs,npl)
+end subroutine rv_transit_nbody_ttvfast_parts
+
+subroutine rv_transit_nbody_core(times,dataset,elements,planet_mass,radius_ratio, &
+        stellar_mass,stellar_radius,ld_laws,set_parameters,nquad,step_days,tolerance,max_steps, &
+        jacobi_mode,rv,flux,model_flux,jitter,planet_radius,rv_parts,status,nobs,npl)
+    use, intrinsic :: ieee_arithmetic, only: ieee_is_finite
+    implicit none
+    integer,intent(in) :: jacobi_mode
+    integer,intent(in) :: nobs,npl,nquad,max_steps,dataset(nobs),ld_laws(60)
+    real(8),intent(in) :: times(nobs),elements(npl,6),planet_mass(npl),radius_ratio(npl)
+    real(8),intent(in) :: stellar_mass,stellar_radius,set_parameters(60,6),step_days,tolerance
+    real(8),intent(out) :: rv(nobs),flux(nobs),model_flux(nobs),jitter(nobs),planet_radius(npl)
+    real(8),intent(out) :: rv_parts(nobs,npl)
+    integer,intent(out) :: status
+    real(8),parameter :: pi=3.1415926535897932384626433832795d0
+    real(8),parameter :: day=86400.d0,gsun=1.32712440018d20,rsun=6.957d8
+    real(8) :: gm(10),inner(9),semiaxis(9),initial(10,6),state(10,6),jacobi(6,10),ybs(6,4106)
+    real(8) :: xb(10),yb(10),zb(10),vx(10),vy(10),vz(10),msys,msum
+    real(8) :: gx(nquad),gw(nquad),norms(60),ld_coeff(4),step,clock,target,h,previous,rstar
+    real(8) :: distances(9),sizes(9),angles(9),xx,yy,zz,separation
+    integer :: i,j,d,n,nbod,work
+    status=1; rv_parts=0.d0; rv=0.d0; flux=1.d0; model_flux=1.d0; jitter=0.d0; planet_radius=0.d0
+    if(nobs<0 .or. npl<0 .or. npl>9 .or. nquad<16 .or. nquad>1024 .or. max_steps<1) return
+    if(.not.all(ieee_is_finite(times)) .or. .not.all(ieee_is_finite(elements))) return
+    if(.not.all(ieee_is_finite(planet_mass)) .or. .not.all(ieee_is_finite(radius_ratio))) return
+    if(.not.all(ieee_is_finite(set_parameters))) return
+    if(.not.all(ieee_is_finite([stellar_mass,stellar_radius,step_days,tolerance]))) return
+    if(stellar_mass<=0.d0 .or. stellar_radius<=0.d0 .or. step_days<=0.d0) return
+    if(tolerance<1.d-15 .or. tolerance>1.d-3) return
+    if(any(dataset<1) .or. any(dataset>60) .or. any(set_parameters(:,2)<0.d0)) return
+    if(any(planet_mass<0.d0) .or. any(radius_ratio<0.d0)) return
+    if(any(elements(:,1)<=0.d0) .or. any(elements(:,2)<0.d0) .or. any(elements(:,2)>=1.d0)) return
+    if(any(elements(:,5)<0.d0) .or. any(elements(:,5)>180.d0)) return
+    do j=2,npl
+        if(elements(j,1)<elements(j-1,1)) return
+    enddo
+    do i=2,nobs
+        if(times(i)<times(i-1)) return
+    enddo
+    call rv_transit_quadrature(nquad,gx,gw)
+    do d=1,60
+        ld_coeff=set_parameters(d,3:6)
+        call rv_transit_profile(ld_laws(d),ld_coeff,norms(d),status)
+        if(status/=0) return
+    enddo
+    status=1
+    rstar=stellar_radius*rsun; planet_radius=radius_ratio*stellar_radius
+    gm=0.d0; gm(1)=stellar_mass*gsun; msum=gm(1); nbod=npl+1
+    step=step_days*day
+    do j=1,npl
+        gm(j+1)=planet_mass(j)*gsun; msum=msum+gm(j+1); inner(j)=msum
+        ! TTVFast input_flag=0 uses GMstar * eta_j/eta_(j-1),
+        ! not the standard osculating Jacobi GM=eta_j. Use it for BOTH
+        ! the initial axis and initial velocity; forces remain Newtonian.
+        if(jacobi_mode==1) inner(j)=gm(1)*msum/(msum-gm(j+1))
+        semiaxis(j)=(inner(j)*(elements(j,1)*day/(2.d0*pi))**2)**(1.d0/3.d0)
+        if(semiaxis(j)*(1.d0-elements(j,2))<=rstar) return
+        step=min(step,elements(j,1)*day*(1.d0-elements(j,2))**1.5d0 &
+            /sqrt(1.d0+elements(j,2))/32.d0)
+    enddo
+    initial=0.d0; state=0.d0; ybs=0.d0
+    if(npl>0) then
+        call kepler_state(0.d0,jacobi)
+        initial=transpose(jacobi)
+        if(status==2) return
+        call coord_j2h(nbod,gm,initial(:,1),initial(:,2),initial(:,3), &
+            initial(:,4),initial(:,5),initial(:,6),state(:,1),state(:,2), &
+            state(:,3),state(:,4),state(:,5),state(:,6))
+        call coord_h2b(nbod,gm,state(:,1),state(:,2),state(:,3), &
+            state(:,4),state(:,5),state(:,6),xb,yb,zb,vx,vy,vz,msys)
+        do j=1,nbod
+            ybs(:,j)=[xb(j),yb(j),zb(j),vx(j),vy(j),vz(j)]
+        enddo
+    endif
+    clock=0.d0; work=0
+    do i=1,nobs
+        target=times(i)*day
+        do while(npl>0 .and. abs(target-clock)>max(1.d-8,abs(target)*2.d-15))
+            work=work+1
+            if(work>max_steps) then
+                status=4; return
+            endif
+            h=sign(min(step,abs(target-clock)),target-clock); previous=clock
+            call bs_int_pl(nbod,0,gm,0.d0,0.d0,clock,h,ybs,tolerance)
+            if(.not.all(ieee_is_finite(ybs(:,1:nbod))) .or. .not.ieee_is_finite(clock)) then
+                status=5; return
+            endif
+            if(clock==previous .or. (clock-previous)*(target-previous)<=0.d0) then
+                status=5; return
+            endif
+        enddo
+        d=dataset(i); n=0; ld_coeff=set_parameters(d,3:6)
+        rv(i)=-ybs(6,1)
+        do j=1,npl
+            rv_parts(i,j)=gm(j+1)*(ybs(6,j+1)-ybs(6,1))/sum(gm(1:nbod))
+        enddo
+        do j=1,npl
+            xx=(ybs(1,j+1)-ybs(1,1))/rstar
+            yy=(ybs(2,j+1)-ybs(2,1))/rstar
+            zz=ybs(3,j+1)-ybs(3,1)
+            if(zz<=0.d0 .or. radius_ratio(j)==0.d0) cycle
+            separation=sqrt(xx*xx+yy*yy)
+            if(separation>=1.d0+radius_ratio(j)) cycle
+            n=n+1; distances(n)=separation; sizes(n)=radius_ratio(j); angles(n)=atan2(yy,xx)
+        enddo
+        call rv_transit_disk(n,distances(1:n),sizes(1:n),angles(1:n), &
+            ld_laws(d),ld_coeff,nquad,gx,gw,norms(d),flux(i))
+        model_flux(i)=flux(i)-set_parameters(d,1); jitter(i)=set_parameters(d,2)
+    enddo
+    status=0
+contains
+    subroutine kepler_state(t,s)
+        real(8), intent(in) :: t
+        real(8), intent(out) :: s(6,10)
+        real(8) :: eccentricity, inc, node, omega, anomaly, axis, gm_inner
+        real(8) :: E,lo,hi,f,trial,den,x,y,vx,vy,sq,cp,sp,co,so,ci,si
+        real(8) :: d1(3),d2(3)
+        integer :: p,k
+        s=0.d0
+        do p=1,npl
+            eccentricity=elements(p,2); omega=elements(p,3)*pi/180.d0
+            anomaly=modulo(elements(p,4)*pi/180.d0+2.d0*pi*t/(elements(p,1)*day),2.d0*pi)
+            inc=elements(p,5)*pi/180.d0; node=elements(p,6)*pi/180.d0
+            axis=semiaxis(p); gm_inner=inner(p)
+            anomaly=modulo(anomaly+pi,2.d0*pi)-pi
+            lo=-pi; hi=pi; E=anomaly
+            do k=1,100
+                f=E-eccentricity*sin(E)-anomaly
+                if(abs(f)<2.d-15) exit
+                if(f<0.d0) then
+                    lo=E
+                else
+                    hi=E
+                endif
+                trial=E-f/(1.d0-eccentricity*cos(E))
+                if(trial<=lo .or. trial>=hi) trial=0.5d0*(lo+hi)
+                E=trial
+            enddo
+            if(k>100) then
+                status=2; return
+            endif
+            ! Direct cos is essential at conjunction: recovering cos from
+            ! sqrt(1-sin**2), as in the legacy helper, loses timing precision.
+            cp=cos(omega); sp=sin(omega); co=cos(node); so=sin(node)
+            ci=cos(inc); si=sin(inc)
+            d1=[cp*co-sp*so*ci,cp*so+sp*co*ci,sp*si]
+            d2=[-sp*co-cp*so*ci,-sp*so+cp*co*ci,cp*si]
+            sq=sqrt(1.d0-eccentricity**2); den=1.d0-eccentricity*cos(E)
+            x=axis*(cos(E)-eccentricity); y=axis*sq*sin(E)
+            vx=-sqrt(gm_inner/axis)*sin(E)/den
+            vy=sqrt(gm_inner/axis)*sq*cos(E)/den
+            s(1:3,p+1)=d1*x+d2*y
+            s(4:6,p+1)=d1*vx+d2*vy
+        enddo
+    end subroutine
+
+end subroutine rv_transit_nbody_core
+
+! Keplerian phase parameterization matching batman's primary-transit convention.
+! t0 is the nominal f=pi/2-omega conjunction, not a numerical minimum of sky separation.
+! mode 0: M0 -> next nominal conjunction at/after epoch; mode 1: t0 -> M0(epoch).
+subroutine rv_transit_phase(period,ecc,omega,m0_input,epoch,t0_input,mode, &
+        mean_anomaly,transit_epoch,status,npl)
+    use, intrinsic :: ieee_arithmetic, only: ieee_is_finite
+    implicit none
+    integer,intent(in) :: npl,mode
+    real(8),intent(in) :: period(npl),ecc(npl),omega(npl),m0_input(npl),epoch,t0_input(npl)
+    real(8),intent(out) :: mean_anomaly(npl),transit_epoch(npl)
+    integer,intent(out) :: status
+    real(8),parameter :: pi=3.1415926535897932384626433832795d0
+    real(8) :: f,ea,mc,ma,elapsed
+    integer :: j
+    status=1; mean_anomaly=0.d0; transit_epoch=0.d0
+    if(npl<0 .or. npl>9 .or. mode<0 .or. mode>1) return
+    if(.not.ieee_is_finite(epoch)) return
+    if(.not.all(ieee_is_finite(period)) .or. .not.all(ieee_is_finite(ecc))) return
+    if(.not.all(ieee_is_finite(omega)) .or. .not.all(ieee_is_finite(m0_input))) return
+    if(mode==1 .and. .not.all(ieee_is_finite(t0_input))) return
+    if(any(period<=0.d0) .or. any(ecc<0.d0) .or. any(ecc>=1.d0)) return
+    do j=1,npl
+        f=pi/2.d0-omega(j)*pi/180.d0
+        ea=2.d0*atan2(sqrt(1.d0-ecc(j))*sin(f/2.d0),sqrt(1.d0+ecc(j))*cos(f/2.d0))
+        mc=modulo(ea-ecc(j)*sin(ea),2.d0*pi)
+        if(mode==1) then
+            elapsed=modulo(epoch-t0_input(j),period(j))
+            ma=modulo(mc+2.d0*pi*elapsed/period(j),2.d0*pi)
+            transit_epoch(j)=t0_input(j)
+        else
+            ma=modulo(m0_input(j)*pi/180.d0,2.d0*pi)
+            transit_epoch(j)=epoch+modulo(mc-ma,2.d0*pi)*period(j)/(2.d0*pi)
+        endif
+        mean_anomaly(j)=ma*180.d0/pi
+    enddo
+    status=0
+end subroutine rv_transit_phase
+
+! Add phase selection without changing either established Keplerian entry signature.
+subroutine rv_transit_phased_model(times,dataset,planets,stellar_radius,epoch, &
+        ld_laws,set_parameters,exposure,samples,nquad,phase,t0_input, &
+        rv,flux,model_flux,jitter,planet_radius,rv_parts,mean_anomaly,transit_epoch,status,nobs,npl)
+    implicit none
+    integer,intent(in) :: nobs,npl,nquad,phase,dataset(nobs),ld_laws(60),samples(60)
+    real(8),intent(in) :: times(nobs),planets(npl,9),stellar_radius,epoch
+    real(8),intent(in) :: set_parameters(60,6),exposure(60),t0_input(npl)
+    real(8),intent(out) :: rv(nobs),flux(nobs),model_flux(nobs),jitter(nobs),planet_radius(npl)
+    real(8),intent(out) :: rv_parts(nobs,npl),mean_anomaly(npl),transit_epoch(npl)
+    integer,intent(out) :: status
+    real(8) :: phased_planets(npl,9)
+    rv=0.d0; flux=1.d0; model_flux=1.d0; jitter=0.d0; planet_radius=0.d0; rv_parts=0.d0
+    call rv_transit_phase(planets(:,2),planets(:,3),planets(:,4),planets(:,5),epoch, &
+        t0_input,phase,mean_anomaly,transit_epoch,status,npl)
+    if(status/=0) return
+    phased_planets=planets; phased_planets(:,5)=mean_anomaly
+    call rv_transit_model_parts(times,dataset,phased_planets,stellar_radius,epoch, &
+        ld_laws,set_parameters,exposure,samples,nquad,rv,flux,model_flux,jitter,planet_radius,rv_parts,status,nobs,npl)
+end subroutine rv_transit_phased_model
+
+! Carlson symmetric integrals, using duplication and the small-deviation
+! expansions in NIST DLMF 19.36 (degree-five truncation, deviations < 0.001).
+! These routines implement the mathematical identities directly; no external
+! transit package is called. Arguments here are nonnegative, with z,p > 0.
+subroutine rv_carlson_rf_rd(xin,yin,zin,rf,rd)
+    implicit none
+    real(8),intent(in) :: xin,yin,zin
+    real(8),intent(out) :: rf,rd
+    real(8) :: x,y,z,sx,sy,sz,lam,mean,dx,dy,dz,acc,scale,e2,e3,ea,eb,ec,ed,ee
+    integer :: k
+    x=xin; y=yin; z=zin; acc=0.d0; scale=1.d0
+    do k=1,64
+        mean=(x+y+3.d0*z)/5.d0
+        dx=(mean-x)/mean; dy=(mean-y)/mean; dz=(mean-z)/mean
+        if(max(abs(dx),abs(dy),abs(dz))<1.d-3) exit
+        sx=sqrt(x); sy=sqrt(y); sz=sqrt(z); lam=sx*sy+sx*sz+sy*sz
+        acc=acc+scale/(sz*(z+lam)); scale=scale/4.d0
+        x=(x+lam)/4.d0; y=(y+lam)/4.d0; z=(z+lam)/4.d0
+    enddo
+    ea=dx*dy; eb=dz*dz; ec=ea-eb; ed=ea-6.d0*eb; ee=ed+2.d0*ec
+    rd=3.d0*acc+scale*(1.d0+ed*(-3.d0/14.d0+9.d0*ed/88.d0-9.d0*dz*ee/52.d0) &
+        +dz*(ee/6.d0+dz*(-9.d0*ec/22.d0+3.d0*dz*ea/26.d0)))/(mean*sqrt(mean))
+    mean=(x+y+z)/3.d0
+    dx=(mean-x)/mean; dy=(mean-y)/mean; dz=(mean-z)/mean
+    e2=dx*dy-dz*dz; e3=dx*dy*dz
+    rf=(1.d0-e2/10.d0+e3/14.d0+e2*e2/24.d0-3.d0*e2*e3/44.d0)/sqrt(mean)
+end subroutine rv_carlson_rf_rd
+
+function rv_carlson_rc(x,y) result(value)
+    implicit none
+    real(8) :: value
+    real(8),intent(in) :: x,y
+    real(8) :: a
+    if(x<y) then
+        a=sqrt(y-x)
+        value=atan2(a,sqrt(x))/a
+    else if(x>y) then
+        a=sqrt((x-y)/x)
+        if(a<0.01d0) then
+            value=(1.d0+a*a*(1.d0/3.d0+a*a*(1.d0/5.d0+a*a*(1.d0/7.d0+a*a/9.d0))))/sqrt(x)
+        else
+            value=log((sqrt(x)+sqrt(x-y))/sqrt(y))/sqrt(x-y)
+        endif
+    else
+        value=1.d0/sqrt(x)
+    endif
+end function rv_carlson_rc
+
+function rv_carlson_rj(xin,yin,zin,pin) result(value)
+    implicit none
+    real(8) :: value
+    real(8),intent(in) :: xin,yin,zin,pin
+    real(8) :: x,y,z,p,sx,sy,sz,lam,alpha,beta,mean,dx,dy,dz,dp,acc,scale
+    real(8) :: ea,eb,ec,ed,ee,rv_carlson_rc
+    integer :: k
+    external :: rv_carlson_rc
+    x=xin; y=yin; z=zin; p=pin; acc=0.d0; scale=1.d0
+    do k=1,64
+        mean=(x+y+z+2.d0*p)/5.d0
+        dx=(mean-x)/mean; dy=(mean-y)/mean; dz=(mean-z)/mean; dp=(mean-p)/mean
+        if(max(abs(dx),abs(dy),abs(dz),abs(dp))<1.d-3) exit
+        sx=sqrt(x); sy=sqrt(y); sz=sqrt(z); lam=sx*sy+sx*sz+sy*sz
+        alpha=(p*(sx+sy+sz)+sx*sy*sz)**2; beta=p*(p+lam)**2
+        acc=acc+scale*rv_carlson_rc(alpha,beta); scale=scale/4.d0
+        x=(x+lam)/4.d0; y=(y+lam)/4.d0; z=(z+lam)/4.d0; p=(p+lam)/4.d0
+    enddo
+    ea=dx*(dy+dz)+dy*dz; eb=dx*dy*dz; ec=dp*dp; ed=ea-3.d0*ec; ee=eb+2.d0*dp*(ea-ec)
+    value=3.d0*acc+scale*(1.d0+ed*(-3.d0/14.d0+9.d0*ed/88.d0-9.d0*ee/52.d0) &
+        +eb*(1.d0/6.d0+dp*(-3.d0/11.d0+3.d0*dp/26.d0)) &
+        +dp*ea*(1.d0/3.d0-3.d0*dp/22.d0)-dp*ec/3.d0)/(mean*sqrt(mean))
+end function rv_carlson_rj
+
+! Single-disk uniform/linear/quadratic occultation via analytic disk moments.
+! Mandel & Agol 2002, section 4 and table 1; elliptic integrals use Carlson
+! symmetric forms (DLMF 19.25). Near ill-conditioned contacts, return ok=false
+! so the established annular integration can evaluate the same physical model.
+subroutine rv_transit_quadratic(separation,radius,u,v,flux,ok)
+    use, intrinsic :: ieee_arithmetic, only: ieee_is_finite
+    implicit none
+    real(8),intent(in) :: separation,radius,u,v
+    real(8),intent(out) :: flux
+    logical,intent(out) :: ok
+    real(8),parameter :: pi=3.1415926535897932384626433832795d0
+    real(8) :: z,p,a,b,c,m,n,ek,ee,ep,rd,area,moment_mu,moment_r2,norm
+    real(8) :: angle_star,angle_planet,triangle,rf,rv_carlson_rj
+    external :: rv_carlson_rj
+    z=abs(separation); p=radius; norm=1.d0-u/3.d0-v/6.d0
+    flux=1.d0; ok=.true.
+    if(p==0.d0 .or. z>=1.d0+p) return
+    if(p>=1.d0 .and. z<=p-1.d0) then
+        flux=0.d0; return
+    endif
+    if(p>2.d0) then
+        ok=.false.; return
+    endif
+    if(z==0.d0) then
+        area=p*p; moment_mu=2.d0/3.d0*(1.d0-(1.d0-p*p)**1.5d0); moment_r2=p**4/2.d0
+    else
+        a=(z-p)**2; b=(z+p)**2; c=p*p-z*z
+        if(z+p<=1.d0) then
+            area=p*p; moment_r2=p*p*(p*p+2.d0*z*z)/2.d0
+        else
+            angle_star=acos(max(-1.d0,min(1.d0,(1.d0+z*z-p*p)/(2.d0*z))))
+            angle_planet=acos(max(-1.d0,min(1.d0,(p*p+z*z-1.d0)/(2.d0*p*z))))
+            triangle=sqrt(max(0.d0,(1.d0-a)*(b-1.d0)))
+            area=(p*p*angle_planet+angle_star-triangle/2.d0)/pi
+            moment_r2=(angle_star+p*p*(p*p+2.d0*z*z)*angle_planet &
+                -(1.d0+5.d0*p*p+z*z)*triangle/4.d0)/(2.d0*pi)
+        endif
+        if(z+p==1.d0) then
+            moment_mu=2.d0/(3.d0*pi)*acos(1.d0-2.d0*p) &
+                -4.d0/(9.d0*pi)*sqrt(p*(1.d0-p))*(3.d0+2.d0*p-8.d0*p*p)
+        else if(z==p) then
+            if(p==0.5d0) then
+                moment_mu=1.d0/3.d0-4.d0/(9.d0*pi)
+            else
+                m=min(4.d0*p*p,1.d0/(4.d0*p*p))
+                call rv_carlson_rf_rd(0.d0,1.d0-m,1.d0,ek,rd)
+                ee=ek-m*rd/3.d0
+                if(p<0.5d0) then
+                    moment_mu=1.d0/3.d0+2.d0/(9.d0*pi)* &
+                        (4.d0*(2.d0*p*p-1.d0)*ee+(1.d0-4.d0*p*p)*ek)
+                else
+                    moment_mu=1.d0/3.d0+16.d0*p/(9.d0*pi)*(2.d0*p*p-1.d0)*ee &
+                        -(32.d0*p**4-20.d0*p*p+3.d0)*ek/(9.d0*pi*p)
+                endif
+            endif
+        else
+            if(p<1.d-4 .or. abs(z-p)<1.d-5*max(1.d0,p) .or. &
+                abs(z+p-1.d0)<1.d-7 .or. abs(z-abs(1.d0-p))<1.d-7 .or. 1.d0+p-z<1.d-7) then
+                ok=.false.; return
+            endif
+            if(b<1.d0) then
+                m=(b-a)/(1.d0-a); n=1.d0-b/a
+            else
+                m=(1.d0-a)/(b-a); n=1.d0-1.d0/a
+            endif
+            if(m<0.d0 .or. m>=1.d0) then
+                ok=.false.; return
+            endif
+            call rv_carlson_rf_rd(0.d0,1.d0-m,1.d0,ek,rd)
+            ee=ek-m*rd/3.d0
+            rf=rv_carlson_rj(0.d0,1.d0-m,1.d0,1.d0-n)
+            ep=ek+n*rf/3.d0
+            if(b<1.d0) then
+                moment_mu=2.d0/(9.d0*pi*sqrt(1.d0-a))* &
+                    ((1.d0-5.d0*z*z+p*p+c*c)*ek+(1.d0-a)*(z*z+7.d0*p*p-4.d0)*ee-3.d0*c*ep/a)
+            else
+                moment_mu=1.d0/(9.d0*pi*sqrt(p*z))* &
+                    (((1.d0-b)*(2.d0*b+a-3.d0)-3.d0*c*(b-2.d0))*ek &
+                    +(b-a)*(z*z+7.d0*p*p-4.d0)*ee-3.d0*c*ep/a)
+            endif
+            if(z<p) moment_mu=moment_mu+2.d0/3.d0
+        endif
+    endif
+    flux=1.d0-((1.d0-u-2.d0*v)*area+(u+2.d0*v)*moment_mu+v*moment_r2)/norm
+    ok=ieee_is_finite(flux) .and. flux>=-1.d-10 .and. flux<=1.d0+1.d-10
+    if(ok) flux=max(0.d0,min(1.d0,flux))
+end subroutine rv_transit_quadratic
+
+
+! Optional trajectory output for transit-event searches; legacy model paths unchanged.
+subroutine rv_transit_geometry(times,elements,planet_mass,scaled_axis,stellar_mass,stellar_radius, &
+        mode,step_days,tolerance,max_steps,geometry,status,nobs,npl)
+    use, intrinsic :: ieee_arithmetic, only: ieee_is_finite
+    implicit none
+    integer,intent(in) :: nobs,npl,mode,max_steps
+    real(8),intent(in) :: times(nobs),elements(npl,6),planet_mass(npl),scaled_axis(npl)
+    real(8),intent(in) :: stellar_mass,stellar_radius,step_days,tolerance
+    real(8),intent(out) :: geometry(nobs,npl,6)
+    integer,intent(out) :: status
+    call rv_transit_geometry_core( &
+        times,elements,planet_mass,scaled_axis,stellar_mass, &
+        stellar_radius,mode,step_days,tolerance,max_steps, &
+        0,geometry,status,nobs,npl)
+end subroutine rv_transit_geometry
+
+subroutine rv_transit_geometry_ttvfast(times,elements,planet_mass,scaled_axis,stellar_mass,stellar_radius, &
+        mode,step_days,tolerance,max_steps,geometry,status,nobs,npl)
+    use, intrinsic :: ieee_arithmetic, only: ieee_is_finite
+    implicit none
+    integer,intent(in) :: nobs,npl,mode,max_steps
+    real(8),intent(in) :: times(nobs),elements(npl,6),planet_mass(npl),scaled_axis(npl)
+    real(8),intent(in) :: stellar_mass,stellar_radius,step_days,tolerance
+    real(8),intent(out) :: geometry(nobs,npl,6)
+    integer,intent(out) :: status
+    call rv_transit_geometry_core( &
+        times,elements,planet_mass,scaled_axis,stellar_mass, &
+        stellar_radius,mode,step_days,tolerance,max_steps, &
+        1,geometry,status,nobs,npl)
+end subroutine rv_transit_geometry_ttvfast
+
+subroutine rv_transit_geometry_core(times,elements,planet_mass,scaled_axis,stellar_mass,stellar_radius, &
+        mode,step_days,tolerance,max_steps,jacobi_mode,geometry,status,nobs,npl)
+    use, intrinsic :: ieee_arithmetic, only: ieee_is_finite
+    implicit none
+    integer,intent(in) :: jacobi_mode
+    integer,intent(in) :: nobs,npl,mode,max_steps
+    real(8),intent(in) :: times(nobs),elements(npl,6),planet_mass(npl),scaled_axis(npl)
+    real(8),intent(in) :: stellar_mass,stellar_radius,step_days,tolerance
+    real(8),intent(out) :: geometry(nobs,npl,6)
+    integer,intent(out) :: status
+    real(8),parameter :: pi=3.1415926535897932384626433832795d0
+    real(8),parameter :: day=86400.d0,gsun=1.32712440018d20,rsun=6.957d8
+    real(8) :: gm(10),inner(9),semiaxis(9),initial(10,6),state(10,6),jacobi(6,10),ybs(6,4106)
+    real(8) :: xb(10),yb(10),zb(10),vx(10),vy(10),vz(10),msys,msum
+    real(8) :: step,clock,target,h,previous,rstar
+    integer :: i,j,nbod,work
+    status=1; geometry=0.d0
+    if(nobs<1 .or. npl<1 .or. npl>9 .or. max_steps<1) return
+    if(mode<0 .or. mode>1) return
+    if(.not.all(ieee_is_finite(times)) .or. .not.all(ieee_is_finite(elements))) return
+    if(.not.all(ieee_is_finite(planet_mass)) .or. .not.all(ieee_is_finite(scaled_axis))) return
+    if(.not.all(ieee_is_finite([stellar_mass,stellar_radius,step_days,tolerance]))) return
+    if(stellar_mass<=0.d0 .or. stellar_radius<=0.d0 .or. step_days<=0.d0) return
+    if(tolerance<1.d-15 .or. tolerance>1.d-3) return
+    if(any(planet_mass<0.d0) .or. any(scaled_axis<=0.d0)) return
+    if(any(elements(:,1)<=0.d0) .or. any(elements(:,2)<0.d0) .or. any(elements(:,2)>=1.d0)) return
+    do i=2,nobs
+        if(times(i)<times(i-1)) return
+    enddo
+    rstar=stellar_radius*rsun
+    gm=0.d0; gm(1)=stellar_mass*gsun; msum=gm(1); nbod=npl+1
+    step=step_days*day
+    do j=1,npl
+        gm(j+1)=planet_mass(j)*gsun; msum=msum+gm(j+1); inner(j)=msum
+        ! TTVFast input_flag=0 uses GMstar * eta_j/eta_(j-1),
+        ! not the standard osculating Jacobi GM=eta_j. Use it for BOTH
+        ! the initial axis and initial velocity; forces remain Newtonian.
+        if(jacobi_mode==1) inner(j)=gm(1)*msum/(msum-gm(j+1))
+        semiaxis(j)=(inner(j)*(elements(j,1)*day/(2.d0*pi))**2)**(1.d0/3.d0)
+        if(mode==0) semiaxis(j)=scaled_axis(j)*rstar
+        if(semiaxis(j)*(1.d0-elements(j,2))<=rstar) return
+        step=min(step,elements(j,1)*day*(1.d0-elements(j,2))**1.5d0 &
+            /sqrt(1.d0+elements(j,2))/32.d0)
+    enddo
+    initial=0.d0; state=0.d0; ybs=0.d0
+    if(npl>0) then
+        call kepler_state(0.d0,jacobi)
+        initial=transpose(jacobi)
+        if(status==2) return
+        call coord_j2h(nbod,gm,initial(:,1),initial(:,2),initial(:,3), &
+            initial(:,4),initial(:,5),initial(:,6),state(:,1),state(:,2), &
+            state(:,3),state(:,4),state(:,5),state(:,6))
+        call coord_h2b(nbod,gm,state(:,1),state(:,2),state(:,3), &
+            state(:,4),state(:,5),state(:,6),xb,yb,zb,vx,vy,vz,msys)
+        do j=1,nbod
+            ybs(:,j)=[xb(j),yb(j),zb(j),vx(j),vy(j),vz(j)]
+        enddo
+    endif
+    clock=0.d0; work=0
+    do i=1,nobs
+        target=times(i)*day
+        if(mode==0) then
+            call kepler_state(target,jacobi)
+            if(status==2) return
+            do j=1,npl
+                geometry(i,j,1:3)=jacobi(1:3,j+1)/rstar
+                geometry(i,j,4:6)=jacobi(4:6,j+1)*day/rstar
+            enddo
+            cycle
+        endif
+        do while(npl>0 .and. abs(target-clock)>max(1.d-8,abs(target)*2.d-15))
+            work=work+1
+            if(work>max_steps) then
+                status=4; return
+            endif
+            h=sign(min(step,abs(target-clock)),target-clock); previous=clock
+            call bs_int_pl(nbod,0,gm,0.d0,0.d0,clock,h,ybs,tolerance)
+            if(.not.all(ieee_is_finite(ybs(:,1:nbod))) .or. .not.ieee_is_finite(clock)) then
+                status=5; return
+            endif
+            if(clock==previous .or. (clock-previous)*(target-previous)<=0.d0) then
+                status=5; return
+            endif
+        enddo
+        do j=1,npl
+            geometry(i,j,1:3)=(ybs(1:3,j+1)-ybs(1:3,1))/rstar
+            geometry(i,j,4:6)=(ybs(4:6,j+1)-ybs(4:6,1))*day/rstar
+        enddo
+    enddo
+    status=0
+contains
+    subroutine kepler_state(t,s)
+        real(8), intent(in) :: t
+        real(8), intent(out) :: s(6,10)
+        real(8) :: eccentricity, inc, node, omega, anomaly, axis, gm_inner
+        real(8) :: E,lo,hi,f,trial,den,x,y,vx,vy,sq,cp,sp,co,so,ci,si
+        real(8) :: d1(3),d2(3)
+        integer :: p,k
+        s=0.d0
+        do p=1,npl
+            eccentricity=elements(p,2); omega=elements(p,3)*pi/180.d0
+            anomaly=modulo(elements(p,4)*pi/180.d0+2.d0*pi*t/(elements(p,1)*day),2.d0*pi)
+            inc=elements(p,5)*pi/180.d0; node=elements(p,6)*pi/180.d0
+            axis=semiaxis(p); gm_inner=inner(p)
+            anomaly=modulo(anomaly+pi,2.d0*pi)-pi
+            lo=-pi; hi=pi; E=anomaly
+            do k=1,100
+                f=E-eccentricity*sin(E)-anomaly
+                if(abs(f)<2.d-15) exit
+                if(f<0.d0) then
+                    lo=E
+                else
+                    hi=E
+                endif
+                trial=E-f/(1.d0-eccentricity*cos(E))
+                if(trial<=lo .or. trial>=hi) trial=0.5d0*(lo+hi)
+                E=trial
+            enddo
+            if(k>100) then
+                status=2; return
+            endif
+            ! Direct cos is essential at conjunction: recovering cos from
+            ! sqrt(1-sin**2), as in the legacy helper, loses timing precision.
+            cp=cos(omega); sp=sin(omega); co=cos(node); so=sin(node)
+            ci=cos(inc); si=sin(inc)
+            d1=[cp*co-sp*so*ci,cp*so+sp*co*ci,sp*si]
+            d2=[-sp*co-cp*so*ci,-sp*so+cp*co*ci,cp*si]
+            sq=sqrt(1.d0-eccentricity**2); den=1.d0-eccentricity*cos(E)
+            x=axis*(cos(E)-eccentricity); y=axis*sq*sin(E)
+            vx=-2.d0*pi*axis/(elements(p,1)*day)*sin(E)/den
+            vy=2.d0*pi*axis/(elements(p,1)*day)*sq*cos(E)/den
+            s(1:3,p+1)=d1*x+d2*y
+            s(4:6,p+1)=d1*vx+d2*vy
+        enddo
+    end subroutine
+
+end subroutine rv_transit_geometry_core
+
+! Isolated instantaneous depth for a planet, per passband.
+subroutine rv_transit_event_flux(distance,radius,law,coeff,nquad,flux,status,nobs)
+    implicit none
+    integer,intent(in) :: nobs,law,nquad
+    real(8),intent(in) :: distance(nobs),radius,coeff(4)
+    real(8),intent(out) :: flux(nobs)
+    integer,intent(out) :: status
+    real(8) :: gx(nquad),gw(nquad),norm,d(1),p(1),phi(1)
+    integer :: i
+    flux=1.d0
+    call rv_transit_profile(law,coeff,norm,status)
+    if(status/=0) return
+    call rv_transit_quadrature(nquad,gx,gw)
+    p(1)=radius; phi=0.d0
+    do i=1,nobs
+        d(1)=distance(i)
+        call rv_transit_disk(1,d,p,phi,law,coeff,nquad,gx,gw,norm,flux(i))
+    enddo
+end subroutine rv_transit_event_flux
+
+! Shared stellar density in kg/m^3, matching GUI get_aR_from_rho constants.
+! Radius follows the same stellar GM used by the Newtonian integrator.
+subroutine rv_transit_density(period,rho_star,stellar_mass,scaled_axis,stellar_radius,status,npl)
+    use, intrinsic :: ieee_arithmetic, only: ieee_is_finite
+    implicit none
+    integer,intent(in) :: npl
+    real(8),intent(in) :: period(npl),rho_star,stellar_mass
+    real(8),intent(out) :: scaled_axis(npl),stellar_radius
+    integer,intent(out) :: status
+    real(8),parameter :: pi=3.1415926535897932384626433832795d0,G=6.67408d-11
+    status=1; scaled_axis=0.d0; stellar_radius=0.d0
+    if(.not.all(ieee_is_finite(period))) return
+    if(.not.ieee_is_finite(rho_star) .or. .not.ieee_is_finite(stellar_mass)) return
+    if(rho_star<=0.d0 .or. stellar_mass<=0.d0 .or. any(period<=0.d0)) return
+    scaled_axis=(G*rho_star*(period*86400.d0)**2/(3.d0*pi))**(1.d0/3.d0)
+    stellar_radius=(3.d0*stellar_mass*1.32712440018d20/(4.d0*pi*G*rho_star))**(1.d0/3.d0)/6.957d8
+    if(.not.all(ieee_is_finite(scaled_axis)) .or. .not.ieee_is_finite(stellar_radius)) return
+    status=0
+end subroutine rv_transit_density
+
+! One trajectory, RV + transit observations, and normalized Gaussian likelihood.
+! Sample/observation times are elapsed days from epoch. sample_owner maps exposure
+! subsamples to original observation order; Python sorts only the expanded grid.
+! kind=1 RV [m/s], kind=2 transit [normalized flux]. Dataset IDs remain 1..60.
+subroutine rv_transit_likelihood(sample_time,sample_owner,data_time,dataset,kind,observed,uncertainty,covariate, &
+        planets,planet_mass,stellar_mass,stellar_radius,epoch,model_mode,jacobi_mode,phase_mode,t0_input, &
+        ld_laws,transit_sets,rv_sets,baseline,rv_trend,nquad,step_days,tolerance,max_steps, &
+        rv,flux,data_model,residual,variance,point_loglik,by_dataset,component_loglik,loglik,chi2, &
+        planet_radius,rv_parts,mean_anomaly,transit_epoch,status,nsample,nobs,npl)
+    use, intrinsic :: ieee_arithmetic, only: ieee_is_finite
+    implicit none
+    integer,intent(in) :: nsample,nobs,npl,model_mode,jacobi_mode,phase_mode,nquad,max_steps
+    integer,intent(in) :: sample_owner(nsample),dataset(nobs),kind(nobs),ld_laws(60)
+    real(8),intent(in) :: sample_time(nsample),data_time(nobs),observed(nobs),uncertainty(nobs),covariate(nobs)
+    real(8),intent(in) :: planets(npl,9),planet_mass(9),stellar_mass,stellar_radius,epoch,t0_input(9)
+    real(8),intent(in) :: transit_sets(60,6),rv_sets(60,2),baseline(60,3),rv_trend(2),step_days,tolerance
+    real(8),intent(out) :: rv(nobs),flux(nobs),data_model(nobs),residual(nobs),variance(nobs),point_loglik(nobs)
+    real(8),intent(out) :: by_dataset(60,2),component_loglik(2),chi2(2),planet_radius(9),rv_parts(nobs,npl)
+    real(8),intent(out) :: mean_anomaly(9),transit_epoch(9)
+    real(8),intent(out) :: loglik
+    integer,intent(out) :: status
+    real(8),parameter :: logtwopi=1.837877066409345483560659472811d0
+    real(8) :: local_planets(npl,9),sample_rv(nsample),sample_flux(nsample),sample_shifted(nsample)
+    real(8) :: sample_jitter(nsample),sample_parts(nsample,npl),radii(npl),exposure(60)
+    real(8) :: compensation(60,2),chi_comp(2),term,corrected,total,value,scatter,noise
+    integer :: sample_dataset(nsample),counts(nobs),samples(60),i,d,k,j
+    status=6
+    rv=0.d0; flux=1.d0; data_model=0.d0; residual=0.d0; variance=0.d0; point_loglik=0.d0
+    loglik=0.d0; by_dataset=0.d0; component_loglik=0.d0; chi2=0.d0; planet_radius=0.d0
+    mean_anomaly=0.d0; transit_epoch=0.d0; rv_parts=0.d0
+    if(nobs<1 .or. nsample<1 .or. npl<0 .or. npl>9) return
+    if(model_mode<0 .or. model_mode>1 .or. jacobi_mode<0 .or. jacobi_mode>1) return
+    if(phase_mode<0 .or. phase_mode>1 .or. (model_mode==1 .and. phase_mode/=0)) return
+    if(any(sample_owner<1) .or. any(sample_owner>nobs)) return
+    if(any(dataset<1) .or. any(dataset>60) .or. any(kind<1) .or. any(kind>2)) return
+    if(.not.all(ieee_is_finite(sample_time)) .or. .not.all(ieee_is_finite(data_time))) return
+    if(.not.all(ieee_is_finite(observed)) .or. .not.all(ieee_is_finite(uncertainty))) return
+    if(.not.all(ieee_is_finite(covariate)) .or. any(uncertainty<0.d0)) return
+    if(.not.all(ieee_is_finite(rv_sets)) .or. .not.all(ieee_is_finite(baseline))) return
+    if(.not.all(ieee_is_finite(rv_trend)) .or. .not.ieee_is_finite(epoch)) return
+    if(any(rv_sets(:,2)<0.d0) .or. any(baseline(:,3)<0.d0)) return
+    counts=0
+    do i=1,nsample
+        j=sample_owner(i); counts(j)=counts(j)+1; sample_dataset(i)=dataset(j)
+    enddo
+    if(any(counts==0)) return
+    local_planets=planets
+    if(npl>0) then
+        call rv_transit_phase(planets(:,2),planets(:,3),planets(:,4),planets(:,5), &
+            epoch,t0_input(1:npl),phase_mode,mean_anomaly(1:npl),transit_epoch(1:npl),status,npl)
+        if(status/=0) return
+        local_planets(:,5)=mean_anomaly(1:npl)
+    endif
+    ! RV-only scoring need not integrate stellar occultation at every sample.
+    if(all(kind==1)) local_planets(:,9)=0.d0
+    if(model_mode==0 .or. npl==0) then
+        exposure=0.d0; samples=1
+        call rv_transit_model_parts(sample_time,sample_dataset,local_planets,stellar_radius,0.d0, &
+            ld_laws,transit_sets,exposure,samples,nquad,sample_rv,sample_flux,sample_shifted, &
+            sample_jitter,radii,sample_parts,status,nsample,npl)
+    else
+        call rv_transit_nbody_core(sample_time,sample_dataset,local_planets(:,2:7),planet_mass(1:npl), &
+            local_planets(:,9),stellar_mass,stellar_radius,ld_laws,transit_sets,nquad, &
+            step_days,tolerance,max_steps,jacobi_mode,sample_rv,sample_flux,sample_shifted, &
+            sample_jitter,radii,sample_parts,status,nsample,npl)
+    endif
+    if(status/=0) return
+    planet_radius(1:npl)=planets(:,9)*stellar_radius
+    flux=0.d0
+    do i=1,nsample
+        j=sample_owner(i)
+        rv(j)=rv(j)+sample_rv(i)/counts(j)
+        flux(j)=flux(j)+sample_flux(i)/counts(j)
+        rv_parts(j,:)=rv_parts(j,:)+sample_parts(i,:)/counts(j)
+    enddo
+    compensation=0.d0; chi_comp=0.d0; status=6
+    do i=1,nobs
+        d=dataset(i); k=kind(i)
+        rv(i)=rv(i)+rv_trend(1)*data_time(i)+rv_trend(2)*data_time(i)**2
+        if(k==1) then
+            data_model(i)=rv(i)+rv_sets(d,1)
+            noise=rv_sets(d,2)
+        else
+            value=flux(i)+baseline(d,1)*covariate(i)+baseline(d,2)*covariate(i)**2
+            data_model(i)=value*baseline(d,3)+1.d0-baseline(d,3)-transit_sets(d,1)
+            noise=transit_sets(d,2)
+        endif
+        variance(i)=uncertainty(i)**2+noise**2
+        residual(i)=observed(i)-data_model(i)
+        if(.not.ieee_is_finite(data_model(i)) .or. .not.ieee_is_finite(variance(i))) return
+        if(variance(i)<=0.d0 .or. .not.ieee_is_finite(residual(i))) return
+        scatter=(residual(i)/sqrt(variance(i)))**2
+        point_loglik(i)=-0.5d0*(scatter+log(variance(i))+logtwopi)
+        if(.not.ieee_is_finite(point_loglik(i))) return
+        ! Compensated sums protect high-precision comparisons over large datasets.
+        corrected=point_loglik(i)-compensation(d,k)
+        total=by_dataset(d,k)+corrected
+        compensation(d,k)=(total-by_dataset(d,k))-corrected
+        by_dataset(d,k)=total
+        corrected=scatter-chi_comp(k)
+        total=chi2(k)+corrected
+        chi_comp(k)=(total-chi2(k))-corrected
+        chi2(k)=total
+    enddo
+    component_loglik(1)=sum(by_dataset(:,1)); component_loglik(2)=sum(by_dataset(:,2))
+    loglik=sum(component_loglik)
+    if(.not.ieee_is_finite(loglik) .or. .not.all(ieee_is_finite(chi2))) return
+    status=0
+end subroutine rv_transit_likelihood
+
+! Timing-only TTV dataset likelihood. Detect foreground conjunctions even when
+! the planet misses the stellar disk, matching TTVFast's event numbering.
+! All integration and root finding takes place in relative time; observed and
+! returned midpoints are absolute JD, preserving the legacy residual frame.
+subroutine ttv_likelihood(elements,planet_mass,stellar_mass,epoch,start_time,end_time, &
+        step_days,tolerance,max_steps,jacobi_mode,samples_per_orbit,max_samples,max_events, &
+        dataset,planet,number,observed,uncertainty,event_count,event_model, &
+        data_model,residual,point_loglik,by_dataset,loglik,status,nobs,npl)
+    use, intrinsic :: ieee_arithmetic, only: ieee_is_finite
+    implicit none
+    integer,intent(in) :: nobs,npl,max_steps,jacobi_mode,samples_per_orbit,max_samples,max_events
+    integer,intent(in) :: dataset(nobs),planet(nobs),number(nobs)
+    real(8),intent(in) :: elements(npl,6),planet_mass(npl),stellar_mass,epoch,start_time,end_time
+    real(8),intent(in) :: step_days,tolerance,observed(nobs),uncertainty(nobs)
+    integer,intent(out) :: event_count(npl),status
+    real(8),intent(out) :: event_model(max_events,npl,4),data_model(nobs),residual(nobs)
+    real(8),intent(out) :: point_loglik(nobs),by_dataset(10),loglik
+    real(8),parameter :: logtwopi=1.837877066409345483560659472811d0
+    ! A normalization scale only: timing must not assume a 1-Rsun star
+    ! and reject valid ultra-short-period planets around small stars.
+    real(8),parameter :: geometry_scale=1.d-6
+    real(8),parameter :: radius_au=geometry_scale*6.957d8/1.49597892d11
+    real(8),allocatable :: grid(:),geometry(:,:,:)
+    real(8) :: axes(npl),cadence,scale,lo,hi,left,right,middle,h,g0,g1,g,root,clock_time
+    real(8) :: r(3),v(3),compensation(10),corrected,total,span,ngrid_real
+    integer :: ngrid,i,j,k,iteration,d,n,allocation_status
+    status=7;event_count=0;event_model=0.d0;data_model=0.d0;residual=0.d0
+    point_loglik=0.d0;by_dataset=0.d0;loglik=-huge(1.d0)
+    if(npl<1 .or. npl>9 .or. nobs<1 .or. max_events<1 .or. max_samples<4) return
+    if(samples_per_orbit<32 .or. max_steps<1 .or. jacobi_mode<0 .or. jacobi_mode>1) return
+    if(.not.all(ieee_is_finite(elements)) .or. .not.all(ieee_is_finite(planet_mass))) return
+    if(.not.all(ieee_is_finite([stellar_mass,epoch,start_time,end_time,step_days,tolerance]))) return
+    if(stellar_mass<=0.d0 .or. step_days<=0.d0 .or. end_time<=start_time) return
+    if(tolerance<1.d-15 .or. tolerance>1.d-3 .or. any(planet_mass<0.d0)) return
+    if(any(elements(:,1)<=0.d0) .or. any(elements(:,2)<0.d0) .or. any(elements(:,2)>=1.d0)) return
+    if(any(elements(:,5)<0.d0) .or. any(elements(:,5)>180.d0)) return
+    if(any(dataset<1) .or. any(dataset>10) .or. any(planet<1) .or. any(planet>npl)) return
+    if(any(number<1) .or. .not.all(ieee_is_finite(observed))) return
+    if(.not.all(ieee_is_finite(uncertainty)) .or. any(uncertainty<=0.d0)) return
+    scale=minval(elements(:,1)*(1.d0-elements(:,2))**1.5d0/sqrt(1.d0+elements(:,2)))
+    cadence=scale/dble(samples_per_orbit)
+    lo=start_time-epoch;hi=end_time-epoch;span=hi-lo
+    ngrid_real=span/cadence+5.d0
+    status=9
+    if(.not.ieee_is_finite(ngrid_real)) return
+    if(ngrid_real>max_samples .or. ngrid_real*npl*6.d0>64000000.d0) return
+    ngrid=ceiling(span/cadence)+5
+    allocate(grid(ngrid),geometry(ngrid,npl,6),stat=allocation_status)
+    if(allocation_status/=0) return
+    ! A sample on either side permits minima exactly at either bound.
+    do i=1,ngrid
+        grid(i)=lo-cadence+(span+2.d0*cadence)*dble(i-1)/dble(ngrid-1)
+    enddo
+    axes=1.d0
+    call rv_transit_geometry_core(grid,elements,planet_mass,axes,stellar_mass,geometry_scale, &
+        1,step_days,tolerance,max_steps,jacobi_mode,geometry,status,ngrid,npl)
+    if(status/=0) return
+    do j=1,npl
+        do i=1,ngrid-1
+            g0=dot_product(geometry(i,j,1:2),geometry(i,j,4:5))
+            g1=dot_product(geometry(i+1,j,1:2),geometry(i+1,j,4:5))
+            if(g0>0.d0 .or. g1<=0.d0) cycle
+            h=grid(i+1)-grid(i);left=0.d0;right=1.d0
+            do iteration=1,64
+                middle=0.5d0*(left+right)
+                call interpolate(middle,r,v)
+                g=dot_product(r(1:2),v(1:2))
+                if(g<=0.d0) then
+                    left=middle
+                else
+                    right=middle
+                endif
+                if((right-left)*h<1.d-12) exit
+            enddo
+            root=grid(i)+0.5d0*(left+right)*h
+            call interpolate(0.5d0*(left+right),r,v)
+            if(r(3)<=0.d0 .or. root<lo-1.d-10 .or. root>hi+1.d-10) cycle
+            root=max(lo,min(hi,root));n=event_count(j)+1
+            status=10
+            if(n>max_events) return
+            event_count(j)=n;clock_time=epoch+root
+            event_model(n,j,:)=[dble(n),clock_time, &
+                sqrt(dot_product(r(1:2),r(1:2)))*radius_au, &
+                sqrt(dot_product(v(1:2),v(1:2)))*radius_au]
+        enddo
+    enddo
+    compensation=0.d0;status=8
+    do k=1,nobs
+        j=planet(k);n=number(k);d=dataset(k)
+        if(n>event_count(j)) return
+        data_model(k)=event_model(n,j,2)
+        residual(k)=observed(k)-data_model(k)
+        point_loglik(k)=-0.5d0*((residual(k)/uncertainty(k))**2+2.d0*log(uncertainty(k))+logtwopi)
+        if(.not.ieee_is_finite(point_loglik(k))) return
+        corrected=point_loglik(k)-compensation(d);total=by_dataset(d)+corrected
+        compensation(d)=(total-by_dataset(d))-corrected;by_dataset(d)=total
+    enddo
+    loglik=sum(by_dataset)
+    if(.not.ieee_is_finite(loglik)) then
+        status=7;return
+    endif
+    status=0
+contains
+    subroutine interpolate(u,position,velocity)
+        real(8),intent(in) :: u
+        real(8),intent(out) :: position(3),velocity(3)
+        real(8) :: u2,u3,p0(3),p1(3),v0(3),v1(3)
+        u2=u*u;u3=u2*u
+        p0=geometry(i,j,1:3);p1=geometry(i+1,j,1:3)
+        v0=geometry(i,j,4:6);v1=geometry(i+1,j,4:6)
+        position=(2*u3-3*u2+1)*p0+(u3-2*u2+u)*h*v0 &
+            +(-2*u3+3*u2)*p1+(u3-u2)*h*v1
+        velocity=((6*u2-6*u)*p0+(-6*u2+6*u)*p1)/h &
+            +(3*u2-4*u+1)*v0+(3*u2-2*u)*v1
+    end subroutine interpolate
+end subroutine ttv_likelihood

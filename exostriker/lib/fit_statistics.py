@@ -20,6 +20,13 @@ def datasets_values(datasets):
     return datasets.values() if isinstance(datasets, dict) else datasets
 
 
+def selected_activity(fit):
+    """Read prepared session metadata without importing the numerical GP backend."""
+    data = getattr(fit, 'act_data_sets', {})
+    return [slot for slot, setting in getattr(fit, 'activity_gp', {}).items()
+            if setting.get('enabled', False) and len(data.get(slot, []))]
+
+
 def component_parameter_counts(prepared):
     """Nominal counts of free packed parameters entering each likelihood.
 
@@ -88,6 +95,8 @@ def component_parameter_counts(prepared):
     if free_transit_times:
         for i in planet_slots:
             block(len(prepared.tra_ttv[i]), ('Transit',))
+    block(len(getattr(prepared, 'tra_dil_parameter_indices', {})), ('Transit',))
+    block(len(getattr(prepared, 'activity_gp_indices', {})), ('RV',))
     block(5, ('Astrometry',))  # catalogue position, parallax and proper-motion corrections
     stellar = block(1)
     if dynamical:
@@ -113,6 +122,8 @@ def joint_information_criteria(fit):
             if not count:
                 return {}
             n += count
+            if prepared.rtg[1]:
+                n += sum(len(prepared.act_data_sets[i][0]) for i in selected_activity(prepared))
         if fit.type_fit.get('Transit', False):
             count = int(fit.transit_results[4][4])
             if count <= 0:
@@ -127,9 +138,9 @@ def joint_information_criteria(fit):
             n += count
         if fit.type_fit.get('AST', False):
             count = 0
-            for datasets in (fit.ast_data_sets_hipp, fit.ast_data_sets_gaia):
+            for datasets in (prepared.ast_data_sets_hipp, prepared.ast_data_sets_gaia):
                 count += sum(len(dataset[0][-1])
-                             for dataset in datasets_values(datasets) if len(dataset))
+                             for dataset in datasets_values(datasets) if len(dataset) and dataset[2])
             if not count and not getattr(fit, 'use_ast_hipp_gaia', True):
                 count = sum(len(dataset[2]) + len(dataset[4])
                             for dataset in datasets_values(fit.ast_data_sets)
@@ -196,7 +207,12 @@ def collect_fit_statistics(fit, backend):
                 loglik = gp_fit.loglik
                 chi2 = gp_fit.fit_results.chi2
                 notes.append('RV GP chi² uses residuals after subtracting the GP prediction.')
-            rows['RV'] = dict(lnL=loglik, N=len(residuals), chi2=float(chi2))
+            count = len(residuals)
+            if fit.rtg[1] and getattr(gp_fit, 'activity_gp_ndata', 0) and selected_activity(gp_fit):
+                count += gp_fit.activity_gp_ndata
+                chi2 = gp_fit.activity_gp_chi2
+                notes.append('RV row includes the joint RV–activity likelihood, activity observations, and covariance-weighted chi².')
+            rows['RV'] = dict(lnL=loglik, N=count, chi2=float(chi2))
         except Exception as error:
             notes.append(f'RV statistics unavailable: {error}')
 
@@ -246,10 +262,10 @@ def collect_fit_statistics(fit, backend):
                         ('ast_data_sets_hipp', backend.ast_loglik_hipp),
                         ('ast_data_sets_gaia', backend.ast_loglik_gaia)):
                     datasets = getattr(prepared, attribute)
-                    if not any(len(dataset) for dataset in datasets_values(datasets)):
+                    if not any(len(dataset) and dataset[2] for dataset in datasets_values(datasets)):
                         continue
                     for dataset in datasets.values() if isinstance(datasets, dict) else datasets:
-                        if len(dataset):
+                        if len(dataset) and dataset[2]:
                             errors.extend(dataset[0][-1])
                     loglik += function(*common, datasets, prepared.npl,
                         prepared.params.stellar_mass, prepared.ast_times, prepared.hkl,

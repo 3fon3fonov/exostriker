@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>RVPhaseOptions</class>
+ <widget class="QDialog" name="RVPhaseOptions">
+  <property name="windowTitle">
+   <string>RV phase options</string>
+  </property>
+  <layout class="QFormLayout" name="formLayout">
+   <item row="0" column="0" rowspan="1" colspan="2">
+    <widget class="QLabel" name="info">
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" rowspan="1" colspan="2">
+    <widget class="QCheckBox" name="normalize">
+     <property name="text">
+      <string>Normalize phase to −0.5 … +0.5</string>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" rowspan="1" colspan="2">
+    <widget class="QCheckBox" name="mean">
+     <property name="text">
+      <string>Use mean osculating period from integration</string>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+     <property name="toolTip">
+      <string>Time-weighted mean of P(t) from the fitted system’s cached orbital integration.
+Run orb. evol after fitting; no integration is launched by this option.</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" rowspan="1" colspan="2">
+    <widget class="QCheckBox" name="points">
+     <property name="text">
+      <string>Show model as points (useful for N-body spread)</string>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="delta_label">
+     <property name="text">
+      <string>Period adjustment ± [days]</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="QDoubleSpinBox" name="delta">
+     <property name="decimals">
+      <number>8</number>
+     </property>
+     <property name="minimum">
+      <double>-10000000.0</double>
+     </property>
+     <property name="maximum">
+      <double>10000000.0</double>
+     </property>
+     <property name="singleStep">
+      <double>1.0</double>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0" rowspan="1" colspan="2">
+    <widget class="QLabel" name="status" />
+   </item>
+   <item row="6" column="0" rowspan="1" colspan="2">
+    <widget class="QPushButton" name="reset">
+     <property name="text">
+      <string>Reset this planet to fitted period</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources />
+ <connections />
+</ui>

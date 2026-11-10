@@ -5,7 +5,17 @@ def optimize(fit, *, ff=20, m_ln=True, doGP=False, gp_kernel_id=-1,
              minimize_fortran=True, discovery=False, reset_errors=True, **options):
     import dill
     import RV_mod as rv
+    from activity_gp import selected
+    if fit.rtg[1] and selected(fit):
+        # Joint activity conditioning lives in the Python likelihood, including
+        # model initialization; never route its priors to the native optimizer.
+        minimize_fortran, doGP = False, True
     old_errors = dill.copy(fit.param_errors.GP_params_errors)
+    if minimize_fortran and not doGP and not discovery:
+        from native_joint_fit import has_enabled_priors
+        if has_enabled_priors(fit):
+            fit.init_fit = ff == 0
+            return fit.fit_native()
     options.update(doGP=doGP, kernel_id=gp_kernel_id, minimize_fortran=minimize_fortran)
     if discovery:
         fit.fitting(minimize_loglik=False, amoeba_starts=ff, **options)
@@ -34,6 +44,9 @@ def calculate(fit, operation, options):
     print(f'Running {operation} calculation in an isolated process…', flush=True)
     if operation == 'optimize':
         return optimize(fit, **options)
+    if operation == 'native_joint':
+        fit.init_fit = options['ff'] == 0
+        return fit.fit_native()
     if operation == 'scipy':
         fit.init_fit = options['ff'] == 0
         rv.run_SciPyOp(fit)

@@ -34,30 +34,14 @@ class RVPhaseOptions(QtWidgets.QDialog):
         super().__init__(gui)
         self.gui, self.session = gui, session
         self.settings = {}
-        self.setWindowTitle('RV phase options')
-        form = QtWidgets.QFormLayout(self)
-        self.info = QtWidgets.QLabel()
-        self.info.setWordWrap(True)
-        form.addRow(self.info)
-        gui.extra_plot_RVphase_norm.setParent(self)
-        gui.extra_plot_RVphase_norm.setText('Normalize phase to −0.5 … +0.5')
-        gui.extra_plot_RVphase_norm.show()
-        form.addRow(gui.extra_plot_RVphase_norm)
-        self.mean = QtWidgets.QCheckBox('Use mean osculating period from integration')
-        self.mean.setToolTip('Time-weighted mean of P(t) from the fitted system’s cached orbital integration.\nRun orb. evol after fitting; no integration is launched by this option.')
-        form.addRow(self.mean)
-        self.delta = QtWidgets.QDoubleSpinBox()
-        self.delta.setDecimals(8)
-        self.delta.setRange(-1.e7, 1.e7)
-        self.delta.setSingleStep(1.)
-        form.addRow('Period adjustment ± [days]', self.delta)
-        self.points = QtWidgets.QCheckBox('Show model as points (useful for N-body spread)')
-        form.addRow(self.points)
-        self.status = QtWidgets.QLabel()
-        form.addRow(self.status)
-        reset = QtWidgets.QPushButton('Reset this planet to fitted period')
-        form.addRow(reset)
-        reset.clicked.connect(self.reset)
+        from rv_phase_options_ui import Ui_RVPhaseOptions
+        ui = Ui_RVPhaseOptions()
+        ui.setupUi(self)
+        self.info, self.mean, self.delta = ui.info, ui.mean, ui.delta
+        self.points, self.status = ui.points, ui.status
+        gui.extra_plot_RVphase_norm.hide()
+        gui.extra_plot_RVphase_norm = ui.normalize
+        ui.reset.clicked.connect(self.reset)
         for widget, signal in ((self.mean, 'toggled'), (self.delta, 'valueChanged'), (self.points, 'toggled')):
             getattr(widget, signal).connect(self.changed)
         self.slot = None

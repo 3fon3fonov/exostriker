@@ -52,6 +52,8 @@ def _configure_tabs(self):
         (self.tab_189, 'Data options')])
     _keep_tabs(self.tabWidget_7, [
         (self.tab_185, 'Phase plots'), (self.tab_186, 'Mirrored plots')])
+    self.extra_plot_RVphase_norm.show()
+    self.rv_phase_options_button.hide()
 
 
 def qso_mode(self):

@@ -27,8 +27,11 @@ def main():
         with request.open('rb') as stream:
             fit, operation, options = job_serialization.load(stream)
         result = ('result', calculate(fit, operation, options))
-    except BaseException:
-        result = ('error', traceback.format_exc())
+    except BaseException as exc:
+        # Keep technical details in Stdout/Stderr, while the GUI dialog shows
+        # only the actionable problem rather than internal paths and frames.
+        traceback.print_exc()
+        result = ('error', str(exc).strip() or type(exc).__name__)
     temporary = response.with_suffix('.tmp')
     with temporary.open('wb') as stream:
         job_serialization.dump(result, stream)

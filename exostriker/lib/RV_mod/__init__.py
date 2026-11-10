@@ -187,6 +187,9 @@ def get_RV_gps_model(obj,  kernel_id=-1, get_lnl=False):
  
     
     initiate_RV_gps(obj,  kernel_id=-1)
+    from activity_gp import selected, publish_model
+    if obj.rtg[1] and selected(obj):
+        return publish_model(obj, get_lnl)
     #gp_model_data  = []
 
     ############ DATA ####################
@@ -515,82 +518,7 @@ def ttvs_mod(par,vel_files,npl, stellar_mass, times, planet_N, hkl, fit_results=
  
     return calc_model
  
-
-def ast_loglik(par,vel_files, ast_files,npl,stellar_mass, times, hkl, fit_results = False , return_model = False):
-
  
-    loglik_ast = 0
-    calc_data   = {kx: [] for kx in range(10)}
-    calc_model  = {kx: [] for kx in range(10)}
-    if fit_results == False:
-        elements = np.array(par[len(vel_files)*2:len(vel_files)*2 + 7*npl], dtype=float).reshape(npl, 7)
-        if hkl:
-            elements[:, 2] = np.hypot(elements[:, 2], elements[:, 3])
-        physical_masses, jacobi_axes = mass_a_from_jacobi_el(elements, npl, stellar_mass)
-
-    for i in range(npl):
-        
-        if hkl == True:
-            ecc_ = np.sqrt(par[len(vel_files)*2 +7*i+2]**2 + par[len(vel_files)*2 +7*i+3]**2)
-            om_  = np.degrees(np.arctan2(par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]))%360
-            Ma_  = (par[len(vel_files)*2 +7*i+4] - om_)%360.0
-
-            if ecc_ >= 1.0: 
-                return -np.inf  
-        else:
-            ecc_, om_, Ma_ = par[len(vel_files)*2 +7*i+2], par[len(vel_files)*2 +7*i+3], par[len(vel_files)*2 +7*i+4]         
-
-        t0 = transit_tperi(par[len(vel_files)*2 +7*i+1],ecc_, om_, Ma_ ,times[0])[0] #%par[len(vel_files)*2 +7*i+1] 
-
-        om_ = (om_ - 180.0)%360.0
-        Ma_ = (Ma_ + 180.0)%360.0
-    
-        #t0    = times[0]  - ((np.radians(Ma_)/2.0*np.pi)*par[len(vel_files)*2 + 7*i])
-        #print(t0,t0_o, times[0])
-        if fit_results == False:
-            pl_mass, pl_a = physical_masses[i], jacobi_axes[i]
-        else:
-            pl_mass = float(fit_results.mass[i])
-            pl_a    = float(fit_results.a[i])
-
-
-        for x in range(10):
-            if len(ast_files[x]) == 0 or ast_files[x][6] == False or ast_files[x][5] != i+1:
-                continue
-            else:
-
-                results = final_ast(ast_files[x][1],ast_files[x][2],0,
-                                              ast_files[x][3],ast_files[x][4],0, 
-                                                par[len(vel_files)*2 +7*i+1],
-                                                ecc_,
-                                                np.radians(om_),
-                                                np.radians(par[len(vel_files)*2 +7*i+5]),
-                                                np.radians(par[len(vel_files)*2 +7*i+6]),
-                                                t0,pl_a,
-                                                ast_files[x][0])
-                loglik_ast = loglik_ast + results[0]
- 
-
-        if return_model == True:
-            #times2 = np.linspace(min(ast_files[0][0]),max(ast_files[0][0]),1000)
-            times2 = np.linspace(times[0],times[2],1000)
-
-            ast_x_model, ast_y_model = ast_coords(par[len(vel_files)*2 +7*i+1], ecc_, om_, np.radians(par[len(vel_files)*2 +7*i+5]),
-                                                    np.radians(par[len(vel_files)*2 +7*i+6]),
-                                                    t0,pl_a,times2) 
-            ast_x_, ast_y_ = ast_coords(par[len(vel_files)*2 +7*i+1], ecc_, om_, np.radians(par[len(vel_files)*2 +7*i+5]),
-                                                    np.radians(par[len(vel_files)*2 +7*i+6]),
-                                                    t0,pl_a,ast_files[0][0]) 
-
-            calc_data[i] = np.array([ast_x_, ast_y_])         
-            calc_model[i] = np.array([ast_x_model, ast_y_model])
-
- 
-
-    if return_model == True:
-        return [loglik_ast, calc_data,calc_model]
-    else:
-        return loglik_ast
 
 
 
@@ -604,11 +532,12 @@ def ast_loglik_hipp(par,vel_files, ast_files_hipp,npl,stellar_mass, times, hkl, 
     pl_params = []
  
     # Absolute measurements constrain the star, not a selected planet.
-    # Legacy dataset fields [1:3] are retained only for session compatibility.
-    dataset_slots = [slot for slot in range(len(ast_files_hipp)) if len(ast_files_hipp[slot])]
-    if not dataset_slots:
-        return loglik_ast_hipp
-    reference = ast_files_hipp[dataset_slots[0]]
+    # The planet-assignment field is legacy; the use flag selects datasets.
+    loaded_slots = [slot for slot in range(len(ast_files_hipp)) if len(ast_files_hipp[slot])]
+    dataset_slots = [slot for slot in loaded_slots if bool(ast_files_hipp[slot][2])]
+    if not dataset_slots and not (return_model and loaded_slots):
+        return [loglik_ast_hipp, calc_data, calc_model] if return_model else loglik_ast_hipp
+    reference = ast_files_hipp[(dataset_slots or loaded_slots)[0]]
     parallax = reference[3]['Plx'] + par[-4]
     correction = np.array([par[-6], par[-5], par[-4], par[-3], par[-2]])
 
@@ -626,11 +555,11 @@ def ast_loglik_hipp(par,vel_files, ast_files_hipp,npl,stellar_mass, times, hkl, 
 
         T0 = transit_tperi(par[len(vel_files)*2 +7*i+1],ecc_, om_, Ma_ ,times[0])[0] #%par[len(vel_files)*2 +7*i+1] 
 
-        om_ = (om_ - 180.0)%360.0
-        Ma_ = (Ma_ + 180.0)%360.0
+        #om_ = (om_ - 180.0)%360.0
+        #Ma_ = (Ma_ + 180.0)%360.0
         
         incl = par[len(vel_files)*2 +7*i+5]
-        Om_ = (par[len(vel_files)*2 +7*i+6] + 180.0)%360.0
+        Om_ = (par[len(vel_files)*2 +7*i+6] + 0.0)%360.0
  
 
  
@@ -651,24 +580,11 @@ def ast_loglik_hipp(par,vel_files, ast_files_hipp,npl,stellar_mass, times, hkl, 
 
     pl_params = np.asarray(pl_params, dtype=float).reshape(-1, 7)
     
-    for x in range(10):
-        if len(ast_files_hipp[x]) == 0:
-        # or ast_files_hipp[x][2] == False 
-        #or ast_files_hipp[x][1] != i+1:
-            continue
-        else:
-
-
-            results = -1*ex.L_hip(ast_files_hipp[x][0], 
-                     correction,
-                     pl_params)
-
-            loglik_ast_hipp = loglik_ast_hipp + results
-            
-            
+    for slot in dataset_slots:
+        loglik_ast_hipp -= ex.L_hip(ast_files_hipp[slot][0], correction, pl_params)
 
     if return_model:
-        for slot in dataset_slots:
+        for slot in loaded_slots:
             data = ast_files_hipp[slot][0]
             timestamps = ex.hip_JD(data)
             model_times = np.linspace(min(timestamps), max(timestamps) + model_max, model_samp)
@@ -698,11 +614,12 @@ def ast_loglik_gaia(par,vel_files, ast_files_gaia,npl,stellar_mass, times, hkl, 
     pl_params = []
 
     # Absolute measurements constrain the star, not a selected planet.
-    # Legacy dataset fields [1:3] are retained only for session compatibility.
-    dataset_slots = [slot for slot in range(len(ast_files_gaia)) if len(ast_files_gaia[slot])]
-    if not dataset_slots:
-        return loglik_ast_gaia
-    reference = ast_files_gaia[dataset_slots[0]]
+    # The planet-assignment field is legacy; the use flag selects datasets.
+    loaded_slots = [slot for slot in range(len(ast_files_gaia)) if len(ast_files_gaia[slot])]
+    dataset_slots = [slot for slot in loaded_slots if bool(ast_files_gaia[slot][2])]
+    if not dataset_slots and not (return_model and loaded_slots):
+        return [loglik_ast_gaia, calc_data, calc_model] if return_model else loglik_ast_gaia
+    reference = ast_files_gaia[(dataset_slots or loaded_slots)[0]]
     parallax = reference[3]['Plx'] + par[-4]
     correction = np.array([par[-6], par[-5], par[-4], par[-3], par[-2]])
 
@@ -720,13 +637,12 @@ def ast_loglik_gaia(par,vel_files, ast_files_gaia,npl,stellar_mass, times, hkl, 
 
         T0 = transit_tperi(par[len(vel_files)*2 +7*i+1],ecc_, om_, Ma_ ,times[0])[0] #%par[len(vel_files)*2 +7*i+1] 
 
-        om_ = (om_ - 180.0)%360.0
-        Ma_ = (Ma_ + 180.0)%360.0
+        #om_ = (om_ - 180.0)%360.0
+        #Ma_ = (Ma_ + 0.0)%360.0
         
         incl = par[len(vel_files)*2 +7*i+5]
-        Om_ = (par[len(vel_files)*2 +7*i+6] + 180.0)%360.0
+        Om_ = (par[len(vel_files)*2 +7*i+6] + 0.0)%360.0
  
-
  
         a = a_from_K_in_mas(
         par[len(vel_files)*2 +7*i+1],
@@ -745,27 +661,13 @@ def ast_loglik_gaia(par,vel_files, ast_files_gaia,npl,stellar_mass, times, hkl, 
 
     pl_params = np.asarray(pl_params, dtype=float).reshape(-1, 7)
     
-    for x in range(10):
-        if len(ast_files_gaia[x]) == 0:
-        # or ast_files_hipp[x][2] == False 
-        #or ast_files_hipp[x][1] != i+1:
-            continue
-        else:
-
-            # New imports are already residuals. Legacy sessions are prepared
-            # once on first use; subsequent evaluations reuse the same array.
-            res_astrometric = prepare_gaia_dataset(ast_files_gaia[x])
-            
-            results = -1*ex.L_gaia(res_astrometric, 
-                     correction,
-                     pl_params)
-
-            loglik_ast_gaia = loglik_ast_gaia + results
-            
-            
+    for slot in dataset_slots:
+        # New imports are residuals; legacy preparation is cached once.
+        res_astrometric = prepare_gaia_dataset(ast_files_gaia[slot])
+        loglik_ast_gaia -= ex.L_gaia(res_astrometric, correction, pl_params)
 
     if return_model:
-        for slot in dataset_slots:
+        for slot in loaded_slots:
             data = prepare_gaia_dataset(ast_files_gaia[slot])
             timestamps = ex.gaia_JD(data)
             model_times = np.linspace(min(timestamps), max(timestamps) + model_max, model_samp)
@@ -921,10 +823,11 @@ def ast_loglik_gaia_old(par,vel_files, ast_files_gaia,npl,stellar_mass, times, h
 
 
 
-def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, hkl, fit_results = False , return_model = False):
+def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, hkl, fit_results = False , return_model = False, components=None):
 
 
 
+    fit_times,fit_duration,fit_depth=ttv_component_selection(components)
     pl_par = []
     for i in range(npl):
         
@@ -1034,7 +937,7 @@ def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, hkl, fit_results
                 calc_vsky.append(vsky[int(ttv_files[x][0][i] -1)])
         
                 sig2i_ttv = 1.0 / (ttv_files[x][2][i])**2
-                loglik_ttv += -0.5*(np.sum(((ttv_files[x][1][i] - calc_tran[i])**2 * sig2i_ttv - np.log(sig2i_ttv / 2./ np.pi))))
+                if fit_times:loglik_ttv += -0.5*(np.sum(((ttv_files[x][1][i] - calc_tran[i])**2 * sig2i_ttv - np.log(sig2i_ttv / 2./ np.pi))))
                 
             if ttv_files[x][-2] == True:    
                 for i in range(len(ttv_files[x][1])):         
@@ -1042,7 +945,7 @@ def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, hkl, fit_results
                     calc_dept.append(depth_uniform[int(ttv_files[x][0][i] -1)])
      
                     sig2i_tdv1 = 1.0 / (ttv_files[x][7][i])**2
-                    loglik_tdv1 += -0.5*(np.sum(((ttv_files[x][6][i] - calc_dept[i])**2 * sig2i_tdv1 - np.log(sig2i_tdv1 / 2./ np.pi))))       
+                    if fit_depth:loglik_tdv1 += -0.5*(np.sum(((ttv_files[x][6][i] - calc_dept[i])**2 * sig2i_tdv1 - np.log(sig2i_tdv1 / 2./ np.pi))))       
  
             if ttv_files[x][-1] == True:    
                 for i in range(len(ttv_files[x][1])):     
@@ -1050,7 +953,7 @@ def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, hkl, fit_results
                     calc_dur.append(T14_day[int(ttv_files[x][0][i] -1)])
                     
                     sig2i_tdv2 = 1.0 / (ttv_files[x][9][i])**2
-                    loglik_tdv2 += -0.5*(np.sum(((ttv_files[x][8][i] - calc_dur[i])**2 * sig2i_tdv2 - np.log(sig2i_tdv2 / 2./ np.pi))))                      
+                    if fit_duration:loglik_tdv2 += -0.5*(np.sum(((ttv_files[x][8][i] - calc_dur[i])**2 * sig2i_tdv2 - np.log(sig2i_tdv2 / 2./ np.pi))))                      
                                   
                             
             #print(loglik_ttv, loglik_tdv1, loglik_tdv2)
@@ -1121,11 +1024,33 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 
     l = 0
 
-    if program.endswith("dyn+") or program.endswith("dyn"):
-        #print(epoch,ttv_times[1],ttv_times[2])
+    dynamic_transits = program.endswith("dyn+") or program.endswith("dyn")
+    chord_transits = dynamic_transits and opt.get('tdv', False) and opt.get('ttvfast_transit_method', 'rsky_vsky') == 'rsky_vsky'
+    if dynamic_transits and opt.get('ttvfast_transit_method', 'rsky_vsky') not in ('legacy', 'rsky_vsky'):
+        raise ValueError("ttvfast_transit_method must be 'legacy' or 'rsky_vsky'.")
+    if chord_transits:
+        from ttvfast_transit_model import predict_events, event_light_curve, physical_radius
+        rows = np.array([par[len(vel_files)*2+7*i:len(vel_files)*2+7*i+7] for i in range(npl)], dtype=float).reshape(-1, 7)
+        if hkl:
+            eccentricity = np.hypot(rows[:, 2], rows[:, 3])
+            omega = np.degrees(np.arctan2(rows[:, 2], rows[:, 3])) % 360
+            rows[:, 4] = (rows[:, 4]-omega) % 360
+            rows[:, 2] = eccentricity
+            rows[:, 3] = omega
+        if opt.get('copl_incl', False) and len(rows):
+            rows[:, 5] = rows[0, 5]
+        # Current trial parameters define the masses. Do not reuse potentially
+        # stale/sparse stored fit_results masses during a transit-only fit.
+        masses, _ = mass_a_from_jacobi_el(rows, npl, stmass)
+        loaded_times = [np.asarray(data[0], dtype=float) for data in (tr_files.values() if hasattr(tr_files, 'values') else tr_files) if len(data)]
+        padding = max(rows[:, 1])/2 if npl else 1.
+        last_time = max(float(np.max(t)) for t in loaded_times)
+        event_end = max(last_time+padding, epoch+padding)
+        backup_events = predict_events(rows, masses/1047.5654817267318, stmass, epoch, event_end, ttv_times[1])
+        backup_radius = physical_radius(stmass, opt.get('St_radius', 1.), rho if opt['rho'] else None)
+    elif dynamic_transits:
         for i in range(npl):
             t_os.append(ttvs_mod(par,vel_files,npl, stmass, [epoch,ttv_times[1],ttv_times[2]], i, hkl, fit_results=fit_results))
-            #print(fit_results)
 
 
     for j in range(60):
@@ -1198,6 +1123,10 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 
             if program.endswith("dyn+") or program.endswith("dyn"):
 
+                if chord_transits:
+                    flux_model_ *= event_light_curve(t_, backup_events[i], tr_params.rp,
+                        backup_radius, tr_params.limb_dark, tr_params.u)
+                    continue
                 #t_os = ttvs_mod(par,vel_files,npl, stmass, [epoch,ttv_times[1],max(t_)], i, hkl, fit_results=fit_results)
  
                 for yy in range(len(t_os[i][1])):
@@ -1447,6 +1376,10 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
                 
                 if program.endswith("dyn+") or program.endswith("dyn"):
 
+                    if chord_transits:
+                        flux_model_rich_ *= event_light_curve(t_rich_, backup_events[i], tr_params.rp,
+                            backup_radius, tr_params.limb_dark, tr_params.u)
+                        continue
                     t_os = ttvs_mod(par,vel_files,npl, stmass, [epoch,ttv_times[1],max(t_rich_)], i,hkl, fit_results=fit_results)
         
                     for tran_t0 in t_os[1]:
@@ -1474,14 +1407,27 @@ def transit_loglik(program, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar
 
 
 
-            if tr_files[j][10] == True:
-                flux_model_rich_ = get_airmass_model(t_rich_,flux_model_rich_,0.0,
-                                                        par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + l],
-                                                        par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*3 + tra_gp_npar + l])           
+            if chord_transits:
+                # Apply the same baseline reference as the observation-time
+                # model; dense samples extend beyond the first observation.
+                if tr_files[j][10]:
+                    order = np.argsort(t_all_, kind='stable')
+                    covariate = np.interp(t_rich_, np.asarray(t_all_)[order],
+                                          np.asarray(tr_files[j][3])[order])
+                else:
+                    covariate = t_rich_-t_all_[0]
+                linear = par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + l]
+                quadratic = par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*3 + tra_gp_npar + l]
+                flux_model_rich_ += linear*covariate + quadratic*covariate**2
             else:
-                flux_model_rich_ = get_quad_model(t_rich_,flux_model_rich_,0.0,
-                                                        par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + l],
-                                                        par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*3 + tra_gp_npar + l])
+                if tr_files[j][10] == True:
+                    flux_model_rich_ = get_airmass_model(t_rich_,flux_model_rich_,0.0,
+                                                            par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + l],
+                                                            par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*3 + tra_gp_npar + l])           
+                else:
+                    flux_model_rich_ = get_quad_model(t_rich_,flux_model_rich_,0.0,
+                                                            par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*2 + tra_gp_npar + l],
+                                                            par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*3 + tra_gp_npar + l])
 
 
 
@@ -1612,6 +1558,13 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
             if ecc_ >= 0.95 or ecc_ < 0.0: 
                 return -np.inf  
 
+
+    if opt.get('native_context') is not None:
+        from native_inference import evaluate_loglik
+        try:
+            return evaluate_loglik(par, npl, len(vel_files), tr_model, opt)
+        except (ValueError, FloatingPointError, OverflowError):
+            return -np.inf
 
     if rtg[2] == True:
         
@@ -1761,8 +1714,12 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
             errors_with_jitt = np.array([
                 np.sqrt(err**2 + jitter_by_slot[int(slot)]**2)
                 for err, slot in zip(rvmod.rv_err, rvmod.idset)])
-            gps.compute(rvmod.jd,yerr=errors_with_jitt)
-            gp_rv_loglik = gp_rv_loglik + gps.log_likelihood(rvmod.o_c)
+            if opt.get("activity_gp"):
+                from activity_gp import evaluate as activity_loglik
+                gp_rv_loglik = activity_loglik(gps.kernel, rvmod.jd, rvmod.o_c, errors_with_jitt, opt["activity_gp"], par)
+            else:
+                gps.compute(rvmod.jd,yerr=errors_with_jitt)
+                gp_rv_loglik = gp_rv_loglik + gps.log_likelihood(rvmod.o_c)
 
             rv_loglik =  gp_rv_loglik
         
@@ -1791,11 +1748,11 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
         #start_time = time.time()
 
         if(rtg[0])==False:
-            #astr_loglik = ast_loglik(par,vel_files,ast_files,npl,stmass,ast_times,hkl,fit_results=False, return_model = False)
+
             astr_loglik = astr_loglik + ast_loglik_hipp(par,vel_files,ast_files_hipp,npl,stmass,ast_times,hkl,fit_results=False, return_model = False)  
             astr_loglik = astr_loglik + ast_loglik_gaia(par,vel_files,ast_files_gaia,npl,stmass,ast_times,hkl,fit_results=False, return_model = False)              
         else:
-           # astr_loglik = ast_loglik(par,vel_files,ast_files,npl,stmass,ast_times,hkl,fit_results=rvmod, return_model = False)
+
             astr_loglik = astr_loglik + ast_loglik_hipp(par,vel_files,ast_files_hipp,npl,stmass,ast_times,hkl,fit_results=rvmod, return_model = False)              
             astr_loglik = astr_loglik + ast_loglik_gaia(par,vel_files,ast_files_gaia,npl,stmass,ast_times,hkl,fit_results=rvmod, return_model = False)              
             #print(astr_loglik)
@@ -1803,9 +1760,9 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
             
     if(opt["TTV"]):
         if(rtg[0])==False:
-            ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,ttv_times,hkl,fit_results=False, return_model = False)
+            ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,ttv_times,hkl,fit_results=False, return_model = False,components=opt.get("TTV_fit_components"))
         else:
-            ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,ttv_times,hkl,fit_results=rvmod, return_model = False)
+            ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,ttv_times,hkl,fit_results=rvmod, return_model = False,components=opt.get("TTV_fit_components"))
  
     if opt["AMD_stab"] == True and npl >=2:
                
@@ -2145,7 +2102,8 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
            "jit_flag":obj.jit_flag,
            "hkl":obj.hkl,
            "rho":obj.rho, 
-           "tdv":obj.tdv,                      
+           "tdv":obj.tdv,
+           "ttvfast_transit_method":getattr(obj, "ttvfast_transit_method", "rsky_vsky"),                      
            "St_radius":stradi,                     
            "cwd":obj.cwd,
            "planet_slots":obj.mcmc_planet_slots,
@@ -2154,6 +2112,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
            "dilution_bounds":getattr(obj, "tra_dil_bounds", {}),
            "gr_flag":obj.gr_flag,
            "TTV":obj.type_fit["TTV"],
+           "TTV_fit_components":getattr(obj,"ttv_fit_components",None),
            "AST":obj.type_fit["AST"],
            "RVS_files":rvs_files,
            "TTV_files":ttv_files, 
@@ -2172,6 +2131,9 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
 
     if obj.init_fit == True:
         flags = []
+
+    from native_inference import configure as configure_native_inference
+    configure_native_inference(obj, opt)
 
     gps = []
     if (rtg[1]):
@@ -2399,6 +2361,9 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         par[flags[j]]   = pp[j]
         e_par[flags[j]] = [errors[j][0],errors[j][1]]
 
+    from activity_gp import publish_parameters as publish_activity_parameters
+    publish_activity_parameters(obj, par, e_par, opt)
+
     for slot, index in opt.get('dilution_indices', {}).items():
         obj.tra_dil[slot] = float(par[index])
         obj.tra_dil_err[slot] = np.asarray(e_par[index], dtype=float)
@@ -2536,7 +2501,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         for i, slot in enumerate(planet_slots):  
             aR = get_aR_from_rho(rho, par[len(vel_files)*2 +7*i+1])
  
-            print("Planet %s, aR =%s"%(i+1,aR))
+            print("Planet %s, derived a/Rstar =%s"%(i+1,aR))
             obj.t0[slot]     = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i]
             obj.pl_a[slot]   = rho
             obj.pl_rad[slot] = par[len(vel_files)*2 +7*npl +2 +rv_gp_npar + 3*i+2]
@@ -2571,7 +2536,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
                                 par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][i] + 1+ npl]]
  
 
-        elif tr_model[0][j] == "nonlinear":
+        elif tr_model[0][i] == "nonlinear":
             obj.ld_u_nonlin[i] = [par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][i] + npl], 
                                   par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][i] + 1+ npl],
                                   par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][i] + 2+ npl], 
@@ -2607,7 +2572,28 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 #################### Get the models for plotting ############################
  
 
-    if obj.type_fit["RV"] == True and obj.type_fit["Transit"] == False and obj.type_fit["TTV"] == False and obj.type_fit["AST"] == False:
+    if opt.get('native_joint_result') is not None:
+        from native_joint_fit import publish_results
+        publish_results(obj, par, opt, tr_model, e_par, flags)
+
+    elif opt.get('native_context') is not None:
+        if opt.get('native_joint_problem') is not None:
+            from native_joint_fit import publish_results
+            problem=opt['native_joint_problem']
+            problem.initial=np.asarray(par,dtype=float).copy()
+            result=problem.solve('evaluate')
+            result.free_indices=np.asarray(flags,dtype=np.int32).copy()
+            result.errors=np.array([max(e_par[i]) for i in flags],float)
+            result.covariance=np.full((len(flags),len(flags)),np.nan)
+            result.diagnostics['covariance_method']='external parameter uncertainties'
+            opt['native_joint_result']=result
+            opt['native_external_errors']=True
+            publish_results(obj, par, opt, tr_model, e_par, flags)
+        else:
+            from native_inference import publish_results
+            publish_results(obj, par, opt, tr_model, e_par, flags)
+
+    elif obj.type_fit["RV"] == True and obj.type_fit["Transit"] == False and obj.type_fit["TTV"] == False and obj.type_fit["AST"] == False:
 
         obj.fitting(outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=False, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
 
@@ -2695,7 +2681,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
  
         # Use the fitted vector; obj.parameters still holds the pre-fit snapshot.
         ttv_loglik = ttvs_loglik(par,vel_files, obj.ttv_data_sets,obj.npl,obj.params.stellar_mass,obj.ttv_times,obj.hkl,
-                                 fit_results=obj.fit_results, return_model = False)
+                                 fit_results=obj.fit_results, return_model = False,components=opt.get("TTV_fit_components"))
         #print(obj.fit_results.mass, obj.ttv_times, obj.parameters, obj.loglik, ttv_loglik)
 
 
@@ -2709,8 +2695,8 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         
         obj.fitting(outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=False, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
 
-        astr_loglik2 = ast_loglik(par,vel_files, obj.ast_data_sets,obj.npl,obj.params.stellar_mass,obj.ast_times,obj.hkl, fit_results=obj.fit_results, return_model = False)
-        astr_loglik2 = astr_loglik2 + ast_loglik_hipp(par,vel_files, obj.ast_data_sets_hipp,obj.npl,obj.params.stellar_mass,obj.ast_times,obj.hkl, fit_results=obj.fit_results, return_model = False)
+
+        astr_loglik2 = ast_loglik_hipp(par,vel_files, obj.ast_data_sets_hipp,obj.npl,obj.params.stellar_mass,obj.ast_times,obj.hkl, fit_results=obj.fit_results, return_model = False)
 
         astr_loglik2 = astr_loglik2 + ast_loglik_gaia(par,vel_files, obj.ast_data_sets_gaia,obj.npl,obj.params.stellar_mass,obj.ast_times,obj.hkl, fit_results=obj.fit_results, return_model = False)
 
@@ -2722,14 +2708,14 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
 
     elif obj.type_fit["RV"] == False and obj.type_fit["Transit"] == False and obj.type_fit["TTV"] == True:
-        ttv_loglik = ttvs_loglik(par,vel_files,obj.ttv_data_sets,npl,stmass,obj.ttv_times,obj.hkl,fit_results=False, return_model = False)
+        ttv_loglik = ttvs_loglik(par,vel_files,obj.ttv_data_sets,npl,stmass,obj.ttv_times,obj.hkl,fit_results=False, return_model = False,components=opt.get("TTV_fit_components"))
         obj.loglik     =  ttv_loglik
 
 
     elif obj.type_fit["RV"] == False and obj.type_fit["Transit"] == False and obj.type_fit["AST"] == True:
 
         astr_loglik = 0
-        #astr_loglik = ast_loglik(par,vel_files,obj.ast_data_sets,npl,stmass,obj.ast_times,obj.hkl,fit_results=False, return_model = False)
+
         astr_loglik = astr_loglik + ast_loglik_hipp(par,vel_files,obj.ast_data_sets_hipp,npl,stmass,obj.ast_times,obj.hkl,fit_results=False, return_model = False)
         astr_loglik = astr_loglik + ast_loglik_gaia(par,vel_files,obj.ast_data_sets_gaia,npl,stmass,obj.ast_times,obj.hkl,fit_results=False, return_model = False)        
         obj.loglik     =  astr_loglik
@@ -2839,7 +2825,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
             obj.ld_u_quad_err[i] = [e_par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][i] + npl], 
                                     e_par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][i] + 1+ npl]]
 
-        elif tr_model[0][j] == "nonlinear":
+        elif tr_model[0][i] == "nonlinear":
             obj.ld_u_nonlin_err[i] = [e_par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][i] + npl], 
                                   e_par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][i] + 1+ npl],
                                   e_par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar + tr_model[3][i] + 2+ npl], 
@@ -2866,6 +2852,15 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
     obj.gps = []
     obj.tra_gps = []
+    if not obj.type_fit.get("RV", False) and opt.get("native_context") is None:
+        obj.update_model_curves()
+
+    if getattr(obj,'rho',False):
+        density_slots=np.flatnonzero(obj.use_planet)
+        if len(density_slots):
+            slot=int(density_slots[0])
+            obj.stellar_rho=float(obj.pl_a[slot])
+            obj.stellar_rho_err=dill.copy(obj.pl_a_err[slot])
 
     return obj
 
@@ -3044,6 +3039,7 @@ def run_nestsamp(obj, **kwargs):
            "hkl":obj.hkl,
            "rho":obj.rho,    
            "tdv":obj.tdv,
+           "ttvfast_transit_method":getattr(obj, "ttvfast_transit_method", "rsky_vsky"),
            "St_radius":stradi,                                       
            "cwd":obj.cwd,
            "planet_slots":obj.mcmc_planet_slots,
@@ -3053,6 +3049,7 @@ def run_nestsamp(obj, **kwargs):
            "gr_flag":obj.gr_flag,
            "ns_samp_method":obj.ns_samp_method,
            "TTV":obj.type_fit["TTV"],
+           "TTV_fit_components":getattr(obj,"ttv_fit_components",None),
            "AST":obj.type_fit["AST"],
            "RVS_files":rvs_files,
            "TTV_files":ttv_files,
@@ -3069,6 +3066,9 @@ def run_nestsamp(obj, **kwargs):
            "RV_GP_kernel":obj.gp_kernel,
            "nest_weighted":obj.nest_weighted}
 #            "re":re}
+
+    from native_inference import configure as configure_native_inference
+    configure_native_inference(obj, opt)
 
     gps = []
     if (rtg[1]):
@@ -3226,7 +3226,15 @@ def run_nestsamp(obj, **kwargs):
     #from multiprocessing import get_context
     #ctx = get_context("fork")
 
-    pool = Pool(ncpus=threads)#, context=ctx)
+    if opt.get('native_joint_problem') is not None:
+        from multiprocess import Pool as NativePool
+        import native_sampling_worker as worker
+        worker.initialize(partial_func.f,partial_func.args)
+        pool=NativePool(processes=threads,initializer=worker.initialize,
+                        initargs=(partial_func.f,partial_func.args))
+        partial_func=worker.evaluate
+    else:
+        pool = Pool(ncpus=threads)#, context=ctx)
     #thread = Pool(threads)#, context=ctx)
 
     #pool = Pool(nodes=threads)
@@ -3292,10 +3300,7 @@ def run_nestsamp(obj, **kwargs):
             sampler.run_nested(print_progress=print_progress,dlogz_init=stop_crit,nlive_init=nwalkers,  
             maxiter = ns_maxiter, maxcall = ns_maxcall,use_stop = ns_use_stop, wt_kwargs={'pfrac': ns_pfrac} ) 
 
-        # just in case
-        pool.close()
-        pool.join()
-        pool.clear()
+
 
        # obj.dyn_res = sampler.results
 
@@ -3311,6 +3316,11 @@ def run_nestsamp(obj, **kwargs):
 
    # print(f"--- Nested sampling: {time.perf_counter() - start_time:.5f} seconds ---")
 
+
+    # Release the pool for both static and dynamic runs.
+    pool.close()
+    pool.join()
+    if hasattr(pool, 'clear'): pool.clear()
 
     #  nested-sampling order, aligned with sampler.results.samples
     ln_ns = np.hstack(sampler.results.logl)
@@ -3430,10 +3440,7 @@ def run_nestsamp(obj, **kwargs):
 #    obj.hack_around_rv_params()
 
 
-    if (obj.ns_save_means):
-        obj.loglik = maxlnl
-
-    elif (obj.ns_save_maxlnL):
+    if opt.get("native_context") is None and not opt.get('activity_gp') and (obj.ns_save_means or obj.ns_save_maxlnL):
         obj.loglik = maxlnl
 
 
@@ -3594,7 +3601,8 @@ def run_mcmc(obj, **kwargs):
            "jit_flag":obj.jit_flag,
            "hkl":obj.hkl,
            "rho":obj.rho,  
-           "tdv":obj.tdv,           
+           "tdv":obj.tdv,
+           "ttvfast_transit_method":getattr(obj, "ttvfast_transit_method", "rsky_vsky"),           
            "St_radius":stradi,                                         
            "cwd":obj.cwd,
            "planet_slots":obj.mcmc_planet_slots,
@@ -3603,6 +3611,7 @@ def run_mcmc(obj, **kwargs):
            "dilution_bounds":getattr(obj, "tra_dil_bounds", {}),
            "gr_flag":obj.gr_flag,
            "TTV":obj.type_fit["TTV"],
+           "TTV_fit_components":getattr(obj,"ttv_fit_components",None),
            "AST":obj.type_fit["AST"],
            "RVS_files":rvs_files,
            "TTV_files":ttv_files,
@@ -3618,6 +3627,9 @@ def run_mcmc(obj, **kwargs):
            "tra_GP_kernel":obj.tra_gp_kernel,
            "RV_GP_kernel":obj.gp_kernel}
 #            "re":re}
+
+    from native_inference import configure as configure_native_inference
+    configure_native_inference(obj, opt)
 
     gps = []
     if (rtg[1]):
@@ -3635,7 +3647,17 @@ def run_mcmc(obj, **kwargs):
     from pathos.multiprocessing import ProcessingPool as Pool
     #from pathos.pools import ProcessPool as Pool
     #from pathos.threading import ThreadPool as Pool
-    pool=Pool(ncpus=obj.mcmc_threads)
+    native_worker = opt.get('native_joint_problem') is not None
+    sampling_args=(mod, par, flags, npl, vel_files, tr_files, tr_model, tr_params,
+                   epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit,opt)
+    if native_worker:
+        from multiprocess import Pool as NativePool
+        import native_sampling_worker as worker
+        worker.initialize(lnprob_new,sampling_args)
+        pool=NativePool(processes=obj.mcmc_threads,initializer=worker.initialize,
+                        initargs=(lnprob_new,sampling_args))
+    else:
+        pool=Pool(ncpus=obj.mcmc_threads)
     #pool=Pool(processes=threads-1)
     #from pathos.threading import ThreadPool
     #import mkl
@@ -3657,7 +3679,8 @@ def run_mcmc(obj, **kwargs):
 
     from .mcmc_initialization import initialize_walkers
     
-    sampler = CustomSampler(nwalkers, ndim, lnprob_new, args=(mod, par, flags, npl, vel_files, tr_files,  tr_model, tr_params, epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit,opt), pool=pool)
+    sampler = CustomSampler(nwalkers, ndim, worker.evaluate if native_worker else lnprob_new,
+                            args=() if native_worker else sampling_args, pool=pool)
 
     #sampler = CustomSampler(nwalkers, ndim, lnprob_new, args=(mod, par, flags, npl, vel_files, tr_files,  tr_model, tr_params, epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit,opt), threads = threads)
 
@@ -3669,7 +3692,7 @@ def run_mcmc(obj, **kwargs):
     except Exception:
         pool.close()
         pool.join()
-        pool.clear()
+        if hasattr(pool, 'clear'): pool.clear()
         raise
 
     emcee_version = emcee.__version__
@@ -3698,7 +3721,7 @@ def run_mcmc(obj, **kwargs):
 
     pool.close()
     pool.join()
-    pool.clear()
+    if hasattr(pool, 'clear'): pool.clear()
 
  #  print(f"--- MCMC: {time.perf_counter() - start_time:.5f} seconds ---")
 
@@ -3781,10 +3804,7 @@ def run_mcmc(obj, **kwargs):
     obj = return_results(obj, pp, ee, par, flags, npl,vel_files, tr_files, tr_model, tr_params, epoch, stmass, bb, priors, gps,tra_gps, rtg, mix_fit, new_par_errors,mod,opt)
 
  
-    if (obj.mcmc_save_means):
-        obj.loglik = sampler.lnL_max
-
-    elif (obj.mcmc_save_maxlnL):
+    if opt.get("native_context") is None and not opt.get('activity_gp') and (obj.mcmc_save_means or obj.mcmc_save_maxlnL):
         obj.loglik = sampler.lnL_max
 
  
@@ -4004,6 +4024,17 @@ class signal_fit(object):
         self.init_auto_fit()
 
 
+        self.calculate_transit_model = True
+        self.calculate_transit_events = False
+        self.native_jacobi_convention = "auto"
+        self.native_joint_propagation = "shared"
+        self.transit_likelihood_backend = "auto"
+        self.likelihood_backend_used = None
+        self.likelihood_backend_reason = ""
+        self.ttv_model_backend = "legacy"
+        self.ttv_fit_components = dict(timing=True,duration=True,depth=True)
+        self.native_ttv_tolerance = 1.e-14
+        self.ttvfast_transit_method = "rsky_vsky"
         self.model_npoints = 2000
         self.model_max = 5
         self.model_min =0
@@ -4249,6 +4280,7 @@ class signal_fit(object):
 
         #### Astrometric #####
         
+        self._absolute_astrometry_selection_version = 1
         self.use_ast_hipp_gaia = False
         self.use_ast_imaging   = False 
         
@@ -4370,9 +4402,9 @@ class signal_fit(object):
         self.stellar_rho_err  = [0.0,0.0]
         self.stellar_rho_use  = False
         self.stellar_rho_str  = r'$\rho_{\rm \star}$ [kg/m^3]'
-        self.stellar_rho_bounds  = [100.0,90000.0]
+        self.stellar_rho_bounds  = [100.0,5000.0]
         self.stellar_rho_norm_pr = [1000.0,100.0, False]
-        self.stellar_rho_jeff_pr = [100.0,90000.0, False]      
+        self.stellar_rho_jeff_pr = [100.0,5000.0, False]      
 
     def init_omega_dot(self) :
 
@@ -4415,7 +4447,7 @@ class signal_fit(object):
         self.tra_jitt_err  = {k: np.array([0.0,0.0]) for k in range(60)}
         self.tra_jitt_use  = {k: False for k in range(60)}
         self.tra_jitt_str  = {k: r'transit jitt$_%s$'%str(k+1) for k in range(60)}
-        self.tra_jitt_bounds  = {k: np.array([-0.2,0.2] )for k in range(60)}
+        self.tra_jitt_bounds  = {k: np.array([0.0,0.003] )for k in range(60)}
         self.tra_jitt_norm_pr = {k: np.array([0.0,0.1, False] )for k in range(60)}
         self.tra_jitt_jeff_pr = {k: np.array([0.0,0.1, False] )for k in range(60)}
 
@@ -4426,7 +4458,7 @@ class signal_fit(object):
         self.tra_off_err  = {k: np.array([0.0,0.0])  for k in range(60)}
         self.tra_off_use  = {k: False for k in range(60)}
         self.tra_off_str  = {k: r'transit off$_%s$'%str(k+1) for k in range(60)}
-        self.tra_off_bounds  = {k: np.array([-1.0,2.0] )for k in range(60)}
+        self.tra_off_bounds  = {k: np.array([-0.001,0.001] )for k in range(60)}
         self.tra_off_norm_pr = {k: np.array([1.0,0.1, False] )for k in range(60)}
         self.tra_off_jeff_pr = {k: np.array([1.0,0.1, False] )for k in range(60)}
 
@@ -4695,6 +4727,8 @@ class signal_fit(object):
        # self.SciPy_min = ['Nelder-Mead','Powell','CG','BFGS','Newton-CG','L-BFGS-B', 'TNC','COBYLA','SLSQP','dogleg','trust-ncg']
         self.SciPy_min = ['Nelder-Mead','Powell','CG','BFGS','Newton-CG','L-BFGS-B', 'TNC','SLSQP']
 
+        from fortran_optimizer_options import ensure_options
+        ensure_options(self)
         self.Fortran_min_use_1 = 'LM'
         self.Fortran_min_N_use_1 = 1
         self.Fortran_min_use_2 = 'Nelder-Mead'
@@ -4910,6 +4944,8 @@ class signal_fit(object):
         for result in (self.rvmod, self.fit_results):
             for name in ('jd', 'rvs', 'rv_err', 'o_c', 'model_rvs', 'model_jd', 'model'):
                 setattr(result, name, np.array([], dtype=float))
+            from native_model_results import clear_transit_models
+            clear_transit_models(result)
             result.idset = np.array([], dtype=int)
             result.rv_model = RvModelWrap(result.jd, result.rvs, result.rv_err, result.o_c)
             result.fit = np.empty((0, 2 + self.npl))
@@ -4930,6 +4966,14 @@ class signal_fit(object):
 
         self.rv_data_sets[rv_idset]      = []
         self.rv_data_sets_init[rv_idset] = []
+        for prefix, bounds, normal in (('rvoff',[-1e6,1e6],[0.,100.,False]),
+                                       ('jitt',[0.,10000.],[1.,5.,False])):
+            getattr(self,prefix)[rv_idset]=0.
+            getattr(self,prefix+'_use')[rv_idset]=False
+            getattr(self,prefix+'_err')[rv_idset]=np.zeros(2)
+            getattr(self,prefix+'_bounds')[rv_idset]=np.array(bounds)
+            getattr(self,prefix+'_norm_pr')[rv_idset]=np.array(normal)
+            getattr(self,prefix+'_jeff_pr')[rv_idset]=np.array(normal)
 
         self.ndset = len([x for x in range(60) if len(self.rv_data_sets[x]) != 0])
         self.n_rvdata = sum([len(self.rv_data_sets[x][0]) for x in range(60) if len(self.rv_data_sets[x]) != 0])
@@ -4974,6 +5018,8 @@ class signal_fit(object):
 
     def remove_act_dataset(self, act_idset):
 
+        if hasattr(self, "activity_gp"):
+            self.activity_gp.pop(act_idset, None)
         self.act_data_sets[act_idset] = []
         self.act_data_sets_init[act_idset] = []
 
@@ -5208,7 +5254,7 @@ class signal_fit(object):
         return
 
 ############################ Ast datasets Hipp ##########################################
-    def add_ast_dataset_hipp(self, name, path, ast_idset = 0, planet = 0, use = False):
+    def add_ast_dataset_hipp(self, name, path, ast_idset = 0, planet = 0, use = True):
  
 # [np.arange(0,len(A8)),frac,A5,A3,A4,A8,A9])
 
@@ -5329,7 +5375,7 @@ class signal_fit(object):
 
 
 ############################ Ast datasets Gaia ##########################################
-    def add_ast_dataset_gaia(self, name, path, ast_idset = 0, planet = 0, use = False):
+    def add_ast_dataset_gaia(self, name, path, ast_idset = 0, planet = 0, use = True):
  
  
  
@@ -5505,6 +5551,8 @@ class signal_fit(object):
         self.tra_jitt_use[tra_idset] = True
         self.tra_data_sets[tra_idset] = tra_data_set
         self.tra_data_sets_init[tra_idset] = dill.copy(tra_data_set)
+        from model_epoch import initialize_import_epoch
+        initialize_import_epoch(self)
         return
 
 
@@ -5513,8 +5561,14 @@ class signal_fit(object):
         self.tra_data_sets[tra_idset] = []
         self.tra_data_sets_init[tra_idset] = []
 
-        self.tra_off_use[tra_idset] = False
-        self.tra_jitt_use[tra_idset] = False     
+        for prefix,value in (('tra_off',0.),('tra_jitt',0.),('tra_lintr',0.),
+                             ('tra_quadtr',0.),('tra_dil',1.)):
+            getattr(self,prefix)[tra_idset]=value
+            getattr(self,prefix+'_use')[tra_idset]=False
+            getattr(self,prefix+'_err')[tra_idset]=np.zeros(2)
+            for family in ('_norm_pr','_jeff_pr'):
+                getattr(self,prefix+family)[tra_idset][2]=False
+        self.model_saved=False
 
 
         return
@@ -5575,8 +5629,8 @@ class signal_fit(object):
         self.rvoff_use[index] = useoffset
         self.jitt_use[index] = usejitter
 
-        if self.epoch == 0:
-            self.update_epoch(min(self.rv_data_sets[index][0]))
+        from model_epoch import initialize_import_epoch
+        initialize_import_epoch(self)
 
         return
 
@@ -5849,6 +5903,95 @@ class signal_fit(object):
  
  
 
+
+    def native_transit_model(self, times=None, *, dataset=0, radius_mode=None, model=None, phase='M0', **options):
+        """Opt-in RV/transit prediction using current GUI parameters; no fitting.
+
+        Dataset slots are 0..59. phase='t0' selects GUI t0 for Keplerian predictions.
+        Omit times to evaluate only the selected transit dataset timestamps.
+        Model defaults to the session setting; N-body derives physical a/Rstar.
+        See docs/NATIVE_TRANSIT_MODEL.md for geometry and output conventions.
+        """
+        from native_transit_model import from_session
+        return from_session(self, times, dataset=dataset, radius_mode=radius_mode, model=model, phase=phase, **options)
+
+    def fit_native(self, method=None, **options):
+        """Optimize selected RV/LC/TTV/TDV likelihood/posterior in Fortran.
+
+        method='LM' or 'Simplex'; None uses the two Fortran stages in the GUI.
+        Returns this session; diagnostics/covariance are on fit_results.
+        Enabled Gaussian/Jeffreys priors are included unless use_priors=False.
+        """
+        from native_joint_fit import run
+        return run(self, method=method, **options)
+
+    def evaluate_native_ttv_likelihood(self, **options):
+        """Timing-only native TTV models/lnL; no fitting or legacy replacement."""
+        from native_ttv_likelihood import from_session_ttv_likelihood
+        return from_session_ttv_likelihood(self, **options)
+
+    def evaluate_ttv_model(self):
+        """Return the legacy five-section TTV plotting structure from either backend.
+
+        The native_joint backend follows native joint fitting, including TDV
+        data. The native entry remains the separate timing-only evaluator.
+        """
+        backend = getattr(self, 'ttv_model_backend', 'legacy')
+        if backend == 'native_joint':
+            from native_joint_fit import prepare, timing_results
+            problem=prepare(self,free_indices=[],bounds=[],phase=getattr(self,'native_joint_phase_used','auto'))
+            result=problem.solve('evaluate')
+            self.ttv_results=timing_results(self,problem,result)
+            return self.ttv_results
+        if backend == 'native':
+            return self.evaluate_native_ttv_likelihood(publish=True).legacy_model
+        if backend != 'legacy':
+            raise ValueError('ttv_model_backend must be legacy or native.')
+        migrate_ttv_datasets(self)
+        self.prepare_for_mcmc()
+        vel_files = [0]*sum(bool(len(data)) for data in self.rv_data_sets.values())
+        result = ttvs_loglik(self.parameters, vel_files, self.ttv_data_sets,
+                            self.npl, self.params.stellar_mass, self.ttv_times,
+                            self.hkl, fit_results=self.fit_results if self.rtg[0] else False,
+                            return_model=True,components=getattr(self,"ttv_fit_components",None))
+        self.ttv_results = result
+        return result
+
+    def evaluate_native_likelihood(self, **options):
+        """Reevaluate selected RV/transit data with one native Gaussian likelihood.
+
+        Stores native_likelihood/native_loglik on fit_results by default.
+        Existing scores, parameters and optimizer backend remain unchanged.
+        GP, separate TTV/TDV and astrometric likelihoods are not included.
+        """
+        from native_likelihood import from_session_likelihood
+        return from_session_likelihood(self, **options)
+
+    def update_transit_events(self, **options):
+        """Store optional per-planet transit times, contacts, durations and depths.
+
+        Set calculate_transit_events=True first. No likelihood is changed.
+        """
+        from native_transit_events import update_transit_events
+        return update_transit_events(self, **options)
+
+    def update_transit_data_models(self, **options):
+        """Store predictions only at loaded transit dataset times; no dense plot grid.
+
+        For batman comparison use phase='t0', model='keplerian'. Existing dense
+        RV/transit curves, likelihoods, and fitted parameters are preserved.
+        """
+        from native_model_results import update_transit_data_models
+        return update_transit_data_models(self, **options)
+
+    def update_model_curves(self, **options):
+        """Store equal-length RV/transit curves on the common plotting time grid.
+
+        Controlled by calculate_transit_model (default True). Result arrays are
+        fit_results.model, transit_model and their common model_jd timestamps.
+        """
+        from native_model_results import update_model_curves
+        return update_model_curves(self, **options)
 
     def mass_semimajor2(self, mass_type="J"):
         """Compatibility API for masses and axes of the enabled planets."""
@@ -6158,8 +6301,10 @@ class signal_fit(object):
                 self.semimajor[i] =self.fit_results.a[i]
 
 
-            for i in range(20):
- 
+            datasets=self.rv_data_sets.items() if isinstance(self.rv_data_sets,dict) else enumerate(self.rv_data_sets)
+            for i,dataset in datasets:
+                if not len(dataset):
+                    continue
                 self.rvoff[i] = self.fit_results.offsets[i]  
                 self.jitt[i] = abs(self.fit_results.jitters[i])  
  
@@ -6178,7 +6323,7 @@ class signal_fit(object):
     ### this function is a wrapper calling a fortran program to fit parameters in keplerian mode by minimizing chi^2   WORK IN PROGRESS ON THAT ONE!
 
     def update_priors_from_fit(self, n_sigma=3, round_digits=None, sync_gui=True, gaussian=False):
-        """Set RV bounds from fitted values/errors; optionally enable Gaussians.
+        """Set RV/transit bounds from fitted values/errors; optionally enable Gaussians.
 
         By default, existing Gaussian/Jeffreys values and selections are untouched.
         Pass gaussian=True to update/enable Gaussians and disable Jeffreys priors.
@@ -6197,6 +6342,14 @@ class signal_fit(object):
         fields = [(name, name + '_bound', planets, False) for name in
                   ('K', 'P', 'e', 'w', 'M0', 'i', 'Node', 'e_sinw', 'e_cosw', 'lamb')]
         fields.append(('omega_dot', 'omega_dot_bounds', planets, False))
+        fields.extend((name,name+'_bound',planets,False) for name in ('t0','pl_a','pl_rad'))
+        transit_slots=[i for i,row in getattr(self,'tra_data_sets',{}).items() if len(row)]
+        fields.extend((name,name+'_bounds',transit_slots,False) for name in
+                      ('tra_off','tra_jitt','tra_dil','tra_lintr','tra_quadtr'))
+        for law,size in (('linear',1),('quadratic',2),('nonlinear',4)):
+            name={'linear':'ld_u_lin','quadratic':'ld_u_quad','nonlinear':'ld_u_nonlin'}[law]
+            entries=[(i,j) for i in transit_slots if getattr(self,'ld_m',{}).get(i)==law for j in range(size)]
+            fields.append((name,name+'_bound',entries,False))
         datasets = [i for i in range(len(self.rv_data_sets)) if len(self.rv_data_sets[i])]
         fields.extend((name, name + '_bounds', datasets, False) for name in ('rvoff', 'jitt'))
         fields.extend((name, name + '_bounds', [0], True) for name in ('rv_lintr', 'rv_quadtr'))
@@ -6205,10 +6358,13 @@ class signal_fit(object):
             if not all(hasattr(self, attr) for attr in
                        (name, name + '_err', bounds_name) + ((name + '_norm_pr',) if gaussian else ())):
                 continue
-            for slot in slots:
-                value = float(getattr(self, name) if scalar else getattr(self, name)[slot])
-                error = np.asarray(getattr(self, name + '_err') if scalar else
-                                   getattr(self, name + '_err')[slot], dtype=float)
+            for key in slots:
+                slot,component=key if isinstance(key,tuple) else (key,None)
+                def item(attribute):
+                    value=getattr(self,attribute) if scalar and attribute in (name,name+'_err') else getattr(self,attribute)[slot]
+                    return value if component is None else value[component]
+                value = float(item(name))
+                error = np.asarray(item(name+'_err'),dtype=float)
                 if not np.isfinite(value) or not np.isfinite(error).all() or np.any(error < 0):
                     continue
                 uncertainty = float(np.max(error)) if error.size else 0.
@@ -6232,7 +6388,7 @@ class signal_fit(object):
                 margin = 10. ** (-max(1, round_digits)) if round_digits is not None else 1e-8
                 if name in ('P', 'K'):
                     bounds[0] = max(bounds[0], margin)
-                elif name == 'jitt':
+                elif name in ('jitt','tra_jitt','pl_a','pl_rad','tra_dil'):
                     bounds[0] = max(bounds[0], 0.)
                 elif name == 'e':
                     bounds[0] = max(bounds[0], 0.)
@@ -6242,13 +6398,17 @@ class signal_fit(object):
                     bounds[1] = min(bounds[1], 180.)
                 if bounds[0] >= bounds[1]:
                     continue
-                getattr(self, bounds_name)[slot] = bounds
+                if component is None:
+                    getattr(self,bounds_name)[slot]=bounds
+                else:
+                    getattr(self,bounds_name)[slot][component]=bounds
                 if gaussian:
-                    getattr(self, name + '_norm_pr')[slot] = np.array([mean, width, True])
-                    if hasattr(self, name + '_jeff_pr'):
-                        getattr(self, name + '_jeff_pr')[slot][2] = False
+                    prior=item(name+'_norm_pr')
+                    prior[:]=[mean,width,True]
+                    if hasattr(self,name+'_jeff_pr'):item(name+'_jeff_pr')[2]=False
                 changes.append(dict(parameter=name, slot=int(slot), bounds=bounds.copy(),
                                     mean=mean, sigma=width, gaussian=bool(gaussian)))
+                if component is not None:changes[-1]['component']=component
         if sync_gui:
             reference = globals().get('_fit_prior_gui_sync')
             callback = reference() if reference is not None else None
@@ -6297,6 +6457,11 @@ class signal_fit(object):
             raise ValueError('Fortran minimizer stages require RV fitting without a GP')
         if not options.get('outputfiles', [1, 1, 1])[1]:
             raise ValueError('Fortran minimizer stages require fitted parameter output')
+        from native_joint_fit import has_enabled_priors
+        if has_enabled_priors(self):
+            self.fit_native()
+            self.flag=1
+            return self.flag if return_flag else None
         options = dict(options)
         options.pop('minimize_loglik', None)
         options.pop('amoeba_starts', None)
@@ -6312,8 +6477,10 @@ class signal_fit(object):
                     # Restore the solver budget used before the GUI stages:
                     # Keplerian fits allow up to 20 internal restarts, stopping
                     # early at convergence; N-body simplex used one restart.
-                    starts = (200 if method == 'LM' else
-                              1 if getattr(self, 'mod_dynamical', False) else 20)
+                    configured = getattr(self, 'fortran_optimizer_options', {})
+                    starts = ((configured.get('lm', {}).get('maxiter', 0) or 200) if method == 'LM' else
+                              configured.get('simplex', {}).get('restarts', 0) or
+                              (1 if getattr(self, 'mod_dynamical', False) else 20))
                     self.flag = self.fitting(minimize_loglik=(method == 'Nelder-Mead'),
                                              amoeba_starts=starts, return_flag=True, **options)
                     if self.flag != 1:
@@ -6322,11 +6489,29 @@ class signal_fit(object):
         print(f'--- Fortran sequence total: {time.perf_counter() - start_time:.5f} seconds ---')
         return self.flag if return_flag else None
 
-    def fitting(self, minimize_fortran=True, minimize_loglik=False, fileinput=False, doGP=False, kernel_id=-1, filename='Kep_input', outputfiles=[1,1,1], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 5,model_min =0): # run the fit which will either minimize chi^2 or loglik.
+    def fitting(self, minimize_fortran=True, minimize_loglik=False, fileinput=False, doGP=False, kernel_id=-1, filename='Kep_input', outputfiles=[1,1,1], amoeba_starts=1, eps=1, dt=1, fortran_kill=300, timeout_sec=600, print_stat=False, return_flag=False, npoints=1000, model_max = 5,model_min =0, calculate_transit_model=None, calculate_transit_events=None): # run the fit which will either minimize chi^2 or loglik.
         '''
          eps, dt - accuracy and step for the integration in dynamical case, in keplerian case ignored, just given for input consistency
          which value to minimize (used for calling an appropriate fortran program)
         '''
+
+        if calculate_transit_events is not None:
+            self.calculate_transit_events = bool(calculate_transit_events)
+        if calculate_transit_model is not None:
+            self.calculate_transit_model = bool(calculate_transit_model)
+        if minimize_fortran and not any(len(data) for data in self.rv_data_sets.values()):
+            self._clear_rv_results()
+            has_transit_times = any(len(data) for data in getattr(self, 'tra_data_sets', {}).values())
+            has_timing = any(len(data) and bool(data[4]) for data in getattr(self, 'ttv_data_sets', {}).values())
+            if bool(outputfiles[2]) and (getattr(self, 'calculate_transit_model', True) or getattr(self, 'calculate_transit_events', False)) and (has_transit_times or has_timing):
+                self.update_model_curves()
+            return 0 if return_flag else None
+
+        from native_model_results import shared_model_reason, clear_transit_models
+        reason = shared_model_reason(self)
+        for result in (self.rvmod, self.fit_results):
+            clear_transit_models(result, reason or 'not calculated')
+        self._use_shared_plot_model = bool(outputfiles[2]) and reason is None
 
         eps = eps * 1e-13
         dt  = dt  * 86400.0
@@ -6337,11 +6522,6 @@ class signal_fit(object):
         self.bound_error = False
         self.bound_error_msg = ""
         #########################
-
-        if minimize_fortran and not any(len(self.rv_data_sets[i])
-                                        for i in range(len(self.rv_data_sets))):
-            self._clear_rv_results()
-            return 0 if return_flag else None
 
         if (minimize_loglik):
             minimized_value = 'loglik'
@@ -6417,8 +6597,10 @@ class signal_fit(object):
  
             rvs_files = np.array([jd, rvs, sig, ids]).T
  
+            from fortran_optimizer_options import option_vector
             self.rvmod.init_args(rvs_files, array_npl, self.epoch, hkl,
-                         get_RV=outputfiles[0], get_best_par=outputfiles[1], get_fit_model=outputfiles[2],
+                         get_RV=outputfiles[0], get_best_par=outputfiles[1],
+                         get_fit_model=int(bool(outputfiles[2]) and not getattr(self, "_use_shared_plot_model", False)),
                          rv_jitt=rv_jit, rv_ofset=rv_off, npl_pos = self.use_planet,
                          lin_trend_in=[self.rv_lintr,int(self.rv_lintr_use)],
                          quad_trend_in=[self.rv_quadtr,int(self.rv_quadtr_use)],
@@ -6426,7 +6608,8 @@ class signal_fit(object):
                          rv_model_npoints=self.model_npoints, rv_model_max=self.model_max, rv_model_min=self.model_min,
                          rv_gr_flag=int(self.gr_flag), stellar_mass=self.params.stellar_mass,
                          ndset=self.ndset, ndata=None, nplanet=None,
-                         dyn_planets=dyn_planets,coplar_inc=int(self.copl_incl),jit_flag = int(self.jit_flag))
+                         dyn_planets=dyn_planets,coplar_inc=int(self.copl_incl),jit_flag = int(self.jit_flag),
+                         optimizer_options=option_vector(self, 'simplex' if minimize_loglik else 'lm'))
 
         program = '%s/lib/fr/%s_%s' % (self.cwd, minimized_value, mod + ('+' if mixed_enabled else ''))
         if minimize_fortran == True and doGP ==False:
@@ -6455,6 +6638,17 @@ class signal_fit(object):
             if(self.fit_results.stat_array_saved):
                 self.fitting_method=program
             self.update_with_fit_results()
+            if self._use_shared_plot_model:
+                # The legacy RV API resolves epoch=0 to its first observation.
+                model_epoch = self.fit_results.epoch if self.epoch == 0 else self.epoch
+                self.update_model_curves(epoch=model_epoch,
+                                         step=dt/86400.0 if dt > 0 else None,
+                                         tolerance=eps)
+            elif bool(outputfiles[2]) and getattr(self, 'calculate_transit_events', False):
+                model_epoch = self.fit_results.epoch if self.epoch == 0 else self.epoch
+                self.update_transit_events(epoch=model_epoch,
+                                          step=dt/86400.0 if dt > 0 else None,
+                                          tolerance=eps)
 #            self.correct_elements() #because amoeba might make things wrong here
  
 
@@ -6565,8 +6759,15 @@ class signal_fit(object):
 #### prep. #########
     def prepare_for_mcmc(self, rtg=[True,False,False,False], customdatasetlabels=[]):
         '''Prepare bounds and par array needed for the MCMC'''
+        from absolute_astrometry import ensure_dataset_selection
+        ensure_dataset_selection(self)
 
         ensure_dilution_parameters(self)
+        from stellar_density import ensure_density_settings, density_limits
+        ensure_density_settings(self)
+        if self.rho:
+            density_limits(self)
+        prepare_transit_limb_darkening(self)
         preparingwarnings=Warning_log([],'Preparing for MCMC')
         # put together bounds for K,P,e,w,M0, so they are in an order we are used to
 
@@ -6818,19 +7019,19 @@ class signal_fit(object):
             par.append(self.pl_rad[i])
 
             par_str.append(self.t0_str[i])
-            par_str.append(self.pl_a_str[i])
+            par_str.append(self.stellar_rho_str if self.rho else self.pl_a_str[i])
             par_str.append(self.pl_rad_str[i])
 
             bounds.append(self.t0_bound[i])
-            bounds.append(self.pl_a_bound[i])
+            bounds.append(self.stellar_rho_bounds if self.rho else self.pl_a_bound[i])
             bounds.append(self.pl_rad_bound[i])
 
             prior_nr.append(self.t0_norm_pr[i])
-            prior_nr.append(self.pl_a_norm_pr[i])
+            prior_nr.append(self.stellar_rho_norm_pr if self.rho else self.pl_a_norm_pr[i])
             prior_nr.append(self.pl_rad_norm_pr[i])
 
             prior_jeff.append(self.t0_jeff_pr[i])
-            prior_jeff.append(self.pl_a_jeff_pr[i])
+            prior_jeff.append(self.stellar_rho_jeff_pr if self.rho else self.pl_a_jeff_pr[i])
             prior_jeff.append(self.pl_rad_jeff_pr[i])
 
             if rtg[2] == False:
@@ -6839,7 +7040,7 @@ class signal_fit(object):
                 flag.append(False)
             else:
                 flag.append(self.t0_use[i])
-                flag.append(self.pl_a_use[i])
+                flag.append(self.pl_a_use[i] and (not self.rho or i == self.mcmc_planet_slots[0]))
                 flag.append(self.pl_rad_use[i])
 
 
@@ -7070,6 +7271,9 @@ class signal_fit(object):
             bounds.append(limits)
             prior_nr.append(self.tra_dil_norm_pr[i])
             prior_jeff.append(self.tra_dil_jeff_pr[i])
+
+        from activity_gp import pack as pack_activity_gp
+        pack_activity_gp(self, par, flag, par_str, bounds, prior_nr, prior_jeff)
 
        #### Astr. & Stellar parameters #####
        

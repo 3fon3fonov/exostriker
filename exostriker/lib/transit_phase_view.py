@@ -35,12 +35,9 @@ class TransitPhaseView(QtCore.QObject):
     def __init__(self, gui, session):
         super().__init__(gui)
         self.gui, self.session = gui, session
-        self.page = QtWidgets.QWidget()
-        self.page.setObjectName('tab_phased_transits')
-        layout = QtWidgets.QVBoxLayout(self.page)
-        self.graphics = pg.GraphicsLayoutWidget()
+        self.page = gui.tab_phased_transits
+        self.graphics = gui.transit_phase_graphics
         self.graphics.setBackground('w')
-        layout.addWidget(self.graphics)
         self.top = self.graphics.addPlot(row=0, col=0)
         self.bottom = self.graphics.addPlot(row=1, col=0)
         self.top.hideAxis('bottom')
@@ -48,55 +45,24 @@ class TransitPhaseView(QtCore.QObject):
         self.graphics.ci.layout.setRowStretchFactor(0, 3)
         self.graphics.ci.layout.setRowStretchFactor(1, 1)
         self.legend = self.top.addLegend()
-        row = QtWidgets.QHBoxLayout()
-        layout.addLayout(row)
-        self.planet = QtWidgets.QComboBox()
-        self.dataset = QtWidgets.QComboBox()
-        self.dataset.setToolTip('Show all transit datasets or a single light curve')
-        self.cross = QtWidgets.QCheckBox('Cross hair')
-        options = QtWidgets.QPushButton('Phase options…')
-        self.slider = QtWidgets.QSlider(QtCore.Qt.Orientation.Horizontal)
-        self.slider.setRange(-50, 50)
-        self.slider.setValue(0)
-        self.slider.setToolTip('Shift the phase origin by a fraction of the period')
-        for widget in (self.planet, self.dataset, self.cross, options, self.slider):
-            row.addWidget(widget)
+        self.planet, self.dataset = gui.transit_phase_planet, gui.transit_phase_dataset
+        self.cross, self.slider = gui.transit_phase_cross, gui.transit_phase_slider
+        from transit_phase_options_ui import Ui_TransitPhaseOptions
         self.dialog = QtWidgets.QDialog(gui)
-        self.dialog.setWindowTitle('Transit phase options')
-        form = QtWidgets.QFormLayout(self.dialog)
-        self.info = QtWidgets.QLabel()
-        self.info.setWordWrap(True)
-        form.addRow(self.info)
-        self.norm = QtWidgets.QCheckBox('Normalize phase to −0.5 … +0.5')
-        self.gp = QtWidgets.QCheckBox('Subtract fitted GP from flux')
-        self.gp.setChecked(True)
-        self.points = QtWidgets.QCheckBox('Show model as points')
-        self.dense = QtWidgets.QCheckBox('Use cached dense model (all light curves, without GP)')
-        self.dense.setChecked(True)
-        self.show_legend = QtWidgets.QCheckBox('Legend')
-        self.show_legend.setChecked(False)
-        self.auto = QtWidgets.QCheckBox('Auto range')
-        self.auto.setChecked(False)
+        ui = Ui_TransitPhaseOptions()
+        ui.setupUi(self.dialog)
+        self.info, self.norm, self.gp = ui.info, ui.normalize, ui.gp
+        self.points, self.dense = ui.points, ui.dense
+        self.show_legend, self.auto, self.window = ui.show_legend, ui.auto, ui.window
         for widget in (self.norm, self.gp, self.points, self.dense, self.show_legend, self.auto):
-            form.addRow(widget)
             widget.toggled.connect(self.draw)
-        self.window = QtWidgets.QDoubleSpinBox()
-        self.window.setRange(0, 1.e6)
-        self.window.setDecimals(5)
-        self.window.setSingleStep(.01)
-        self.window.setSpecialValueText('Full period')
-        form.addRow('Half-width around transit [days]', self.window)
         self.window.valueChanged.connect(self.draw)
-        reset = QtWidgets.QPushButton('Reset phase view')
-        form.addRow(reset)
-        reset.clicked.connect(self.reset)
-        options.clicked.connect(self.show_options)
+        ui.reset.clicked.connect(self.reset)
+        gui.transit_phase_options_button.clicked.connect(self.show_options)
         self.planet.currentIndexChanged.connect(self.draw)
         self.dataset.currentIndexChanged.connect(self.draw)
         self.slider.valueChanged.connect(self.draw)
         self.cross.toggled.connect(self.draw)
-        tabs = gui.tabWidget_7
-        tabs.insertTab(tabs.indexOf(gui.tab_186), self.page, 'Phased transit plots')
         self._window_key = None
         self.refresh()
 

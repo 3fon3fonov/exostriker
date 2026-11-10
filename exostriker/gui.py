@@ -393,6 +393,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def update_gui_params(self, include_inactive=False):
         global fit
+        self.activity_gp_controls.refresh()
 
  
         for i in range(9):
@@ -563,10 +564,11 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
        # fit.stellar_radius = self.St_radius_input.value()
 
-        if self.checkBox_first_RV_epoch.isChecked() and len(fit.fit_results.rv_model.jd) != 0:
-            fit.epoch = min(fit.fit_results.rv_model.jd)
-        else:
-            fit.epoch = self.Epoch.value()
+        from model_epoch import first_data_epoch
+        automatic_epoch=first_data_epoch(fit) if self.checkBox_first_RV_epoch.isChecked() else None
+        fit.epoch=float(self.Epoch.value() if automatic_epoch is None else automatic_epoch)
+        if automatic_epoch is not None and not any(len(row) for row in fit.rv_data_sets.values()):
+            fit._transit_default_epoch=fit.epoch
 
         #### TESTS TTV #####
         if self.checkBox_first_TTV_epoch.isChecked() and len(fit.ttv_data_sets[0]) != 0 and  self.radioButton_ttv.isChecked() ==True:
@@ -740,29 +742,15 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             
 
     def set_aR(self):
-        global fit  
-
-        if self.radioButton_aR.isChecked():
-            
-            fit.rho = False
-#            fit.hack_around_rv_params()  
-            
- 
-            self.label_ap.setText("<html><head/><body><p>a<span style='vertical-align:sub;'>pl</span>/R<span style='vertical-align:sub;'>★</span></p></body></html>")
- 
-
-        elif self.radioButton_rho.isChecked():
-
-            fit.rho = True
-            self.label_ap.setText("<html><head/><body><p>&rho;<span style='vertical-align:sub;'>★</span> [kg/m^3]</p></body></html>")
-
-
-        self.mute_boxes()
-
-        self.update_use()
+        global fit
+        from stellar_density import set_density_mode
         self.update_params()
-        self.update_gui_params() 
-
+        set_density_mode(fit, self.radioButton_rho.isChecked())
+        self.update_gui_params()
+        self.mute_boxes()
+        self.update_use_from_session()
+        if hasattr(self, 'stellar_density_controls'):
+            self.stellar_density_controls.sync()
 
 
     def set_tra_reg(self, ind = 0):
@@ -814,27 +802,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def set_tra_gr_index(self):
         global fit
-
-        k =0
- 
-        for i in range(20):
-            if len(fit.tra_data_sets[i]) == 0:
-                fit.ld_gr_ind[i] = 0
-                continue
-            elif fit.ld_gr[i] == i:
-                if fit.ld_m[i] == "linear":
-                    fit.ld_gr_ind[i] = k
-                    k +=1
-                elif fit.ld_m[i] == "quadratic":
-                    fit.ld_gr_ind[i] = k
-                    k +=2
-                elif fit.ld_m[i] == "nonlinear":
-                    fit.ld_gr_ind[i] = k
-                    k +=4
-            elif fit.ld_gr[i] != i:
-                fit.ld_gr_ind[i] = fit.ld_gr_ind[fit.ld_gr[i]]
-                fit.ld_m[i] = fit.ld_m[fit.ld_gr[i]]
-                fit.ld_u[i] = fit.ld_u[fit.ld_gr[i]]
+        rv.prepare_transit_limb_darkening(fit)
 
 
 ##############################
@@ -1324,13 +1292,18 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         global fit
         if fit_object is not fit:
             return
-        planet_columns = dict(K=0, P=1, e=2, w=3, M0=4, i=5, Node=6)
+        planet_columns = dict(K=0, P=1, e=2, w=3, M0=4, i=5, Node=6,t0=7,pl_rad=8,pl_a=9)
         extra = dict(omega_dot=('om_dot_bounds_gui', 'om_dot_norm_pr_gui', 'om_dot_jeff_pr_gui'),
                      e_sinw=('h_bounds_gui', 'h_norm_pr_gui', 'h_jeff_pr_gui'),
                      e_cosw=('k_bounds_gui', 'k_norm_pr_gui', 'k_jeff_pr_gui'),
                      lamb=('lambda_bounds_gui', 'lambda_norm_pr_gui', 'lambda_jeff_pr_gui'),
                      rvoff=('offset_bounds_gui', 'offset_nr_priors_gui', 'offset_jeff_priors_gui'),
-                     jitt=('jitter_bounds_gui', 'jitter_nr_priors_gui', 'jitter_jeff_priors_gui'))
+                     jitt=('jitter_bounds_gui', 'jitter_nr_priors_gui', 'jitter_jeff_priors_gui'),
+                     tra_off=('offset_bounds_gui_tra','offset_nr_priors_gui_tra','offset_jeff_priors_gui_tra'),
+                     tra_jitt=('jitter_bounds_gui_tra','jitter_nr_priors_gui_tra','jitter_jeff_priors_gui_tra'),
+                     tra_dil=('tra_dilution_bounds_gui','tra_dilution_nr_priors_gui','tra_dilution_jeff_priors_gui'),
+                     tra_lintr=('tra_lintr_bounds_gui','tra_lin_trend_nr_priors_gui','tra_lin_trend_jeff_priors_gui'),
+                     tra_quadtr=('tra_quadtr_bounds_gui','tra_quad_trend_nr_priors_gui','tra_quad_trend_jeff_priors_gui'))
         for change in changes:
             name, slot = change['parameter'], change['slot']
             if name in planet_columns:
@@ -1340,6 +1313,10 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                 jeff = self.param_jeff_priors_gui[row]
             elif name in extra:
                 bounds, normal, jeff = [getattr(self, group)[slot] for group in extra[name]]
+            elif name.startswith('ld_u_'):
+                prefix='ld_u'+str(change['component']+1)
+                bounds,normal,jeff=[getattr(self,prefix+suffix)[slot] for suffix in
+                                    ('_bounds_gui','_norm_pr_gui','_jeff_pr_gui')]
             else:
                 prefix = 'lin' if name == 'rv_lintr' else 'quad'
                 bounds = [getattr(self, prefix + '_trend_min'), getattr(self, prefix + '_trend_max')]
@@ -1375,6 +1352,8 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
     def update_bounds(self):
         global fit
+        if hasattr(self, "stellar_density_controls"):
+            self.stellar_density_controls.sync()
        
 
         for i in range(9):
@@ -3838,6 +3817,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
     def update_fortran_min(self):
         global fit
+        if hasattr(self, "fortran_optimizer_controls"):
+            self.fortran_optimizer_controls.sync()
         # Sessions created before these controls existed receive the defaults.
         for stage, default, combo, counter in (
                 (1, 'LM', self.comboBox_fortran_minimizer_1, self.f_LM_N_consecutive_iter_kep),
@@ -3882,18 +3863,8 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
     def init_fortran_combo(self):
         for combo in (self.comboBox_fortran_minimizer_1, self.comboBox_fortran_minimizer_2):
-            combo.clear()
-            combo.addItem('Nelder-Mead (Simplex)', 'Nelder-Mead')
-            combo.addItem('Levenberg-Marquardt (LM)', 'LM')
-        self.f_LM_N_consecutive_iter_kep.setToolTip('Number of primary minimizer runs; 0 skips this stage.')
-        self.f_simplex_N_consecutive_iter_kep.setToolTip('Number of secondary minimizer runs; 0 skips this stage.')
-        self.amoeba_radio_button.setEnabled(False)
-        self.lm_radio_button.setEnabled(False)
-        self.label.hide()
-        self.amoeba_radio_button.hide()
-        self.lm_radio_button.hide()
-        self.amoeba_radio_button.setToolTip('Select the minimizers in Fortran opt. (RV only!).')
-        self.lm_radio_button.setToolTip('Select the minimizers in Fortran opt. (RV only!).')
+            combo.setItemData(0, 'Nelder-Mead')
+            combo.setItemData(1, 'LM')
         self.update_fortran_min()
 
 
@@ -5538,18 +5509,49 @@ Polyfit coefficients:
 ######################## Activity plots ######################################  
 
     def init_activity_combo(self):
-        global fit
+        for combo in (self.comboBox_act_data, self.comboBox_act_data_gls):
+            blocker = QtCore.QSignalBlocker(combo)
+            combo.clear()
+            for i in range(20):
+                combo.addItem('act. data %s' % (i+1), i+1)
+            del blocker
+        self._activity_views_ready = True
+        self.refresh_activity_views()
 
-        for i in range(20):
-            self.comboBox_act_data_gls.addItem('act. data %s'%(i+1),i+1)       
-            self.comboBox_act_data.addItem('act. data %s'%(i+1),i+1)       
-                
-        
- 
+    def refresh_activity_views(self, preferred=None):
+        global fit
+        if not getattr(self, '_activity_views_ready', False):
+            return
+        loaded = tuple(i for i in range(20) if len(fit.act_data_sets[i]))
+        new = set(loaded)-set(getattr(self, '_activity_loaded_slots', ()))
+        if new:
+            self.tabWidget_44.setCurrentWidget(self.Activity_index_timeseries_plot)
+        if preferred is None and new:
+            preferred = min(new)
+        self._activity_loaded_slots = loaded
+        for combo in (self.comboBox_act_data, self.comboBox_act_data_gls):
+            current = combo.currentIndex()
+            blocker = QtCore.QSignalBlocker(combo)
+            for i in range(combo.count()):
+                combo.setItemText(i, str(fit.act_data_sets[i][-1]) if i in loaded else 'act. data %s' % (i+1))
+                combo.model().item(i).setEnabled(i in loaded)
+            combo.setEnabled(bool(loaded))
+            selected = preferred if preferred in loaded else current if current in loaded else loaded[0] if loaded else 0
+            combo.setCurrentIndex(selected)
+            del blocker
+        self.update_activity_data_plots(self.comboBox_act_data.currentIndex())
+        self.update_activity_gls_plots(self.comboBox_act_data_gls.currentIndex())
+
+    def print_activity_periodogram_info(self):
+        self.print_info_for_object(getattr(self, '_activity_periodogram_info', ''))
+
     def update_activity_gls_plots(self,ind):
         global fit, colors,  p11 
 
         p11.plot(clear=True,) 
+        self._activity_periodogram_info = ''
+        if ind not in fit.act_data_sets:
+            return
 
         ind_norm = self.gls_norm_combo.currentIndex()
       #  omega = 1/ np.logspace(np.log10(self.gls_min_period.value()), np.log10(self.gls_max_period.value()), num=int(self.gls_n_omega.value()))
@@ -5557,9 +5559,20 @@ Polyfit coefficients:
 
         if len(fit.act_data_sets[ind]) != 0 and len(fit.act_data_sets[ind][0]) > 5:
 
-            act_per = gls.Gls((fit.act_data_sets[ind][0], fit.act_data_sets[ind][1],fit.act_data_sets[ind][2]), 
-            #fast=True,  verbose=False, norm= "ZK",ofac=self.gls_ofac.value(), fbeg=omega[-1], fend=omega[ 0],)
-            fast=True,  verbose=False, norm=self.norms[ind_norm], ofac=self.gls_ofac.value(), fbeg=1/self.gls_max_period.value(), fend=1/self.gls_min_period.value())            
+            data = tuple(np.asarray(fit.act_data_sets[ind][i], dtype=float) for i in range(3))
+            if (not all(np.all(np.isfinite(x)) for x in data) or np.any(data[2] <= 0)
+                    or np.ptp(data[0]) == 0 or np.ptp(data[1]) == 0):
+                return
+            key = tuple(x.tobytes() for x in data)+(ind_norm, self.gls_ofac.value(),
+                self.gls_min_period.value(), self.gls_max_period.value())
+            cache = self.__dict__.setdefault('_activity_gls_cache', {})
+            if ind in cache and cache[ind][0] == key:
+                act_per = cache[ind][1]
+            else:
+                act_per = gls.Gls(data, fast=True, verbose=False, norm=self.norms[ind_norm],
+                    ofac=self.gls_ofac.value(), fbeg=1/self.gls_max_period.value(),
+                    fend=1/self.gls_min_period.value())
+                cache[ind] = (key, act_per)            
             ######################## GLS ##############################
             if self.radioButton_act_GLS_period.isChecked():
                 p11.setLogMode(True,False)        
@@ -5576,7 +5589,10 @@ Polyfit coefficients:
             text_peaks, pos_peaks = self.identify_power_peaks(1/act_per.freq, act_per.power, power_level = power_levels, sig_level = act_per.powerLevel(np.array(power_levels)) )    
 
             self.label_peaks(p11, pos_peaks, GLS = True, activity = True)
-            self.act_periodogram_print_info.clicked.connect(lambda: self.print_info_for_object(act_per.info(stdout=False) + text_peaks ))   
+            self._activity_periodogram_info = act_per.info(stdout=False) + text_peaks
+            if not getattr(self, '_activity_info_connected', False):
+                self.act_periodogram_print_info.clicked.connect(self.print_activity_periodogram_info)
+                self._activity_info_connected = True   
 
         if self.gls_act_cross_hair.isChecked():
             #self.cross_hair(p11,log=self.radioButton_act_GLS_period.isChecked()) 
@@ -5587,7 +5603,7 @@ Polyfit coefficients:
     def update_activity_data_plots(self,ind):
         global fit, colors,  p5 
 
-        if len(fit.act_data_sets[ind]) != 0:
+        if ind in fit.act_data_sets and len(fit.act_data_sets[ind]) != 0:
 
             p5.plot(clear=True,)  
 
@@ -5599,12 +5615,19 @@ Polyfit coefficients:
 
 
             p5.addItem(err1)      
-            p5.addLine(x=None, y=0, pen=pg.mkPen('#ff9933', width=0.8))
+            p5.addItem(pg.InfiniteLine(pos=0., angle=0, pen=pg.mkPen('#ff9933', width=0.8)), ignoreBounds=True)
 
             p5.plot(fit.act_data_sets[ind][0],fit.act_data_sets[ind][1], pen=None,symbol='o',
             symbolSize=self.act_data_size.value(),enableAutoRange=True,viewRect=True,
             symbolBrush=dill.copy(fit.act_colors[ind])
             )
+
+            joint_model = getattr(fit, 'activity_gp_models', {}).get(ind)
+            if fit.rtg[1] and joint_model is not None and getattr(fit, 'activity_gp', {}).get(ind, {}).get('enabled', False):
+                times = joint_model.get('curve_time', joint_model['time'])
+                means = joint_model.get('curve_mean', joint_model['mean'])
+                order = np.argsort(times)
+                p5.plot(times[order], means[order], pen=pg.mkPen('#cc3311', width=1.5), name='Joint GP mean')
 
             p5.setLabel('left', 'y', units='',  **self.plot_font_style())
 
@@ -5692,10 +5715,11 @@ Polyfit coefficients:
             if fit.npl > 0:
                 
                 if not ttv_evaluated:
-                    if fit.rtg[0] == False:
-                        ttv_loglik = rv.ttvs_loglik(fit.parameters,vel_files, ttv_files,fit.npl,fit.params.stellar_mass,times,fit.hkl,fit_results = False, return_model = True)
-                    else:
-                        ttv_loglik = rv.ttvs_loglik(fit.parameters,vel_files, ttv_files,fit.npl,fit.params.stellar_mass,times,fit.hkl,fit_results =fit.fit_results, return_model = True)
+                    try:
+                        ttv_loglik = fit.evaluate_ttv_model()
+                    except ValueError as exc:
+                        print(f"TTV model evaluation failed: {exc}")
+                        ttv_loglik = None
 
                     fit.ttv_results = dill.copy(ttv_loglik)
 
@@ -5714,7 +5738,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 if self.ttv_show_Ntransit.isChecked():
                     ttv_model = dill.copy(ttv_loglik[4][j][1]) #- flux[0] #ttv_loglik[4][j][1][0]                  
                     ttv_model_transits = []
-                    model_N_transits = dill.copy(ttv_loglik[4][j][0])
+                    model_N_transits = np.asarray(ttv_loglik[4][j][0], dtype=float).copy()
 
 
                     if self.ttv_apply_mean_period.isChecked():
@@ -5738,7 +5762,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
                     ttv_model = dill.copy(ttv_loglik[4][j][1]) #-ttv_loglik[4][j][1][0]                  
                     ttv_model_transits = []
-                    model_N_transits = dill.copy(ttv_loglik[4][j][0])
+                    model_N_transits = np.asarray(ttv_loglik[4][j][0], dtype=float).copy()
 
                     if self.ttv_apply_mean_period.isChecked():
                         periods_t0 = [ttv_model[k+1] - ttv_model[k] for k in range(len(ttv_model)-1)]
@@ -5789,8 +5813,10 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 ind_ttv_inter = self.comboBox_ttv_model_interpolate.currentIndex()
 
                 func_interpol = interp1d(model_N_transits, ttv_model_, kind=ttv_interpol_opt[ind_ttv_inter])
+                timing_interpol = interp1d(model_N_transits, ttv_model, kind=ttv_interpol_opt[ind_ttv_inter])
                 model_N_transits = np.linspace(min(model_N_transits),max(model_N_transits), num=int(self.ttv_model_interpolate_points.value()), endpoint=True)
-                ttv_model_ = func_interpol(model_N_transits) 
+                ttv_model_ = func_interpol(model_N_transits)
+                ttv_model = timing_interpol(model_N_transits) 
 
             
             
@@ -5815,7 +5841,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 data_err = flux_err           
                 model = ttv_model_
                 model_t = model_N_transits            
-                p_ttv.setLabel('left', 'BJD [d]', units='',  **self.plot_font_style()) 
+                label = 'O-C [d]' if self.ttv_o_c.isChecked() else ('TTV [d]' if self.ttv_show_Ntransit.isChecked() else 'BJD [d]')
+                p_ttv.setLabel('left', label, units='', **self.plot_font_style()) 
                 
             p_ttv.plot(t, data_,
             pen=None,
@@ -5841,17 +5868,21 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             #######################################
             #p_ttv_00.addLine(x=None, y=0,   pen=pg.mkPen('#ff9933', width=0.8))
 
-            model_curve_oc = p_ttv_00.plot(model_N_transits,ttv_model_,  pen={'color':  fit.ttv_colors[-1], 'width': self.ttv_model_width.value()+1}, enableAutoRange=True, viewRect=True )
+            # The TDVs-tab o-c toggle applies only to its single-panel view.
+            # Keep the TTVs tab as timing curve above, residuals below.
+            timing_label = 'TTV [d]' if self.ttv_show_Ntransit.isChecked() else 'BJD [d]'
+            p_ttv_00.setLabel('left', timing_label, units='', **self.plot_font_style())
+            model_curve_oc = p_ttv_00.plot(model_N_transits,ttv_model,  pen={'color':  fit.ttv_colors[-1], 'width': self.ttv_model_width.value()+1}, enableAutoRange=True, viewRect=True )
             model_curve_oc.setZValue(self.ttv_model_z.value())
 
-            p_ttv_00.plot(t, ttv_data,
+            p_ttv_00.plot(t, flux,
             pen=None,  
             symbol=dill.copy(fit.pyqt_symbols_ttv[j]),
             symbolPen={'color': dill.copy(fit.ttv_colors[j]), 'width': 1.1},
             symbolSize=dill.copy(fit.pyqt_symbols_size_ttv[j]),enableAutoRange=True,viewRect=True,
             symbolBrush=dill.copy(fit.ttv_colors[j]),name=fit.ttv_data_sets[j][-1] )
 
-            err_ = pg.ErrorBarItem(x=t, y=ttv_data, symbol=dill.copy(fit.pyqt_symbols_ttv[j]),
+            err_ = pg.ErrorBarItem(x=t, y=flux, symbol=dill.copy(fit.pyqt_symbols_ttv[j]),
            # height=flux_err,
             top=flux_err,
             bottom=flux_err,
@@ -7423,11 +7454,9 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
  
     def initialize_rv_phase_options(self):
         from rv_phase_options import RVPhaseOptions
-        button = QtWidgets.QPushButton('Phase options…', self)
-        self.gridLayout_35.replaceWidget(self.extra_plot_RVphase_norm, button)
         self.rv_phase_options = RVPhaseOptions(self, lambda: fit)
-        button.clicked.connect(self.show_rv_phase_options)
-        self.rv_phase_options_button = button
+        self.rv_phase_options_button.show()
+        self.rv_phase_options_button.clicked.connect(self.show_rv_phase_options)
 
     def show_rv_phase_options(self):
         slot = self.comboBox_extra_plot.currentData()
@@ -7700,6 +7729,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         self.update_transit_plots()    
         self.update_ttv_plots()
         self.update_ast_plots()
+        self.refresh_activity_views()
 
     def rv_plot_phase_change(self):
         global fit
@@ -8241,6 +8271,11 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
        #     return
 
         fit.remove_dataset(but_ind -1)
+        # Publish the cleared slot before initialization can read GUI inputs.
+        self.update_gui_params()
+        self.update_errors()
+        self.update_bounds()
+        self.update_use_from_session()
 
         #### new stuf ####
         #fit.remove_rv_dataset(but_ind -1)
@@ -8390,6 +8425,9 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
         but_ind = self.buttonGroup_remove_transit_data.checkedId()   
         fit.remove_transit_dataset(but_ind -1)
+        self.update_gui_params()
+        self.update_errors()
+        self.update_bounds()
        # self.init_fit()         
         self.update_use_from_session()   
       #  self.update_use()
@@ -8468,7 +8506,9 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         self.update_act_file_buttons()
 
     def update_act_file_buttons(self):
-        global fit, colors          
+        global fit, colors
+        self.activity_gp_controls.refresh()          
+        self.refresh_activity_views()
 
         for i in range(20):
             if len(fit.act_data_sets[i]) != 0:
@@ -8767,7 +8807,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         
         
         planet_N     = self.ast_data_to_planet_2[but_ind-1].value()
-        use_planet_N = self.use_ast_data_to_planet_2[but_ind-1].isChecked()
+        use_planet_N = (self.use_ast_data_to_planet_2[but_ind-1].isChecked()
+                        if len(fit.ast_data_sets_hipp[but_ind-1]) else True)
 
         if str(input_files[0]) != '':
  
@@ -8784,6 +8825,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             
             if fit.ast_data_sets_hipp[but_ind-1] is previous_dataset:
                 return
+            self.use_ast_data_to_planet_2[but_ind-1].setChecked(use_planet_N)
 
             fit.type_fit["RV"] = False
             fit.type_fit["Transit"] = False
@@ -8869,6 +8911,9 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
  
 
     def set_ast_dataset_to_planet_2(self):
+        from absolute_astrometry import ensure_dataset_selection
+        ensure_dataset_selection(fit)
+        blockers = [QtCore.QSignalBlocker(widget) for widget in self.use_ast_data_to_planet_2]
 
         for i in range(2):
             if len(fit.ast_data_sets_hipp[i]) ==0:
@@ -8914,7 +8959,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         
         
         planet_N     = self.ast_data_to_planet_3[but_ind-1].value()
-        use_planet_N = self.use_ast_data_to_planet_3[but_ind-1].isChecked()
+        use_planet_N = (self.use_ast_data_to_planet_3[but_ind-1].isChecked()
+                        if len(fit.ast_data_sets_gaia[but_ind-1]) else True)
 
         if str(input_files[0]) != '':
  
@@ -8931,6 +8977,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             
             if fit.ast_data_sets_gaia[but_ind-1] is previous_dataset:
                 return
+            self.use_ast_data_to_planet_3[but_ind-1].setChecked(use_planet_N)
 
             fit.type_fit["RV"] = False
             fit.type_fit["Transit"] = False
@@ -9016,6 +9063,9 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
  
 
     def set_ast_dataset_to_planet_3(self):
+        from absolute_astrometry import ensure_dataset_selection
+        ensure_dataset_selection(fit)
+        blockers = [QtCore.QSignalBlocker(widget) for widget in self.use_ast_data_to_planet_3]
 
         for i in range(2):
             if len(fit.ast_data_sets_gaia[i]) ==0:
@@ -9543,9 +9593,9 @@ Transit duration: %s d
             return
 
         if fit.type_fit["RV"] == True :        
-            self.statusBar().showMessage('Minimizing Transit + RV parameters.... SciPy in action, please be patient.  ')       
+            self.statusBar().showMessage('Minimizing Transit + RV parameters.... Preparing calculation, please be patient.  ')
         else:
-            self.statusBar().showMessage('Minimizing Transit parameters.... SciPy in action, please be patient. ')       
+            self.statusBar().showMessage('Minimizing Transit parameters.... Preparing calculation, please be patient. ')
            
         self.check_ttv_params()
         self.check_ast_params()
@@ -9555,12 +9605,19 @@ Transit duration: %s d
         self.check_priors_jeff()
         self.check_model_fact()
 
-        self.check_scipy_min()
+        from native_joint_fit import unsupported_reason
+        native = self.radioButton_fortran77.isChecked() and unsupported_reason(fit) is None
+        if native:
+            self.check_fortran_min()
+            self.statusBar().showMessage('Optimizing joint lnL in Fortran (LM / Simplex)…')
+        else:
+            self.check_scipy_min()
+            self.statusBar().showMessage('Optimizing with SciPy…')
         fit.model_npoints = self.points_to_draw_model.value()
         fit.model_max = self.model_max_range.value()
         fit.model_min = self.model_min_range.value()
           
-        self.start_calculation('scipy', {'ff': ff}, self.worker_transit_fitting_complete)
+        self.start_calculation('native_joint' if native else 'scipy', {'ff': ff}, self.worker_transit_fitting_complete)
 
 
     def transit_fit(self, ff=0 ):
@@ -9572,7 +9629,11 @@ Transit duration: %s d
             fit.init_fit = False
 
 
-        rv.run_SciPyOp(fit)
+        from native_joint_fit import unsupported_reason
+        if self.radioButton_fortran77.isChecked() and unsupported_reason(fit) is None:
+            fit.fit_native()
+        else:
+            rv.run_SciPyOp(fit)
 
 
 
@@ -9659,9 +9720,9 @@ Transit duration: %s d
             return
 
         if fit.type_fit["RV"] == True :
-            self.statusBar().showMessage('Minimizing TTV + RV parameters.... SciPy in action, please be patient.  ')
+            self.statusBar().showMessage('Minimizing TTV + RV parameters.... Preparing calculation, please be patient.  ')
         else:
-            self.statusBar().showMessage('Minimizing TTV parameters.... SciPy in action, please be patient. ')
+            self.statusBar().showMessage('Minimizing TTV parameters.... Preparing calculation, please be patient. ')
 
         self.check_ttv_params()
         self.check_ast_params()
@@ -9669,12 +9730,19 @@ Transit duration: %s d
         self.check_bounds()
         self.check_priors_nr()   
         self.check_priors_jeff()   
-        self.check_scipy_min()
+        from native_joint_fit import unsupported_reason
+        native = self.radioButton_fortran77.isChecked() and unsupported_reason(fit) is None
+        if native:
+            self.check_fortran_min()
+            self.statusBar().showMessage('Optimizing joint lnL in Fortran (LM / Simplex)…')
+        else:
+            self.check_scipy_min()
+            self.statusBar().showMessage('Optimizing with SciPy…')
         fit.model_npoints = self.points_to_draw_model.value()
         fit.model_max = self.model_max_range.value()
         fit.model_min = self.model_min_range.value()
         
-        self.start_calculation('scipy', {'ff': ff}, self.worker_ttv_fitting_complete)
+        self.start_calculation('native_joint' if native else 'scipy', {'ff': ff}, self.worker_ttv_fitting_complete)
 
 
     def ttv_fit(self, ff=0 ):
@@ -9685,8 +9753,24 @@ Transit duration: %s d
         else:
             fit.init_fit = False
 
-        rv.run_SciPyOp(fit)
+        from native_joint_fit import unsupported_reason
+        if self.radioButton_fortran77.isChecked() and unsupported_reason(fit) is None:
+            fit.fit_native()
+        else:
+            rv.run_SciPyOp(fit)
 
+
+    def init_timing_component_controls(self):
+        self.timing_component_checks = {}
+        for name in ('timing','duration','depth'):
+            checkbox = getattr(self, 'fit_ttv_'+name)
+            self.timing_component_checks[name] = checkbox
+            checkbox.toggled.connect(self.set_timing_fit_components)
+
+    def set_timing_fit_components(self, checked=False):
+        global fit
+        fit.ttv_fit_components = {name: checkbox.isChecked()
+                                 for name, checkbox in self.timing_component_checks.items()}
 
     def check_ttv_params(self):
         global fit
@@ -11184,20 +11268,22 @@ will be highly appreciated!
                     
                     
             if self.use_hipp_gaia_ast.isChecked():
+                from absolute_astrometry import ensure_dataset_selection
+                ensure_dataset_selection(fit)
                 z,zz=0,0
                 for i in range(10):
-                    if len(fit.ast_data_sets_hipp[i]) == 0:
+                    if len(fit.ast_data_sets_hipp[i]) == 0 or not fit.ast_data_sets_hipp[i][2]:
                         continue
                     else:
                         z=z+1
                 for i in range(10):
-                    if len(fit.ast_data_sets_gaia[i]) == 0:
+                    if len(fit.ast_data_sets_gaia[i]) == 0 or not fit.ast_data_sets_gaia[i][2]:
                         continue
                     else:
                         zz=zz+1
                 if z <= 0 and zz <= 0 :
                     choice = QtWidgets.QMessageBox.information(self, 'Warning!',
-                    "Not possible to fit astrometry if there are no Hipparcos/Gaia astrometry data loaded. Please add your astrometry data first. Okay?", QtWidgets.QMessageBox.StandardButton.Ok)      
+                    "Select at least one loaded Hipparcos or Gaia dataset using its Fit checkbox before fitting astrometry.", QtWidgets.QMessageBox.StandardButton.Ok)      
                     #self.button_fit.setEnabled(True)
                     self.mute_buttons(trigger=True)
                     return 0 
@@ -11376,6 +11462,8 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         controls += self.findChildren(QtWidgets.QComboBox)
         controls += self.findChildren(QtWidgets.QLineEdit)
         controls += [self.menuBar()]
+        from calculation_controls import lockable_controls
+        controls = lockable_controls(self, controls)
         # Save each widget's own enabled state, rather than the effective
         # state inherited from its parent. In particular, a disabled spin box
         # must not leave its internal line edit explicitly disabled on restore.
@@ -11418,6 +11506,8 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
         self.button_make_mcmc_cornerplot.setEnabled(True)
         self.button_make_nest_cornerplot.setEnabled(True)
         if status == 'result':
+            from calculation_controls import preserve_display_settings
+            preserve_display_settings(job['original'], payload)
             fit = payload
             for index, session in enumerate(ses_list):
                 if session is job['original']:
@@ -11936,6 +12026,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
                             return
 
                         self.update_act_file_buttons()
+                        self.plot_tabs.setCurrentWidget(self.tab_timeseries_act)
                         self.update_activity_data_plots(but_ind-1)
                         self.update_activity_gls_plots(but_ind-1)
                         return
@@ -12405,9 +12496,11 @@ Please install via 'pip install ttvfast'.
         self.label.setEnabled(False)
         self.amoeba_radio_button.setEnabled(False)
         self.lm_radio_button.setEnabled(False)
-        fortran_controls_enabled = (self.radioButton_RV.isChecked() and
-                                    self.radioButton_fortran77.isChecked() and
-                                    not self.do_RV_GP.isChecked())
+        fortran_controls_enabled = (self.radioButton_fortran77.isChecked() and
+                                    not self.do_RV_GP.isChecked() and
+                                    not self.do_tra_GP.isChecked() and
+                                    not self.radioButton_ast.isChecked() and
+                                    not self.radioButton_ast_RV.isChecked())
         for widget in (self.comboBox_fortran_minimizer_1, self.comboBox_fortran_minimizer_2,
                        self.f_LM_N_consecutive_iter_kep, self.f_simplex_N_consecutive_iter_kep):
             widget.setEnabled(fortran_controls_enabled)
@@ -12580,8 +12673,9 @@ Please install via 'pip install ttvfast'.
                 for i in range(9):
                     self.param_gui_tr[3*i + 2].setEnabled(False)
                     self.use_param_gui_tr[3*i + 2].setEnabled(False)            
-                self.param_gui_tr[3*0 + 2].setEnabled(True)
-                self.use_param_gui_tr[3*0 + 2].setEnabled(True)              
+                first_density_slot = next((i for i in range(9) if fit.use_planet[i]), 0)
+                self.param_gui_tr[3*first_density_slot + 2].setEnabled(True)
+                self.use_param_gui_tr[3*first_density_slot + 2].setEnabled(True)              
             
         if self.force_sameRV_jit.isChecked()==True:
             print("Use only RV jitter boolean for data 1, and mute the rest!")
@@ -12683,7 +12777,7 @@ Please install via 'pip install ttvfast'.
     def tab_selected(self,ind):
 
         if ind == 4:
-            self.update_activity_data_plots(self.comboBox_act_data.currentIndex())
+            self.refresh_activity_views()
         if ind == 5:
             self.update_correlations_data_plots()
 
@@ -13615,6 +13709,11 @@ Please install via 'pip install ttvfast'.
         self.force_copl_incl.setChecked(fit.copl_incl)
         self.force_sameRV_jit.setChecked(fit.jit_flag) 
         self.use_tdv.setChecked(fit.tdv)
+        selection = getattr(fit, 'ttv_fit_components', {}) or {}
+        for name, checkbox in self.timing_component_checks.items():
+            checkbox.blockSignals(True)
+            checkbox.setChecked(selection.get(name, True))
+            checkbox.blockSignals(False)
         self.update_fortran_min()
         self.update_scipy_Simplex_controls()
               
@@ -14005,14 +14104,11 @@ Please install via 'pip install ttvfast'.
 
 
         self.setupUi(self)
-        if not hasattr(self, 'Stop_button'):
-            self.Stop_button = QtWidgets.QPushButton('Stop', self)
-            self.Stop_button.setObjectName('Stop_button')
-            self.stat_panel.addWidget(self.Stop_button, 28, 0, 1, 2)
+        self.init_timing_component_controls()
+        from activity_gp_controls import ActivityGPControls
+        self.activity_gp_controls = ActivityGPControls(self, lambda: fit)
         self._calculation = None
         self._calculation_controls = []
-        self.Stop_button.setEnabled(False)
-        self.Stop_button.setToolTip('Stop the calculation and keep the starting session')
         self.Stop_button.clicked.connect(self.stop_calculation)
 
 
@@ -14594,8 +14690,10 @@ Please install via 'pip install ttvfast'.
         self.buttonGroup_remove_ast_data_3.buttonClicked.connect(self.remove_ast_file_3)        
         
         self.buttonGroup_use_ast_data_to_planet.buttonClicked.connect(self.use_ast_dataset_to_planet)
-        self.buttonGroup_use_ast_data_to_planet_2.buttonClicked.connect(self.use_ast_dataset_to_planet_2)
-        self.buttonGroup_use_ast_data_to_planet_3.buttonClicked.connect(self.use_ast_dataset_to_planet_3)
+        for widget in self.use_ast_data_to_planet_2:
+            widget.toggled.connect(self.use_ast_dataset_to_planet_2)
+        for widget in self.use_ast_data_to_planet_3:
+            widget.toggled.connect(self.use_ast_dataset_to_planet_3)
                 
         self.ast_data_planet_1.valueChanged.connect(self.ast_dataset_to_planet)
         self.ast_data_planet_2.valueChanged.connect(self.ast_dataset_to_planet)
@@ -14902,13 +15000,17 @@ Please install via 'pip install ttvfast'.
 
 
         self.init_correlations_combo()
-        self.init_activity_combo()
         self.init_scipy_combo()
         self.init_TNC_controls()
         self.init_scipy_Simplex_controls()
         self.SciPy_estimate_errors_checkBox.toggled.connect(self.check_scipy_min)
+        from stellar_density_controls import StellarDensityControls
+        self.stellar_density_controls = StellarDensityControls(self, lambda: fit)
+        from fortran_optimizer_controls import FortranOptimizerControls
+        self.fortran_optimizer_controls = FortranOptimizerControls(self, lambda: fit)
         self.init_fortran_combo()
         self.init_gls_norm_combo()
+        self.init_activity_combo()
 
         self.comboBox_scipy_minimizer_1.activated.connect(self.check_scipy_min)
         self.comboBox_scipy_minimizer_2.activated.connect(self.check_scipy_min)
@@ -14930,8 +15032,8 @@ Please install via 'pip install ttvfast'.
 
         self.radioButton_act_GLS_period.toggled.connect(lambda: self.update_activity_gls_plots(self.comboBox_act_data_gls.currentIndex()))
        
-        self.comboBox_act_data_gls.activated.connect(lambda: self.update_activity_gls_plots(self.comboBox_act_data_gls.currentIndex())) 
-        self.comboBox_act_data.activated.connect(lambda: self.update_activity_data_plots(self.comboBox_act_data.currentIndex())) 
+        self.comboBox_act_data_gls.currentIndexChanged.connect(lambda: self.update_activity_gls_plots(self.comboBox_act_data_gls.currentIndex())) 
+        self.comboBox_act_data.currentIndexChanged.connect(lambda: self.update_activity_data_plots(self.comboBox_act_data.currentIndex())) 
         self.act_data_size.valueChanged.connect(lambda: self.update_activity_data_plots(self.comboBox_act_data.currentIndex())) 
        
         self.comboBox_corr_1.activated.connect(self.update_correlations_data_plots) 
@@ -15208,7 +15310,6 @@ Please install via 'pip install ttvfast'.
         self.use_ast_data_hipp_2.setVisible(False)
         self.ast_data_planet_hipp_2.setVisible(False)
         self.ast_data_planet_hipp_1.setVisible(False)
-        self.use_ast_data_hipp_1.setVisible(False)
         
         
         self.remove_ast_data_gaia_2.setVisible(False)
@@ -15216,7 +15317,6 @@ Please install via 'pip install ttvfast'.
         self.use_ast_data_gaia_2.setVisible(False)
         self.ast_data_planet_gaia_2.setVisible(False)
         self.ast_data_planet_gaia_1.setVisible(False)
-        self.use_ast_data_gaia_1.setVisible(False)   
         
         self.stop_button.setVisible(False)   
         

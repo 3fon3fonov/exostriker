@@ -6,6 +6,7 @@ import numpy as np
 from .. import debug as debug
 from .. import functions as fn
 from .. import getConfigOption
+from ..axis_numbers import tick_numbers
 from ..Point import Point
 from ..Qt import QtCore, QtGui, QtWidgets
 from .GraphicsWidget import GraphicsWidget
@@ -110,7 +111,7 @@ class AxisItem(GraphicsWidget):
         self._tickLevels  = None  # used to override the automatic ticking system with explicit ticks
         self._tickSpacing = None  # used to override default tickSpacing method
         self.scale = 1.0
-        self.autoSIPrefix = True
+        self.autoSIPrefix = False
         self.autoSIPrefixScale = 1.0
 
         self.labelText = ""
@@ -809,7 +810,8 @@ class AxisItem(GraphicsWidget):
         to 'V' then the axis would display values -100 to 100
         and the units would appear as 'mV'
 
-        This feature is enabled by default, and is only available when a suffix
+        Exo-Striker disables this feature by default to display full numbers.
+        It is only available when a suffix
         (unit string) is provided to display on the label.
 
         Parameters
@@ -1344,16 +1346,7 @@ class AxisItem(GraphicsWidget):
         if self.logMode:
             return self.logTickStrings(values, scale, spacing)
 
-        places = max(0, ceil(-log10(spacing * scale)))
-        strings = []
-        for v in values:
-            vs = v * scale
-            if abs(vs) < .001 or abs(vs) >= 10000:
-                vstr = "%g" % vs
-            else:
-                vstr = ("%%0.%df" % places) % vs
-            strings.append(vstr)
-        return strings
+        return tick_numbers(values, scale, spacing)
 
     def logTickStrings(self, values: list[float], scale: float, spacing: float):
         """
@@ -1376,32 +1369,7 @@ class AxisItem(GraphicsWidget):
         list of str
             List of strings to display at each tick value.
         """
-        estrings = [
-            "%0.1g"%x
-            for x in 10 ** np.array(values).astype(float) * np.array(scale)
-        ]
-        convdict = {"0": "⁰",
-                    "1": "¹",
-                    "2": "²",
-                    "3": "³",
-                    "4": "⁴",
-                    "5": "⁵",
-                    "6": "⁶",
-                    "7": "⁷",
-                    "8": "⁸",
-                    "9": "⁹",
-                    }
-        dstrings = []
-        for e in estrings:
-            if e.count("e"):
-                v, p = e.split("e")
-                sign = "⁻" if p[0] == "-" else ""
-                pot = "".join([convdict[pp] for pp in p[1:].lstrip("0")])
-                v = "" if v == "1" else f"{v}·"
-                dstrings.append(f"{v}10{sign}{pot}")
-            else:
-                dstrings.append(e)
-        return dstrings
+        return tick_numbers(values, scale, spacing, logarithmic=True)
 
     def generateDrawSpecs(self, p):
         """

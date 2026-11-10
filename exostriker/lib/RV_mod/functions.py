@@ -57,6 +57,17 @@ TWOPI = 2.0*PI
 
 matplotlib.rcParams['axes.formatter.useoffset'] = False
 
+def ttv_component_selection(selection=None):
+    """Global score switches; dataset depth/duration flags still also apply."""
+    names=('timing','duration','depth')
+    if selection is None:return (True,True,True)
+    if not isinstance(selection,dict) or set(selection)-set(names):
+        raise ValueError('ttv_fit_components must map timing, duration, and depth to booleans.')
+    if any(not isinstance(v,(bool,np.bool_)) for v in selection.values()):
+        raise ValueError('Timing component switches must be booleans.')
+    return tuple(bool(selection.get(name,True)) for name in names)
+
+
 def migrate_ttv_datasets(fit):
     """Upgrade saved TTV records without reloading their observation files."""
     datasets = getattr(fit, 'ttv_data_sets', None)
@@ -81,6 +92,9 @@ def migrate_ttv_datasets(fit):
 
 
 def check_for_missing_instances(fit,fit_new):
+    # Old sessions must not inherit joint-activity selections from the open session.
+    from activity_gp import ensure as ensure_activity_gp
+    ensure_activity_gp(fit_new)
 
     from .dilution import ensure_dilution_parameters
     # Migrate before copying new defaults/markers into an older session.
@@ -1325,6 +1339,7 @@ def add_mcmc_samples(obj,sampler):
         obj.e_for_mcmc, [obj.mcmc_save_median, obj.mcmc_save_means,
                         obj.mcmc_save_mode, obj.mcmc_save_maxlnL])
     obj.mcmc_sampler = sampler
+    obj.mcmc_sampler.likelihood_backend = getattr(obj, "likelihood_backend_used", None) or "legacy"
     obj.sampler_saved = True
 
 
@@ -1340,6 +1355,7 @@ def add_ns_samples(obj,sampler):
 
 
     obj.ns_sampler= dill.copy(sampler.results)
+    obj.ns_sampler.likelihood_backend = getattr(obj, "likelihood_backend_used", None) or "legacy"
     obj.ns_sampler.lbf     = {k: np.array([label, True], dtype=f"U{max(30, len(label))}")
                              for k, label in enumerate(obj.e_for_mcmc)}
 
@@ -3691,7 +3707,10 @@ def _latex_table_parameters(obj):
     if transit:
         add('t0', r'$t_0$ [day]')
         add('pl_rad', r'$R_{\rm p}/R_\star$')
-        add('pl_a', r'$a/R_\star$')
+        if getattr(obj, 'rho', False):
+            add('pl_a', r'$\rho_\star$ [kg\,m$^{-3}$]', slots=planets[:1], bounds='stellar_rho_bounds')
+        else:
+            add('pl_a', r'$a/R_\star$')
     if hasattr(obj, 'omega_dot_use') and any(obj.omega_dot_use[i] for i in planets):
         add('omega_dot', r'$\dot\omega$ [deg\,yr$^{-1}$]', bounds='omega_dot_bounds')
     for active, prefix, datasets in ((rv, '', 'rv_data_sets'), (transit, 'tra_', 'tra_data_sets')):
@@ -3858,6 +3877,10 @@ def latex_prior_table(obj, width=10, precision=2, file_name='prior_table.tex',
             continue
         base = name[:-7] if name.endswith('_params') else name
         normal, jeff = getattr(obj, base + '_norm_pr', None), getattr(obj, base + '_jeff_pr', None)
+        if bounds_name == 'stellar_rho_bounds':
+            bounds = {slot: obj.stellar_rho_bounds for slot in slots}
+            normal = {slot: obj.stellar_rho_norm_pr for slot in slots}
+            jeff = {slot: obj.stellar_rho_jeff_pr for slot in slots}
         cells = []
         for i in slots:
             lo, hi = bounds[i]
@@ -4609,3 +4632,41 @@ def update_jacobi_masses(obj):
         if result is not None:
             result.mass, result.a = masses.copy(), axes.copy()
     return masses, axes
+
+
+def prepare_transit_limb_darkening(obj):
+    """Pack all 60 passbands consistently for GUI and headless inference.
+
+    A linked passband uses its group's coefficients and law. Resolve links
+    before assigning indices so forward links work as well as backward links.
+    """
+    sizes = {'uniform': 0, 'linear': 1, 'quadratic': 2, 'nonlinear': 4}
+    loaded = [d for d in range(60) if len(obj.tra_data_sets[d])]
+    roots = {}
+    for d in loaded:
+        root = d
+        visited = set()
+        while obj.ld_gr[root] != root:
+            if root in visited:
+                raise ValueError('Limb-darkening groups contain a cycle.')
+            visited.add(root)
+            root = int(obj.ld_gr[root])
+            if root not in loaded:
+                raise ValueError('A limb-darkening group must reference a loaded dataset.')
+        roots[d] = root
+    offset = 0
+    for d in loaded:
+        if roots[d] != d:
+            continue
+        law = obj.ld_m[d]
+        if law not in sizes:
+            raise ValueError('Unsupported limb-darkening law: ' + str(law))
+        obj.ld_gr_ind[d] = offset
+        offset += sizes[law]
+    for d in loaded:
+        root = roots[d]
+        obj.ld_gr_ind[d] = obj.ld_gr_ind[root]
+        obj.ld_m[d] = obj.ld_m[root]
+        for name in ('ld_u', 'ld_u_lin', 'ld_u_quad', 'ld_u_nonlin'):
+            table = getattr(obj, name)
+            table[d] = list(table[root])

@@ -4,3 +4,7 @@ python3.11 -m PyQt6.uic.pyuic -x act.ui -o ../act.py
 python3.11 -m PyQt6.uic.pyuic -x rvs.ui -o ../rvs.py
 
 python3.11 -m PyQt6.uic.pyuic sample_correlation_options.ui -o ../sample_correlation_options_ui.py
+
+python3.11 -m PyQt6.uic.pyuic rv_phase_options.ui -o ../rv_phase_options_ui.py
+
+python3.11 -m PyQt6.uic.pyuic transit_phase_options.ui -o ../transit_phase_options_ui.py

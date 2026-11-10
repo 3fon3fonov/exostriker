@@ -1376,7 +1376,7 @@
           <item row="0" column="0">
            <widget class="QTabWidget" name="tabWidget_44">
             <property name="currentIndex">
-             <number>2</number>
+             <number>0</number>
             </property>
             <property name="movable">
              <bool>true</bool>
@@ -2346,8 +2346,78 @@
                     <kerning>true</kerning>
                    </font>
                   </property>
+                  <property name="visible">
+                   <bool>false</bool>
+                  </property>
                   <property name="text">
                    <string>x-norm</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="2">
+                 <widget class="QPushButton" name="rv_phase_options_button">
+                  <property name="visible">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Phase options…</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="tab_phased_transits">
+             <attribute name="title">
+              <string>Phased transit plots</string>
+             </attribute>
+             <layout class="QVBoxLayout" name="transit_phase_layout">
+              <item>
+               <widget class="GraphicsLayoutWidget" name="transit_phase_graphics"/>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="transit_phase_controls_layout">
+                <item>
+                 <widget class="QComboBox" name="transit_phase_planet"/>
+                </item>
+                <item>
+                 <widget class="QComboBox" name="transit_phase_dataset">
+                  <property name="toolTip">
+                   <string>Show all transit datasets or a single light curve</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="transit_phase_cross">
+                  <property name="text">
+                   <string>Cross hair</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="transit_phase_options_button">
+                  <property name="text">
+                   <string>Phase options…</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QSlider" name="transit_phase_slider">
+                  <property name="toolTip">
+                   <string>Shift the phase origin by a fraction of the period</string>
+                  </property>
+                  <property name="minimum">
+                   <number>-50</number>
+                  </property>
+                  <property name="maximum">
+                   <number>50</number>
+                  </property>
+                  <property name="value">
+                   <number>0</number>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
                   </property>
                  </widget>
                 </item>
@@ -3681,7 +3751,7 @@
                     <property name="text">
                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a&lt;span style=&quot; vertical-align:sub;&quot;&gt;pl&lt;/span&gt;/R&lt;span style=&quot; vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                     </property>
-                   </widget>
+                   <property name="scaledAxisText" stdset="0"><string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a&lt;span style=&quot;vertical-align:sub;&quot;&gt;pl&lt;/span&gt;/R&lt;span style=&quot;vertical-align:sub;&quot;&gt;★&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string></property><property name="stellarDensityText" stdset="0"><string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;ρ&lt;span style=&quot;vertical-align:sub;&quot;&gt;★&lt;/span&gt; [kg/m&lt;span style=&quot;vertical-align:super;&quot;&gt;3&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string></property></widget>
                   </item>
                   <item row="6" column="0">
                    <widget class="QLabel" name="label_Ma">
@@ -11017,7 +11087,7 @@
               <string>RV GP</string>
              </attribute>
              <layout class="QGridLayout" name="gridLayout_141">
-              <item row="0" column="0">
+              <item row="0" column="0"><layout class="QHBoxLayout" name="rv_gp_selection_layout"><item>
                <widget class="QCheckBox" name="do_RV_GP">
                 <property name="font">
                  <font>
@@ -11036,6 +11106,9 @@
                 </attribute>
                </widget>
               </item>
+<item><spacer name="rv_gp_selection_spacer"><property name="orientation"><enum>Qt::Horizontal</enum></property><property name="sizeHint" stdset="0"><size><width>20</width><height>20</height></size></property></spacer></item>
+<item><widget class="QPushButton" name="activity_gp_open"><property name="text"><string>Select activity indicators…</string></property><property name="toolTip"><string>Choose loaded BIS, FWHM, Hα or other activity datasets to fit jointly with the RV GP.</string></property></widget></item>
+</layout></item>
               <item row="1" column="0">
                <widget class="QTabWidget" name="tabWidget_2">
                 <property name="font">
@@ -12990,6 +13063,867 @@
               </item>
              </layout>
             </widget>
+<widget class="QWidget" name="tab_activity_joint_gp">
+ <attribute name="title">
+  <string>Joint activity GP</string>
+ </attribute>
+ <layout class="QGridLayout" name="activity_joint_gp_layout">
+  <item row="0" column="0" colspan="8">
+   <widget class="QLabel" name="activity_gp_help">
+    <property name="wordWrap">
+     <bool>true</bool>
+    </property>
+    <property name="text">
+     <string>Fit RVs and selected activity series jointly in time. Shared kernel: RV GP tab; its bounds and priors: Limits and Priors.</string>
+    </property>
+   </widget>
+  </item>
+  <item row="1" column="0" colspan="1">
+   <widget class="QLabel" name="activity_gp_dataset_label">
+    <property name="text">
+     <string>Activity dataset</string>
+    </property>
+   </widget>
+  </item>
+  <item row="1" column="1" colspan="3">
+   <widget class="QComboBox" name="activity_gp_dataset">
+    <property name="toolTip">
+     <string>Loaded activity files only. Choose a file, then check Include in joint RV GP. Repeat to include several indicators.</string>
+    </property>
+   </widget>
+  </item>
+  <item row="3" column="0" colspan="8">
+   <widget class="QGroupBox" name="activity_gp_parameters_group">
+    <property name="title">
+     <string>Activity responses and noise parameters</string>
+    </property>
+    <layout class="QGridLayout" name="activity_gp_parameters_grid">
+     <item row="0" column="0" colspan="1">
+      <widget class="QLabel" name="activity_gp_header_0">
+       <property name="text">
+        <string>Parameter</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1" colspan="1">
+      <widget class="QLabel" name="activity_gp_header_1">
+       <property name="text">
+        <string>Value</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2" colspan="1">
+      <widget class="QLabel" name="activity_gp_header_2">
+       <property name="text">
+        <string>Fit</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="3" colspan="1">
+      <widget class="QLabel" name="activity_gp_header_3">
+       <property name="text">
+        <string>Lower bound</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="4" colspan="1">
+      <widget class="QLabel" name="activity_gp_header_4">
+       <property name="text">
+        <string>Upper bound</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="5" colspan="1">
+      <widget class="QLabel" name="activity_gp_header_5">
+       <property name="text">
+        <string>Prior</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="6" colspan="1">
+      <widget class="QLabel" name="activity_gp_header_6">
+       <property name="text">
+        <string>Mean / lower</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="7" colspan="1">
+      <widget class="QLabel" name="activity_gp_header_7">
+       <property name="text">
+        <string>Sigma / upper</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0" colspan="1">
+      <widget class="QLabel" name="activity_gp_response_label">
+       <property name="text">
+        <string>Activity × G</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1" colspan="1">
+      <widget class="OptimizerDoubleSpinBox" name="activity_gp_response_value">
+       <property name="keyboardTracking">
+        <bool>false</bool>
+       </property>
+       <property name="decimals">
+        <number>12</number>
+       </property>
+       <property name="minimum">
+        <double>-1000000000000.0</double>
+       </property>
+       <property name="maximum">
+        <double>1000000000000.0</double>
+       </property>
+       <property name="value">
+        <double>0</double>
+       </property>
+       <property name="maximumWidth">
+        <number>110</number>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2" colspan="1">
+      <widget class="QCheckBox" name="activity_gp_response_fit">
+       <property name="text">
+        <string />
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="3" colspan="1">
+      <widget class="OptimizerDoubleSpinBox" name="activity_gp_response_lower">
+       <property name="keyboardTracking">
+        <bool>false</bool>
+       </property>
+       <property name="decimals">
+        <number>12</number>
+       </property>
+       <property name="minimum">
+        <double>-1000000000000.0</double>
+       </property>
+       <property name="maximum">
+        <double>1000000000000.0</double>
+       </property>
+       <property name="value">
+        <double>0</double>
+       </property>
+       <property name="maximumWidth">
+        <number>110</number>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="4" colspan="1">
+      <widget class="OptimizerDoubleSpinBox" name="activity_gp_response_upper">
+       <property name="keyboardTracking">
+        <bool>false</bool>
+       </property>
+       <property name="decimals">
+        <number>12</number>
+       </property>
+       <property name="minimum">
+        <double>-1000000000000.0</double>
+       </property>
+       <property name="maximum">
+        <double>1000000000000.0</double>
+       </property>
+       <property name="value">
+        <double>0</double>
+       </property>
+       <property name="maximumWidth">
+        <number>110</number>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="5" colspan="1">
+      <widget class="QComboBox" name="activity_gp_response_prior">
+       <item>
+        <property name="text">
+         <string>None</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Gaussian</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Jeffreys</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="1" column="6" colspan="1">
+      <widget class="OptimizerDoubleSpinBox" name="activity_gp_response_prior1">
+       <property name="keyboardTracking">
+        <bool>false</bool>
+       </property>
+       <property name="decimals">
+        <number>12</number>
+       </property>
+       <property name="minimum">
+        <double>-1000000000000.0</double>
+       </property>
+       <property name="maximum">
+        <double>1000000000000.0</double>
+       </property>
+       <property name="value">
+        <double>0</double>
+       </property>
+       <property name="maximumWidth">
+        <number>110</number>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="7" colspan="1">
+      <widget class="OptimizerDoubleSpinBox" name="activity_gp_response_prior2">
+       <property name="keyboardTracking">
+        <bool>false</bool>
+       </property>
+       <property name="decimals">
+        <number>12</number>
+       </property>
+       <property name="minimum">
+        <double>0</double>
+       </property>
+       <property name="maximum">
+        <double>1000000000000.0</double>
+       </property>
+       <property name="value">
+        <double>0</double>
+       </property>
+       <property name="maximumWidth">
+        <number>110</number>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0" colspan="1">
+      <widget class="QLabel" name="activity_gp_derivative_label">
+       <property name="text">
+        <string>Activity × dG/dt</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1" colspan="1">
+      <widget class="OptimizerDoubleSpinBox" name="activity_gp_derivative_value">
+       <property name="keyboardTracking">
+        <bool>false</bool>
+       </property>
+       <property name="decimals">
+        <number>12</number>
+       </property>
+       <property name="minimum">
+        <double>-1000000000000.0</double>
+       </property>
+       <property name="maximum">
+        <double>1000000000000.0</double>
+       </property>
+       <property name="value">
+        <double>0</double>
+       </property>
+       <property name="maximumWidth">
+        <number>110</number>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2" colspan="1">
+      <widget class="QCheckBox" name="activity_gp_derivative_fit">
+       <property name="text">
+        <string />
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="3" colspan="1">
+      <widget class="OptimizerDoubleSpinBox" name="activity_gp_derivative_lower">
+       <property name="keyboardTracking">
+        <bool>false</bool>
+       </property>
+       <property name="decimals">
+        <number>12</number>
+       </property>
+       <property name="minimum">
+        <double>-1000000000000.0</double>
+       </property>
+       <property name="maximum">
+        <double>1000000000000.0</double>
+       </property>
+       <property name="value">
+        <double>0</double>
+       </property>
+       <property name="maximumWidth">
+        <number>110</number>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="4" colspan="1">
+      <widget class="OptimizerDoubleSpinBox" name="activity_gp_derivative_upper">
+       <property name="keyboardTracking">
+        <bool>false</bool>
+       </property>
+       <property name="decimals">
+        <number>12</number>
+       </property>
+       <property name="minimum">
+        <double>-1000000000000.0</double>
+       </property>
+       <property name="maximum">
+        <double>1000000000000.0</double>
+       </property>
+       <property name="value">
+        <double>0</double>
+       </property>
+       <property name="maximumWidth">
+        <number>110</number>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="5" colspan="1">
+      <widget class="QComboBox" name="activity_gp_derivative_prior">
+       <item>
+        <property name="text">
+         <string>None</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Gaussian</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Jeffreys</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="2" column="6" colspan="1">
+      <widget class="OptimizerDoubleSpinBox" name="activity_gp_derivative_prior1">
+       <property name="keyboardTracking">
+        <bool>false</bool>
+       </property>
+       <property name="decimals">
+        <number>12</number>
+       </property>
+       <property name="minimum">
+        <double>-1000000000000.0</double>
+       </property>
+       <property name="maximum">
+        <double>1000000000000.0</double>
+       </property>
+       <property name="value">
+        <double>0</double>
+       </property>
+       <property name="maximumWidth">
+        <number>110</number>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="7" colspan="1">
+      <widget class="OptimizerDoubleSpinBox" name="activity_gp_derivative_prior2">
+       <property name="keyboardTracking">
+        <bool>false</bool>
+       </property>
+       <property name="decimals">
+        <number>12</number>
+       </property>
+       <property name="minimum">
+        <double>0</double>
+       </property>
+       <property name="maximum">
+        <double>1000000000000.0</double>
+       </property>
+       <property name="value">
+        <double>0</double>
+       </property>
+       <property name="maximumWidth">
+        <number>110</number>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0" colspan="1">
+      <widget class="QLabel" name="activity_gp_offset_label">
+       <property name="text">
+        <string>Activity offset</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1" colspan="1">
+      <widget class="OptimizerDoubleSpinBox" name="activity_gp_offset_value">
+       <property name="keyboardTracking">
+        <bool>false</bool>
+       </property>
+       <property name="decimals">
+        <number>12</number>
+       </property>
+       <property name="minimum">
+        <double>-1000000000000.0</double>
+       </property>
+       <property name="maximum">
+        <double>1000000000000.0</double>
+       </property>
+       <property name="value">
+        <double>0</double>
+       </property>
+       <property name="maximumWidth">
+        <number>110</number>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="2" colspan="1">
+      <widget class="QCheckBox" name="activity_gp_offset_fit">
+       <property name="text">
+        <string />
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="3" colspan="1">
+      <widget class="OptimizerDoubleSpinBox" name="activity_gp_offset_lower">
+       <property name="keyboardTracking">
+        <bool>false</bool>
+       </property>
+       <property name="decimals">
+        <number>12</number>
+       </property>
+       <property name="minimum">
+        <double>-1000000000000.0</double>
+       </property>
+       <property name="maximum">
+        <double>1000000000000.0</double>
+       </property>
+       <property name="value">
+        <double>0</double>
+       </property>
+       <property name="maximumWidth">
+        <number>110</number>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="4" colspan="1">
+      <widget class="OptimizerDoubleSpinBox" name="activity_gp_offset_upper">
+       <property name="keyboardTracking">
+        <bool>false</bool>
+       </property>
+       <property name="decimals">
+        <number>12</number>
+       </property>
+       <property name="minimum">
+        <double>-1000000000000.0</double>
+       </property>
+       <property name="maximum">
+        <double>1000000000000.0</double>
+       </property>
+       <property name="value">
+        <double>0</double>
+       </property>
+       <property name="maximumWidth">
+        <number>110</number>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="5" colspan="1">
+      <widget class="QComboBox" name="activity_gp_offset_prior">
+       <item>
+        <property name="text">
+         <string>None</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Gaussian</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Jeffreys</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="3" column="6" colspan="1">
+      <widget class="OptimizerDoubleSpinBox" name="activity_gp_offset_prior1">
+       <property name="keyboardTracking">
+        <bool>false</bool>
+       </property>
+       <property name="decimals">
+        <number>12</number>
+       </property>
+       <property name="minimum">
+        <double>-1000000000000.0</double>
+       </property>
+       <property name="maximum">
+        <double>1000000000000.0</double>
+       </property>
+       <property name="value">
+        <double>0</double>
+       </property>
+       <property name="maximumWidth">
+        <number>110</number>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="7" colspan="1">
+      <widget class="OptimizerDoubleSpinBox" name="activity_gp_offset_prior2">
+       <property name="keyboardTracking">
+        <bool>false</bool>
+       </property>
+       <property name="decimals">
+        <number>12</number>
+       </property>
+       <property name="minimum">
+        <double>0</double>
+       </property>
+       <property name="maximum">
+        <double>1000000000000.0</double>
+       </property>
+       <property name="value">
+        <double>0</double>
+       </property>
+       <property name="maximumWidth">
+        <number>110</number>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0" colspan="1">
+      <widget class="QLabel" name="activity_gp_jitter_label">
+       <property name="text">
+        <string>Activity jitter</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1" colspan="1">
+      <widget class="OptimizerDoubleSpinBox" name="activity_gp_jitter_value">
+       <property name="keyboardTracking">
+        <bool>false</bool>
+       </property>
+       <property name="decimals">
+        <number>12</number>
+       </property>
+       <property name="minimum">
+        <double>0</double>
+       </property>
+       <property name="maximum">
+        <double>1000000000000.0</double>
+       </property>
+       <property name="value">
+        <double>0</double>
+       </property>
+       <property name="maximumWidth">
+        <number>110</number>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="2" colspan="1">
+      <widget class="QCheckBox" name="activity_gp_jitter_fit">
+       <property name="text">
+        <string />
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="3" colspan="1">
+      <widget class="OptimizerDoubleSpinBox" name="activity_gp_jitter_lower">
+       <property name="keyboardTracking">
+        <bool>false</bool>
+       </property>
+       <property name="decimals">
+        <number>12</number>
+       </property>
+       <property name="minimum">
+        <double>0</double>
+       </property>
+       <property name="maximum">
+        <double>1000000000000.0</double>
+       </property>
+       <property name="value">
+        <double>0</double>
+       </property>
+       <property name="maximumWidth">
+        <number>110</number>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="4" colspan="1">
+      <widget class="OptimizerDoubleSpinBox" name="activity_gp_jitter_upper">
+       <property name="keyboardTracking">
+        <bool>false</bool>
+       </property>
+       <property name="decimals">
+        <number>12</number>
+       </property>
+       <property name="minimum">
+        <double>0</double>
+       </property>
+       <property name="maximum">
+        <double>1000000000000.0</double>
+       </property>
+       <property name="value">
+        <double>0</double>
+       </property>
+       <property name="maximumWidth">
+        <number>110</number>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="5" colspan="1">
+      <widget class="QComboBox" name="activity_gp_jitter_prior">
+       <item>
+        <property name="text">
+         <string>None</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Gaussian</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Jeffreys</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="4" column="6" colspan="1">
+      <widget class="OptimizerDoubleSpinBox" name="activity_gp_jitter_prior1">
+       <property name="keyboardTracking">
+        <bool>false</bool>
+       </property>
+       <property name="decimals">
+        <number>12</number>
+       </property>
+       <property name="minimum">
+        <double>-1000000000000.0</double>
+       </property>
+       <property name="maximum">
+        <double>1000000000000.0</double>
+       </property>
+       <property name="value">
+        <double>0</double>
+       </property>
+       <property name="maximumWidth">
+        <number>110</number>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="7" colspan="1">
+      <widget class="OptimizerDoubleSpinBox" name="activity_gp_jitter_prior2">
+       <property name="keyboardTracking">
+        <bool>false</bool>
+       </property>
+       <property name="decimals">
+        <number>12</number>
+       </property>
+       <property name="minimum">
+        <double>0</double>
+       </property>
+       <property name="maximum">
+        <double>1000000000000.0</double>
+       </property>
+       <property name="value">
+        <double>0</double>
+       </property>
+       <property name="maximumWidth">
+        <number>110</number>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0" colspan="1">
+      <widget class="QLabel" name="activity_gp_rv_derivative_label">
+       <property name="text">
+        <string>RV × dG/dt [d]</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1" colspan="1">
+      <widget class="OptimizerDoubleSpinBox" name="activity_gp_rv_derivative_value">
+       <property name="keyboardTracking">
+        <bool>false</bool>
+       </property>
+       <property name="decimals">
+        <number>12</number>
+       </property>
+       <property name="minimum">
+        <double>-1000000000000.0</double>
+       </property>
+       <property name="maximum">
+        <double>1000000000000.0</double>
+       </property>
+       <property name="value">
+        <double>0</double>
+       </property>
+       <property name="maximumWidth">
+        <number>110</number>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="2" colspan="1">
+      <widget class="QCheckBox" name="activity_gp_rv_derivative_fit">
+       <property name="text">
+        <string />
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="3" colspan="1">
+      <widget class="OptimizerDoubleSpinBox" name="activity_gp_rv_derivative_lower">
+       <property name="keyboardTracking">
+        <bool>false</bool>
+       </property>
+       <property name="decimals">
+        <number>12</number>
+       </property>
+       <property name="minimum">
+        <double>-1000000000000.0</double>
+       </property>
+       <property name="maximum">
+        <double>1000000000000.0</double>
+       </property>
+       <property name="value">
+        <double>0</double>
+       </property>
+       <property name="maximumWidth">
+        <number>110</number>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="4" colspan="1">
+      <widget class="OptimizerDoubleSpinBox" name="activity_gp_rv_derivative_upper">
+       <property name="keyboardTracking">
+        <bool>false</bool>
+       </property>
+       <property name="decimals">
+        <number>12</number>
+       </property>
+       <property name="minimum">
+        <double>-1000000000000.0</double>
+       </property>
+       <property name="maximum">
+        <double>1000000000000.0</double>
+       </property>
+       <property name="value">
+        <double>0</double>
+       </property>
+       <property name="maximumWidth">
+        <number>110</number>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="5" colspan="1">
+      <widget class="QComboBox" name="activity_gp_rv_derivative_prior">
+       <item>
+        <property name="text">
+         <string>None</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Gaussian</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Jeffreys</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="5" column="6" colspan="1">
+      <widget class="OptimizerDoubleSpinBox" name="activity_gp_rv_derivative_prior1">
+       <property name="keyboardTracking">
+        <bool>false</bool>
+       </property>
+       <property name="decimals">
+        <number>12</number>
+       </property>
+       <property name="minimum">
+        <double>-1000000000000.0</double>
+       </property>
+       <property name="maximum">
+        <double>1000000000000.0</double>
+       </property>
+       <property name="value">
+        <double>0</double>
+       </property>
+       <property name="maximumWidth">
+        <number>110</number>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="7" colspan="1">
+      <widget class="OptimizerDoubleSpinBox" name="activity_gp_rv_derivative_prior2">
+       <property name="keyboardTracking">
+        <bool>false</bool>
+       </property>
+       <property name="decimals">
+        <number>12</number>
+       </property>
+       <property name="minimum">
+        <double>0</double>
+       </property>
+       <property name="maximum">
+        <double>1000000000000.0</double>
+       </property>
+       <property name="value">
+        <double>0</double>
+       </property>
+       <property name="maximumWidth">
+        <number>110</number>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </item>
+  <item row="1" column="4" colspan="4">
+   <widget class="QCheckBox" name="activity_gp_enabled">
+    <property name="text">
+     <string>Include in joint RV GP</string>
+    </property>
+   </widget>
+  </item>
+  <item row="2" column="0" colspan="8">
+   <widget class="QLabel" name="activity_gp_selection_summary">
+    <property name="wordWrap">
+     <bool>true</bool>
+    </property>
+    <property name="text">
+     <string>No activity selected: use the existing RV-only time GP.</string>
+    </property>
+   </widget>
+  </item>
+  <item row="4" column="0" colspan="8">
+   <widget class="QLabel" name="activity_gp_convention">
+    <property name="wordWrap">
+     <bool>true</bool>
+    </property>
+    <property name="text">
+     <string>RV × G = 1 (fixed amplitude convention). RV derivative applies to all RV datasets. Derivative responses require SHO, double SHO or Matérn 3/2.</string>
+    </property>
+   </widget>
+  </item>
+  <item row="5" column="0" colspan="8">
+   <widget class="QLabel" name="activity_gp_cost">
+    <property name="wordWrap">
+     <bool>true</bool>
+    </property>
+    <property name="text">
+     <string>Dense joint covariance: computation scales as the cube of the total RV + selected activity points.</string>
+    </property>
+   </widget>
+  </item>
+  <item row="6" column="0" colspan="8">
+   <spacer name="activity_gp_spacer">
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
+    </property>
+    <property name="sizeHint" stdset="0">
+     <size>
+      <width>20</width>
+      <height>10</height>
+     </size>
+    </property>
+   </spacer>
+  </item>
+ </layout>
+</widget>
             <widget class="QWidget" name="tab_79">
              <attribute name="title">
               <string>Transit GP</string>
@@ -15366,20 +16300,23 @@
                     <kerning>true</kerning>
                    </font>
                   </property>
+                  <property name="toolTip">
+                   <string>Shared stellar density [kg/m^3]. Used in density mode instead of planetary a/Rstar bounds/priors.</string>
+                  </property>
                   <property name="decimals">
-                   <number>4</number>
+                   <number>6</number>
                   </property>
                   <property name="minimum">
-                   <double>100.000000000000000</double>
+                   <double>0.000001000000000</double>
                   </property>
                   <property name="maximum">
-                   <double>999999.000000000000000</double>
+                   <double>1000000000.000000000000000</double>
                   </property>
                   <property name="singleStep">
                    <double>100.000000000000000</double>
                   </property>
                   <property name="value">
-                   <double>1000.000000000000000</double>
+                   <double>99.989999999999995</double>
                   </property>
                  </widget>
                 </item>
@@ -43929,20 +44866,23 @@
                       <kerning>true</kerning>
                      </font>
                     </property>
+                    <property name="toolTip">
+                     <string>Shared stellar density [kg/m^3]. Used in density mode instead of planetary a/Rstar bounds/priors.</string>
+                    </property>
                     <property name="decimals">
                      <number>3</number>
                     </property>
                     <property name="minimum">
-                     <double>1.000000000000000</double>
+                     <double>0.000000000000000</double>
                     </property>
                     <property name="maximum">
-                     <double>10000.000000000000000</double>
+                     <double>1000000000.000000000000000</double>
                     </property>
                     <property name="singleStep">
                      <double>10.000000000000000</double>
                     </property>
                     <property name="value">
-                     <double>100.000000000000000</double>
+                     <double>99.989999999999995</double>
                     </property>
                    </widget>
                   </item>
@@ -44076,17 +45016,23 @@
                       <kerning>true</kerning>
                      </font>
                     </property>
+                    <property name="toolTip">
+                     <string>Shared stellar density [kg/m^3]. Used in density mode instead of planetary a/Rstar bounds/priors.</string>
+                    </property>
                     <property name="decimals">
                      <number>3</number>
                     </property>
+                    <property name="minimum">
+                     <double>0.000000000000000</double>
+                    </property>
                     <property name="maximum">
-                     <double>1.000000000000000</double>
+                     <double>1000000000.000000000000000</double>
                     </property>
                     <property name="singleStep">
                      <double>0.010000000000000</double>
                     </property>
                     <property name="value">
-                     <double>1.000000000000000</double>
+                     <double>99.989999999999995</double>
                     </property>
                    </widget>
                   </item>
@@ -44502,11 +45448,17 @@
                       <kerning>true</kerning>
                      </font>
                     </property>
+                    <property name="toolTip">
+                     <string>Shared stellar density [kg/m^3]. Used in density mode instead of planetary a/Rstar bounds/priors.</string>
+                    </property>
                     <property name="decimals">
                      <number>3</number>
                     </property>
+                    <property name="minimum">
+                     <double>0.000000000000000</double>
+                    </property>
                     <property name="maximum">
-                     <double>10000.000000000000000</double>
+                     <double>1000000000.000000000000000</double>
                     </property>
                     <property name="singleStep">
                      <double>1.000000000000000</double>
@@ -44536,20 +45488,23 @@
                       <kerning>true</kerning>
                      </font>
                     </property>
+                    <property name="toolTip">
+                     <string>Shared stellar density [kg/m^3]. Used in density mode instead of planetary a/Rstar bounds/priors.</string>
+                    </property>
                     <property name="decimals">
                      <number>3</number>
                     </property>
                     <property name="minimum">
-                     <double>1.000000000000000</double>
+                     <double>0.000000000000000</double>
                     </property>
                     <property name="maximum">
-                     <double>10000.000000000000000</double>
+                     <double>1000000000.000000000000000</double>
                     </property>
                     <property name="singleStep">
                      <double>10.000000000000000</double>
                     </property>
                     <property name="value">
-                     <double>1000.000000000000000</double>
+                     <double>99.989999999999995</double>
                     </property>
                    </widget>
                   </item>
@@ -44727,20 +45682,23 @@
                       <kerning>true</kerning>
                      </font>
                     </property>
+                    <property name="toolTip">
+                     <string>Shared stellar density [kg/m^3]. Used in density mode instead of planetary a/Rstar bounds/priors.</string>
+                    </property>
                     <property name="decimals">
                      <number>3</number>
                     </property>
                     <property name="minimum">
-                     <double>1.000000000000000</double>
+                     <double>0.000000000000000</double>
                     </property>
                     <property name="maximum">
-                     <double>10000.000000000000000</double>
+                     <double>1000000000.000000000000000</double>
                     </property>
                     <property name="singleStep">
                      <double>1.000000000000000</double>
                     </property>
                     <property name="value">
-                     <double>10000.000000000000000</double>
+                     <double>99.989999999999995</double>
                     </property>
                    </widget>
                   </item>
@@ -44914,20 +45872,23 @@
                       <kerning>true</kerning>
                      </font>
                     </property>
+                    <property name="toolTip">
+                     <string>Shared stellar density [kg/m^3]. Used in density mode instead of planetary a/Rstar bounds/priors.</string>
+                    </property>
                     <property name="decimals">
                      <number>3</number>
                     </property>
                     <property name="minimum">
-                     <double>1.000000000000000</double>
+                     <double>0.000000000000000</double>
                     </property>
                     <property name="maximum">
-                     <double>10000.000000000000000</double>
+                     <double>1000000000.000000000000000</double>
                     </property>
                     <property name="singleStep">
                      <double>1.000000000000000</double>
                     </property>
                     <property name="value">
-                     <double>100.000000000000000</double>
+                     <double>99.989999999999995</double>
                     </property>
                    </widget>
                   </item>
@@ -58441,7 +59402,7 @@
                    </font>
                   </property>
                   <property name="currentIndex">
-                   <number>0</number>
+                   <number>1</number>
                   </property>
                   <widget class="QWidget" name="tab_123">
                    <attribute name="title">
@@ -59295,6 +60256,9 @@
                           <kerning>true</kerning>
                          </font>
                         </property>
+                        <property name="toolTip">
+                         <string>Automatic epoch: first RV observation when available; otherwise first transit-data observation.</string>
+                        </property>
                         <property name="text">
                          <string>First RV [BJD]</string>
                         </property>
@@ -59388,7 +60352,7 @@
                   </widget>
                   <widget class="QWidget" name="tab_96">
                    <attribute name="title">
-                    <string>Fortran opt. (RV only!)</string>
+                    <string>Fortran opt. (RV / Transit / TTV)</string>
                    </attribute>
                    <layout class="QGridLayout" name="gridLayout_517">
                     <item row="0" column="0">
@@ -59409,6 +60373,9 @@
                           <stylestrategy>PreferDefault</stylestrategy>
                           <kerning>true</kerning>
                          </font>
+                        </property>
+                        <property name="toolTip">
+                         <string>Number of primary minimizer runs; 0 skips this stage.</string>
                         </property>
                         <property name="decimals">
                          <number>0</number>
@@ -59464,6 +60431,16 @@
                           <kerning>true</kerning>
                          </font>
                         </property>
+                        <item>
+                         <property name="text">
+                          <string>Nelder-Mead (Simplex)</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>Levenberg-Marquardt (LM)</string>
+                         </property>
+                        </item>
                        </widget>
                       </item>
                       <item row="1" column="0" rowspan="2">
@@ -59518,6 +60495,9 @@
                           <kerning>true</kerning>
                          </font>
                         </property>
+                        <property name="toolTip">
+                         <string>Number of secondary minimizer runs; 0 skips this stage.</string>
+                        </property>
                         <property name="decimals">
                          <number>0</number>
                         </property>
@@ -59537,22 +60517,19 @@
                           <kerning>true</kerning>
                          </font>
                         </property>
+                        <item>
+                         <property name="text">
+                          <string>Nelder-Mead (Simplex)</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>Levenberg-Marquardt (LM)</string>
+                         </property>
+                        </item>
                        </widget>
                       </item>
                      </layout>
-                    </item>
-                    <item row="0" column="1">
-                     <spacer name="horizontalSpacer_138">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>40</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                     </spacer>
                     </item>
                     <item row="0" column="2">
                      <widget class="QCheckBox" name="fortran_debug">
@@ -59572,6 +60549,19 @@
                        <string>Fortran debug?</string>
                       </property>
                      </widget>
+                    </item>
+                    <item row="0" column="1">
+                     <spacer name="horizontalSpacer_138">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>40</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
                     </item>
                     <item row="1" column="0" colspan="3">
                      <widget class="QTabWidget" name="tabWidget_Scipy_min_param_4">
@@ -59594,215 +60584,308 @@
                        <attribute name="title">
                         <string>Nelder-Mead (Simplex)</string>
                        </attribute>
-                       <layout class="QGridLayout" name="gridLayout_501">
+                       <layout class="QGridLayout" name="gridLayout_309">
                         <item row="0" column="0">
-                         <layout class="QGridLayout" name="gridLayout_502">
-                          <property name="horizontalSpacing">
-                           <number>6</number>
+                         <widget class="QScrollArea" name="fortran_simplex_scroll">
+                          <property name="frameShape">
+                           <enum>QFrame::NoFrame</enum>
                           </property>
-                          <property name="verticalSpacing">
-                           <number>2</number>
+                          <property name="widgetResizable">
+                           <bool>true</bool>
                           </property>
-                          <item row="1" column="1">
-                           <widget class="QDoubleSpinBox" name="simplex_maxiter_4">
-                            <property name="enabled">
-                             <bool>false</bool>
+                          <widget class="QWidget" name="fortran_simplex_content">
+                           <property name="geometry">
+                            <rect>
+                             <x>0</x>
+                             <y>0</y>
+                             <width>701</width>
+                             <height>134</height>
+                            </rect>
+                           </property>
+                           <layout class="QGridLayout" name="fortran_simplex_form">
+                            <property name="sizeConstraint">
+                             <enum>QLayout::SetMinimumSize</enum>
                             </property>
-                            <property name="font">
-                             <font>
-                              <pointsize>9</pointsize>
-                              <italic>false</italic>
-                              <bold>false</bold>
-                              <stylestrategy>PreferDefault</stylestrategy>
-                              <kerning>true</kerning>
-                             </font>
+                            <property name="verticalSpacing">
+                             <number>3</number>
                             </property>
-                            <property name="decimals">
-                             <number>0</number>
-                            </property>
-                            <property name="maximum">
-                             <double>10000000.000000000000000</double>
-                            </property>
-                            <property name="value">
-                             <double>5000.000000000000000</double>
-                            </property>
-                           </widget>
-                          </item>
-                          <item row="2" column="1">
-                           <widget class="QDoubleSpinBox" name="simplex_xtol_4">
-                            <property name="enabled">
-                             <bool>false</bool>
-                            </property>
-                            <property name="font">
-                             <font>
-                              <pointsize>9</pointsize>
-                              <italic>false</italic>
-                              <bold>false</bold>
-                              <stylestrategy>PreferDefault</stylestrategy>
-                              <kerning>true</kerning>
-                             </font>
-                            </property>
-                            <property name="decimals">
-                             <number>9</number>
-                            </property>
-                            <property name="singleStep">
-                             <double>0.000100000000000</double>
-                            </property>
-                            <property name="value">
-                             <double>0.000100000000000</double>
-                            </property>
-                           </widget>
-                          </item>
-                          <item row="1" column="0">
-                           <widget class="QLabel" name="label_925">
-                            <property name="font">
-                             <font>
-                              <pointsize>9</pointsize>
-                              <italic>false</italic>
-                              <bold>false</bold>
-                              <stylestrategy>PreferDefault</stylestrategy>
-                              <kerning>true</kerning>
-                             </font>
-                            </property>
-                            <property name="text">
-                             <string>maxiter</string>
-                            </property>
-                            <property name="textInteractionFlags">
-                             <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                            </property>
-                           </widget>
-                          </item>
-                          <item row="2" column="0">
-                           <widget class="QLabel" name="label_926">
-                            <property name="font">
-                             <font>
-                              <pointsize>9</pointsize>
-                              <italic>false</italic>
-                              <bold>false</bold>
-                              <stylestrategy>PreferDefault</stylestrategy>
-                              <kerning>true</kerning>
-                             </font>
-                            </property>
-                            <property name="text">
-                             <string>xtol</string>
-                            </property>
-                            <property name="textInteractionFlags">
-                             <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                            </property>
-                           </widget>
-                          </item>
-                          <item row="0" column="0">
-                           <widget class="QLabel" name="label_927">
-                            <property name="font">
-                             <font>
-                              <pointsize>9</pointsize>
-                              <italic>false</italic>
-                              <bold>false</bold>
-                              <stylestrategy>PreferDefault</stylestrategy>
-                              <kerning>true</kerning>
-                             </font>
-                            </property>
-                            <property name="text">
-                             <string>maxfev</string>
-                            </property>
-                            <property name="textInteractionFlags">
-                             <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                            </property>
-                           </widget>
-                          </item>
-                          <item row="0" column="1">
-                           <widget class="QDoubleSpinBox" name="simplex_maxfev_4">
-                            <property name="enabled">
-                             <bool>false</bool>
-                            </property>
-                            <property name="font">
-                             <font>
-                              <pointsize>9</pointsize>
-                              <italic>false</italic>
-                              <bold>false</bold>
-                              <stylestrategy>PreferDefault</stylestrategy>
-                              <kerning>true</kerning>
-                             </font>
-                            </property>
-                            <property name="decimals">
-                             <number>0</number>
-                            </property>
-                            <property name="maximum">
-                             <double>10000000.000000000000000</double>
-                            </property>
-                            <property name="value">
-                             <double>5000.000000000000000</double>
-                            </property>
-                           </widget>
-                          </item>
-                          <item row="3" column="0">
-                           <widget class="QLabel" name="label_928">
-                            <property name="font">
-                             <font>
-                              <pointsize>9</pointsize>
-                              <italic>false</italic>
-                              <bold>false</bold>
-                              <stylestrategy>PreferDefault</stylestrategy>
-                              <kerning>true</kerning>
-                             </font>
-                            </property>
-                            <property name="text">
-                             <string>ftol</string>
-                            </property>
-                           </widget>
-                          </item>
-                          <item row="3" column="1">
-                           <widget class="QDoubleSpinBox" name="simplex_ftol_4">
-                            <property name="enabled">
-                             <bool>false</bool>
-                            </property>
-                            <property name="font">
-                             <font>
-                              <pointsize>9</pointsize>
-                              <italic>false</italic>
-                              <bold>false</bold>
-                              <stylestrategy>PreferDefault</stylestrategy>
-                              <kerning>true</kerning>
-                             </font>
-                            </property>
-                            <property name="decimals">
-                             <number>9</number>
-                            </property>
-                            <property name="singleStep">
-                             <double>0.000100000000000</double>
-                            </property>
-                            <property name="value">
-                             <double>0.000100000000000</double>
-                            </property>
-                           </widget>
-                          </item>
-                         </layout>
-                        </item>
-                        <item row="0" column="1">
-                         <spacer name="horizontalSpacer_225">
-                          <property name="orientation">
-                           <enum>Qt::Horizontal</enum>
-                          </property>
-                          <property name="sizeHint" stdset="0">
-                           <size>
-                            <width>505</width>
-                            <height>20</height>
-                           </size>
-                          </property>
-                         </spacer>
-                        </item>
-                        <item row="1" column="0">
-                         <spacer name="verticalSpacer_90">
-                          <property name="orientation">
-                           <enum>Qt::Vertical</enum>
-                          </property>
-                          <property name="sizeHint" stdset="0">
-                           <size>
-                            <width>20</width>
-                            <height>58</height>
-                           </size>
-                          </property>
-                         </spacer>
+                            <item row="0" column="0">
+                             <layout class="QGridLayout" name="gridLayout_308">
+                              <item row="0" column="0">
+                               <widget class="QLabel" name="fortran_simplex_maxfev_label">
+                                <property name="toolTip">
+                                 <string>0 keeps existing limits: RV Simplex 200000 (Keplerian) / 50000 (N-body) per restart; RV LM and joint fits have no separate cap. A positive cap covers RV optimizer objective evaluations across internal restarts, or each joint run. Final model/covariance work is outside this cap.</string>
+                                </property>
+                                <property name="text">
+                                 <string>Max. function evaluations</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item row="0" column="2">
+                               <widget class="QLabel" name="fortran_simplex_maxiter_label">
+                                <property name="toolTip">
+                                 <string>0 keeps existing limits: RV LM 200; RV Simplex no extra iteration cap; joint fits 5000 per run.</string>
+                                </property>
+                                <property name="text">
+                                 <string>Max. iterations</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item row="0" column="1">
+                               <widget class="QSpinBox" name="fortran_simplex_maxfev">
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>130</width>
+                                  <height>24</height>
+                                 </size>
+                                </property>
+                                <property name="toolTip">
+                                 <string>0 keeps existing limits: RV Simplex 200000 (Keplerian) / 50000 (N-body) per restart; RV LM and joint fits have no separate cap. A positive cap covers RV optimizer objective evaluations across internal restarts, or each joint run. Final model/covariance work is outside this cap.</string>
+                                </property>
+                                <property name="specialValueText">
+                                 <string>Auto (existing)</string>
+                                </property>
+                                <property name="minimum">
+                                 <number>0</number>
+                                </property>
+                                <property name="maximum">
+                                 <number>100000000</number>
+                                </property>
+                                <property name="value">
+                                 <number>0</number>
+                                </property>
+                               </widget>
+                              </item>
+                              <item row="2" column="1">
+                               <widget class="OptimizerDoubleSpinBox" name="fortran_simplex_step_scale">
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>130</width>
+                                  <height>24</height>
+                                 </size>
+                                </property>
+                                <property name="toolTip">
+                                 <string>1 preserves the existing parameter-specific simplex displacements. Multiplies displacements, not parameter values.</string>
+                                </property>
+                                <property name="decimals">
+                                 <number>12</number>
+                                </property>
+                                <property name="minimum">
+                                 <double>0.000000000001000</double>
+                                </property>
+                                <property name="maximum">
+                                 <double>100000000.000000000000000</double>
+                                </property>
+                                <property name="singleStep">
+                                 <double>0.100000000000000</double>
+                                </property>
+                                <property name="value">
+                                 <double>1.000000000000000</double>
+                                </property>
+                               </widget>
+                              </item>
+                              <item row="3" column="0">
+                               <widget class="QLabel" name="fortran_simplex_restart_ftol_label">
+                                <property name="toolTip">
+                                 <string>RV internal Simplex runs stop when absolute objective improvement is below this value; default 1e-6. Joint runs use the selected run count.</string>
+                                </property>
+                                <property name="text">
+                                 <string>RV restart tolerance</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item row="1" column="1">
+                               <widget class="OptimizerDoubleSpinBox" name="fortran_simplex_ftol">
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>130</width>
+                                  <height>24</height>
+                                 </size>
+                                </property>
+                                <property name="toolTip">
+                                 <string>0 preserves the backend convergence rule: RV Simplex relative objective spread 1e-6 / 1e-3; RV LM absolute chi-square improvement 0.01 / 1e-5; joint absolute objective tolerance 1e-7.</string>
+                                </property>
+                                <property name="specialValueText">
+                                 <string>Auto (existing)</string>
+                                </property>
+                                <property name="decimals">
+                                 <number>12</number>
+                                </property>
+                                <property name="minimum">
+                                 <double>0.000000000000000</double>
+                                </property>
+                                <property name="maximum">
+                                 <double>100000000.000000000000000</double>
+                                </property>
+                                <property name="singleStep">
+                                 <double>0.001000000000000</double>
+                                </property>
+                                <property name="value">
+                                 <double>0.000000000000000</double>
+                                </property>
+                               </widget>
+                              </item>
+                              <item row="1" column="0">
+                               <widget class="QLabel" name="fortran_simplex_ftol_label">
+                                <property name="toolTip">
+                                 <string>0 preserves the backend convergence rule: RV Simplex relative objective spread 1e-6 / 1e-3; RV LM absolute chi-square improvement 0.01 / 1e-5; joint absolute objective tolerance 1e-7.</string>
+                                </property>
+                                <property name="text">
+                                 <string>Objective tolerance (ftol)</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item row="3" column="1">
+                               <widget class="OptimizerDoubleSpinBox" name="fortran_simplex_restart_ftol">
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>130</width>
+                                  <height>24</height>
+                                 </size>
+                                </property>
+                                <property name="toolTip">
+                                 <string>RV internal Simplex runs stop when absolute objective improvement is below this value; default 1e-6. Joint runs use the selected run count.</string>
+                                </property>
+                                <property name="decimals">
+                                 <number>12</number>
+                                </property>
+                                <property name="minimum">
+                                 <double>0.000000000001000</double>
+                                </property>
+                                <property name="maximum">
+                                 <double>100000000.000000000000000</double>
+                                </property>
+                                <property name="singleStep">
+                                 <double>0.001000000000000</double>
+                                </property>
+                                <property name="value">
+                                 <double>0.000001000000000</double>
+                                </property>
+                               </widget>
+                              </item>
+                              <item row="2" column="0">
+                               <widget class="QLabel" name="fortran_simplex_step_scale_label">
+                                <property name="toolTip">
+                                 <string>1 preserves the existing parameter-specific simplex displacements. Multiplies displacements, not parameter values.</string>
+                                </property>
+                                <property name="text">
+                                 <string>Simplex-size multiplier</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item row="0" column="3">
+                               <widget class="QSpinBox" name="fortran_simplex_maxiter">
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>130</width>
+                                  <height>24</height>
+                                 </size>
+                                </property>
+                                <property name="toolTip">
+                                 <string>0 keeps existing limits: RV LM 200; RV Simplex no extra iteration cap; joint fits 5000 per run.</string>
+                                </property>
+                                <property name="specialValueText">
+                                 <string>Auto (existing)</string>
+                                </property>
+                                <property name="minimum">
+                                 <number>0</number>
+                                </property>
+                                <property name="maximum">
+                                 <number>100000000</number>
+                                </property>
+                                <property name="value">
+                                 <number>0</number>
+                                </property>
+                               </widget>
+                              </item>
+                              <item row="1" column="2">
+                               <widget class="QLabel" name="fortran_simplex_xtol_label">
+                                <property name="toolTip">
+                                 <string>0 preserves existing behavior: no extra RV step/diameter criterion; joint LM scaled step 1e-7; joint Simplex diameter sqrt(1e-7). Positive RV values use relative parameter changes (scale at least 1); joint values use internal scaled coordinates.</string>
+                                </property>
+                                <property name="text">
+                                 <string>Parameter tolerance (xtol)</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item row="3" column="3">
+                               <widget class="QPushButton" name="fortran_simplex_restore_defaults">
+                                <property name="text">
+                                 <string>Restore existing defaults</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item row="2" column="2">
+                               <widget class="QLabel" name="fortran_simplex_restarts_label">
+                                <property name="toolTip">
+                                 <string>0 keeps RV Keplerian 20, RV N-body 1, joint 1. Positive values repeat Simplex from the preceding solution, separately from the primary/secondary stage counts. Explicit RV fitting(amoeba_starts=...) still chooses its own count.</string>
+                                </property>
+                                <property name="text">
+                                 <string>Internal Simplex runs</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item row="1" column="3">
+                               <widget class="OptimizerDoubleSpinBox" name="fortran_simplex_xtol">
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>130</width>
+                                  <height>24</height>
+                                 </size>
+                                </property>
+                                <property name="toolTip">
+                                 <string>0 preserves existing behavior: no extra RV step/diameter criterion; joint LM scaled step 1e-7; joint Simplex diameter sqrt(1e-7). Positive RV values use relative parameter changes (scale at least 1); joint values use internal scaled coordinates.</string>
+                                </property>
+                                <property name="specialValueText">
+                                 <string>Auto (existing)</string>
+                                </property>
+                                <property name="decimals">
+                                 <number>12</number>
+                                </property>
+                                <property name="minimum">
+                                 <double>0.000000000000000</double>
+                                </property>
+                                <property name="maximum">
+                                 <double>100000000.000000000000000</double>
+                                </property>
+                                <property name="singleStep">
+                                 <double>0.001000000000000</double>
+                                </property>
+                                <property name="value">
+                                 <double>0.000000000000000</double>
+                                </property>
+                               </widget>
+                              </item>
+                              <item row="2" column="3">
+                               <widget class="QSpinBox" name="fortran_simplex_restarts">
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>130</width>
+                                  <height>24</height>
+                                 </size>
+                                </property>
+                                <property name="toolTip">
+                                 <string>0 keeps RV Keplerian 20, RV N-body 1, joint 1. Positive values repeat Simplex from the preceding solution, separately from the primary/secondary stage counts. Explicit RV fitting(amoeba_starts=...) still chooses its own count.</string>
+                                </property>
+                                <property name="specialValueText">
+                                 <string>Auto (existing)</string>
+                                </property>
+                                <property name="minimum">
+                                 <number>0</number>
+                                </property>
+                                <property name="maximum">
+                                 <number>100000000</number>
+                                </property>
+                                <property name="value">
+                                 <number>0</number>
+                                </property>
+                               </widget>
+                              </item>
+                             </layout>
+                            </item>
+                           </layout>
+                          </widget>
+                         </widget>
                         </item>
                        </layout>
                       </widget>
@@ -59810,6 +60893,316 @@
                        <attribute name="title">
                         <string>LM</string>
                        </attribute>
+                       <layout class="QGridLayout" name="fortran_lm_layout">
+                        <item row="0" column="0">
+                         <widget class="QScrollArea" name="fortran_lm_scroll">
+                          <property name="frameShape">
+                           <enum>QFrame::NoFrame</enum>
+                          </property>
+                          <property name="widgetResizable">
+                           <bool>true</bool>
+                          </property>
+                          <widget class="QWidget" name="fortran_lm_content">
+                           <property name="geometry">
+                            <rect>
+                             <x>0</x>
+                             <y>0</y>
+                             <width>701</width>
+                             <height>134</height>
+                            </rect>
+                           </property>
+                           <layout class="QGridLayout" name="fortran_lm_form">
+                            <property name="sizeConstraint">
+                             <enum>QLayout::SetMinimumSize</enum>
+                            </property>
+                            <property name="verticalSpacing">
+                             <number>3</number>
+                            </property>
+                            <item row="0" column="0">
+                             <layout class="QGridLayout" name="fortran_lm_options_grid">
+                              <item row="0" column="0">
+                               <widget class="QLabel" name="fortran_lm_maxfev_label">
+                                <property name="toolTip">
+                                 <string>0 keeps existing limits: RV Simplex 200000 (Keplerian) / 50000 (N-body) per restart; RV LM and joint fits have no separate cap. A positive cap covers RV optimizer objective evaluations across internal restarts, or each joint run. Final model/covariance work is outside this cap.</string>
+                                </property>
+                                <property name="text">
+                                 <string>Max. function evaluations</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item row="0" column="1">
+                               <widget class="QSpinBox" name="fortran_lm_maxfev">
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>130</width>
+                                  <height>24</height>
+                                 </size>
+                                </property>
+                                <property name="toolTip">
+                                 <string>0 keeps existing limits: RV Simplex 200000 (Keplerian) / 50000 (N-body) per restart; RV LM and joint fits have no separate cap. A positive cap covers RV optimizer objective evaluations across internal restarts, or each joint run. Final model/covariance work is outside this cap.</string>
+                                </property>
+                                <property name="specialValueText">
+                                 <string>Auto (existing)</string>
+                                </property>
+                                <property name="minimum">
+                                 <number>0</number>
+                                </property>
+                                <property name="maximum">
+                                 <number>100000000</number>
+                                </property>
+                                <property name="value">
+                                 <number>0</number>
+                                </property>
+                               </widget>
+                              </item>
+                              <item row="0" column="2">
+                               <widget class="QLabel" name="fortran_lm_maxiter_label">
+                                <property name="toolTip">
+                                 <string>0 keeps existing limits: RV LM 200; RV Simplex no extra iteration cap; joint fits 5000 per run.</string>
+                                </property>
+                                <property name="text">
+                                 <string>Max. iterations</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item row="0" column="3">
+                               <widget class="QSpinBox" name="fortran_lm_maxiter">
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>130</width>
+                                  <height>24</height>
+                                 </size>
+                                </property>
+                                <property name="toolTip">
+                                 <string>0 keeps existing limits: RV LM 200; RV Simplex no extra iteration cap; joint fits 5000 per run.</string>
+                                </property>
+                                <property name="specialValueText">
+                                 <string>Auto (existing)</string>
+                                </property>
+                                <property name="minimum">
+                                 <number>0</number>
+                                </property>
+                                <property name="maximum">
+                                 <number>100000000</number>
+                                </property>
+                                <property name="value">
+                                 <number>0</number>
+                                </property>
+                               </widget>
+                              </item>
+                              <item row="1" column="0">
+                               <widget class="QLabel" name="fortran_lm_ftol_label">
+                                <property name="toolTip">
+                                 <string>0 preserves the backend convergence rule: RV Simplex relative objective spread 1e-6 / 1e-3; RV LM absolute chi-square improvement 0.01 / 1e-5; joint absolute objective tolerance 1e-7.</string>
+                                </property>
+                                <property name="text">
+                                 <string>Objective tolerance (ftol)</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item row="1" column="1">
+                               <widget class="OptimizerDoubleSpinBox" name="fortran_lm_ftol">
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>130</width>
+                                  <height>24</height>
+                                 </size>
+                                </property>
+                                <property name="toolTip">
+                                 <string>0 preserves the backend convergence rule: RV Simplex relative objective spread 1e-6 / 1e-3; RV LM absolute chi-square improvement 0.01 / 1e-5; joint absolute objective tolerance 1e-7.</string>
+                                </property>
+                                <property name="specialValueText">
+                                 <string>Auto (existing)</string>
+                                </property>
+                                <property name="decimals">
+                                 <number>12</number>
+                                </property>
+                                <property name="minimum">
+                                 <double>0.000000000000000</double>
+                                </property>
+                                <property name="maximum">
+                                 <double>100000000.000000000000000</double>
+                                </property>
+                                <property name="singleStep">
+                                 <double>0.001000000000000</double>
+                                </property>
+                                <property name="value">
+                                 <double>0.000000000000000</double>
+                                </property>
+                               </widget>
+                              </item>
+                              <item row="1" column="2">
+                               <widget class="QLabel" name="fortran_lm_xtol_label">
+                                <property name="toolTip">
+                                 <string>0 preserves existing behavior: no extra RV step/diameter criterion; joint LM scaled step 1e-7; joint Simplex diameter sqrt(1e-7). Positive RV values use relative parameter changes (scale at least 1); joint values use internal scaled coordinates.</string>
+                                </property>
+                                <property name="text">
+                                 <string>Parameter tolerance (xtol)</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item row="1" column="3">
+                               <widget class="OptimizerDoubleSpinBox" name="fortran_lm_xtol">
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>130</width>
+                                  <height>24</height>
+                                 </size>
+                                </property>
+                                <property name="toolTip">
+                                 <string>0 preserves existing behavior: no extra RV step/diameter criterion; joint LM scaled step 1e-7; joint Simplex diameter sqrt(1e-7). Positive RV values use relative parameter changes (scale at least 1); joint values use internal scaled coordinates.</string>
+                                </property>
+                                <property name="specialValueText">
+                                 <string>Auto (existing)</string>
+                                </property>
+                                <property name="decimals">
+                                 <number>12</number>
+                                </property>
+                                <property name="minimum">
+                                 <double>0.000000000000000</double>
+                                </property>
+                                <property name="maximum">
+                                 <double>100000000.000000000000000</double>
+                                </property>
+                                <property name="singleStep">
+                                 <double>0.001000000000000</double>
+                                </property>
+                                <property name="value">
+                                 <double>0.000000000000000</double>
+                                </property>
+                               </widget>
+                              </item>
+                              <item row="2" column="0">
+                               <widget class="QLabel" name="fortran_lm_gtol_label">
+                                <property name="toolTip">
+                                 <string>Joint LM normalized gradient threshold; 0 retains the existing 1e-7 rule and numerical floor. The established RV LM has no gradient stopping control.</string>
+                                </property>
+                                <property name="text">
+                                 <string>Gradient tolerance (joint)</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item row="2" column="1">
+                               <widget class="OptimizerDoubleSpinBox" name="fortran_lm_gtol">
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>130</width>
+                                  <height>24</height>
+                                 </size>
+                                </property>
+                                <property name="toolTip">
+                                 <string>Joint LM normalized gradient threshold; 0 retains the existing 1e-7 rule and numerical floor. The established RV LM has no gradient stopping control.</string>
+                                </property>
+                                <property name="specialValueText">
+                                 <string>Auto (existing)</string>
+                                </property>
+                                <property name="decimals">
+                                 <number>12</number>
+                                </property>
+                                <property name="minimum">
+                                 <double>0.000000000000000</double>
+                                </property>
+                                <property name="maximum">
+                                 <double>100000000.000000000000000</double>
+                                </property>
+                                <property name="singleStep">
+                                 <double>0.001000000000000</double>
+                                </property>
+                                <property name="value">
+                                 <double>0.000000000000000</double>
+                                </property>
+                               </widget>
+                              </item>
+                              <item row="2" column="2">
+                               <widget class="QLabel" name="fortran_lm_initial_damping_label">
+                                <property name="toolTip">
+                                 <string>Default 0.001 preserves the existing LM damping. Subsequent damping adjustments remain automatic.</string>
+                                </property>
+                                <property name="text">
+                                 <string>Initial LM damping</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item row="2" column="3">
+                               <widget class="OptimizerDoubleSpinBox" name="fortran_lm_initial_damping">
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>130</width>
+                                  <height>24</height>
+                                 </size>
+                                </property>
+                                <property name="toolTip">
+                                 <string>Default 0.001 preserves the existing LM damping. Subsequent damping adjustments remain automatic.</string>
+                                </property>
+                                <property name="decimals">
+                                 <number>12</number>
+                                </property>
+                                <property name="minimum">
+                                 <double>0.000000000001000</double>
+                                </property>
+                                <property name="maximum">
+                                 <double>100000000.000000000000000</double>
+                                </property>
+                                <property name="singleStep">
+                                 <double>0.100000000000000</double>
+                                </property>
+                                <property name="value">
+                                 <double>0.001000000000000</double>
+                                </property>
+                               </widget>
+                              </item>
+                              <item row="3" column="0">
+                               <widget class="QLabel" name="fortran_lm_diff_step_scale_label">
+                                <property name="toolTip">
+                                 <string>1 preserves existing derivative steps. Applies to numerical N-body RV and joint derivatives; analytic Keplerian RV derivatives are unchanged. Separate from the N-body integration time step.</string>
+                                </property>
+                                <property name="text">
+                                 <string>Derivative-step multiplier</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item row="3" column="1">
+                               <widget class="OptimizerDoubleSpinBox" name="fortran_lm_diff_step_scale">
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>130</width>
+                                  <height>24</height>
+                                 </size>
+                                </property>
+                                <property name="toolTip">
+                                 <string>1 preserves existing derivative steps. Applies to numerical N-body RV and joint derivatives; analytic Keplerian RV derivatives are unchanged. Separate from the N-body integration time step.</string>
+                                </property>
+                                <property name="decimals">
+                                 <number>12</number>
+                                </property>
+                                <property name="minimum">
+                                 <double>0.000000000001000</double>
+                                </property>
+                                <property name="maximum">
+                                 <double>100000000.000000000000000</double>
+                                </property>
+                                <property name="singleStep">
+                                 <double>0.100000000000000</double>
+                                </property>
+                                <property name="value">
+                                 <double>1.000000000000000</double>
+                                </property>
+                               </widget>
+                              </item>
+                              <item row="3" column="3">
+                               <widget class="QPushButton" name="fortran_lm_restore_defaults">
+                                <property name="text">
+                                 <string>Restore existing defaults</string>
+                                </property>
+                               </widget>
+                              </item>
+                             </layout>
+                            </item>
+                           </layout>
+                          </widget>
+                         </widget>
+                        </item>
+                       </layout>
                       </widget>
                      </widget>
                     </item>
@@ -78912,6 +80305,9 @@
       </item>
       <item row="19" column="0">
        <widget class="QRadioButton" name="amoeba_radio_button">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -78926,6 +80322,12 @@
           <stylestrategy>PreferDefault</stylestrategy>
           <kerning>true</kerning>
          </font>
+        </property>
+        <property name="visible">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>Select the minimizers in Fortran opt. (RV / Transit / TTV).</string>
         </property>
         <property name="text">
          <string>Simplex</string>
@@ -79077,6 +80479,9 @@
           <kerning>true</kerning>
          </font>
         </property>
+        <property name="visible">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>RVmod intern. optimizer</string>
         </property>
@@ -79184,6 +80589,9 @@
       </item>
       <item row="19" column="1">
        <widget class="QRadioButton" name="lm_radio_button">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -79198,6 +80606,12 @@
           <stylestrategy>PreferDefault</stylestrategy>
           <kerning>true</kerning>
          </font>
+        </property>
+        <property name="visible">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>Select the minimizers in Fortran opt. (RV / Transit / TTV).</string>
         </property>
         <property name="text">
          <string>L-M</string>
@@ -79243,6 +80657,12 @@
       </item>
       <item row="28" column="0" colspan="2">
        <widget class="QPushButton" name="Stop_button">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>Stop the calculation and keep the starting session</string>
+        </property>
         <property name="text">
          <string>Stop</string>
         </property>
@@ -85018,7 +86438,7 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>513</width>
+                   <width>376</width>
                    <height>444</height>
                   </rect>
                  </property>
@@ -86955,7 +88375,7 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>513</width>
+                   <width>465</width>
                    <height>446</height>
                   </rect>
                  </property>
@@ -92521,7 +93941,7 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>513</width>
+                   <width>502</width>
                    <height>433</height>
                   </rect>
                  </property>
@@ -100754,7 +102174,7 @@
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>491</width>
+                       <width>376</width>
                        <height>493</height>
                       </rect>
                      </property>
@@ -110116,7 +111536,7 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>513</width>
+                   <width>217</width>
                    <height>440</height>
                   </rect>
                  </property>
@@ -112276,7 +113696,7 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>513</width>
+                   <width>259</width>
                    <height>473</height>
                   </rect>
                  </property>
@@ -114386,7 +115806,247 @@
           <string>TTVs</string>
          </attribute>
          <layout class="QGridLayout" name="gridLayout_159">
-          <item row="0" column="0" rowspan="3">
+          <item row="3" column="1" rowspan="2" colspan="2">
+           <layout class="QGridLayout" name="gridLayout_323">
+            <property name="verticalSpacing">
+             <number>3</number>
+            </property>
+            <item row="4" column="2">
+             <widget class="QDoubleSpinBox" name="Epoch_ttv_end">
+              <property name="font">
+               <font>
+                <pointsize>8</pointsize>
+                <italic>false</italic>
+                <bold>false</bold>
+                <stylestrategy>PreferDefault</stylestrategy>
+                <kerning>true</kerning>
+               </font>
+              </property>
+              <property name="decimals">
+               <number>3</number>
+              </property>
+              <property name="maximum">
+               <double>100000000.000000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>1000.000000000000000</double>
+              </property>
+              <property name="value">
+               <double>1000.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QCheckBox" name="fit_ttv_duration">
+              <property name="toolTip">
+               <string>Include this observable in lnL. Dataset depth/duration use flags also apply.</string>
+              </property>
+              <property name="text">
+               <string>Fit transit durations</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="2">
+             <widget class="QDoubleSpinBox" name="time_step_model_ttv">
+              <property name="font">
+               <font>
+                <pointsize>8</pointsize>
+                <italic>false</italic>
+                <bold>false</bold>
+                <stylestrategy>PreferDefault</stylestrategy>
+                <kerning>true</kerning>
+               </font>
+              </property>
+              <property name="singleStep">
+               <double>0.010000000000000</double>
+              </property>
+              <property name="value">
+               <double>0.020000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="2">
+             <widget class="QDoubleSpinBox" name="Epoch_ttv">
+              <property name="font">
+               <font>
+                <pointsize>8</pointsize>
+                <italic>false</italic>
+                <bold>false</bold>
+                <stylestrategy>PreferDefault</stylestrategy>
+                <kerning>true</kerning>
+               </font>
+              </property>
+              <property name="decimals">
+               <number>5</number>
+              </property>
+              <property name="maximum">
+               <double>5000000.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QCheckBox" name="fit_ttv_timing">
+              <property name="toolTip">
+               <string>Include this observable in lnL. Dataset depth/duration use flags also apply.</string>
+              </property>
+              <property name="text">
+               <string>Fit transit times</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="0">
+             <widget class="QLabel" name="label_time_step_of_model_2">
+              <property name="font">
+               <font>
+                <pointsize>8</pointsize>
+                <italic>false</italic>
+                <bold>false</bold>
+                <stylestrategy>PreferDefault</stylestrategy>
+                <kerning>true</kerning>
+               </font>
+              </property>
+              <property name="text">
+               <string>time step in dyn. model [d]</string>
+              </property>
+              <property name="textInteractionFlags">
+               <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QCheckBox" name="checkBox_first_TTV_epoch">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>8</pointsize>
+                <italic>false</italic>
+                <bold>false</bold>
+                <stylestrategy>PreferDefault</stylestrategy>
+                <kerning>true</kerning>
+               </font>
+              </property>
+              <property name="text">
+               <string>first transit</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="label_Epoch_2">
+              <property name="font">
+               <font>
+                <pointsize>8</pointsize>
+                <italic>false</italic>
+                <bold>false</bold>
+                <stylestrategy>PreferDefault</stylestrategy>
+                <kerning>true</kerning>
+               </font>
+              </property>
+              <property name="text">
+               <string>Epoch [BJD]</string>
+              </property>
+              <property name="textInteractionFlags">
+               <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="label_dyn_model_accuracy_2">
+              <property name="font">
+               <font>
+                <pointsize>8</pointsize>
+                <italic>false</italic>
+                <bold>false</bold>
+                <stylestrategy>PreferDefault</stylestrategy>
+                <kerning>true</kerning>
+               </font>
+              </property>
+              <property name="text">
+               <string>End of model [BJD]</string>
+              </property>
+              <property name="textInteractionFlags">
+               <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1">
+             <widget class="QCheckBox" name="Epoch_ttv_end_plus_1000">
+              <property name="font">
+               <font>
+                <pointsize>8</pointsize>
+                <italic>false</italic>
+                <bold>false</bold>
+                <stylestrategy>PreferDefault</stylestrategy>
+                <kerning>true</kerning>
+               </font>
+              </property>
+              <property name="text">
+               <string>auto</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QCheckBox" name="fit_ttv_depth">
+              <property name="toolTip">
+               <string>Include this observable in lnL. Dataset depth/duration use flags also apply.</string>
+              </property>
+              <property name="text">
+               <string>Fit transit depths</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="1" column="2">
+           <spacer name="verticalSpacer_104">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>118</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="0" column="2">
+           <layout class="QGridLayout" name="gridLayout_83">
+            <item row="0" column="0">
+             <widget class="QPushButton" name="TTV_readme_info">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+                <italic>false</italic>
+                <bold>false</bold>
+                <stylestrategy>PreferDefault</stylestrategy>
+                <kerning>true</kerning>
+               </font>
+              </property>
+              <property name="text">
+               <string>READ ME !!!</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="0" column="0" rowspan="4">
            <layout class="QGridLayout" name="Data_Layout_4">
             <property name="bottomMargin">
              <number>0</number>
@@ -115690,26 +117350,6 @@
             </item>
            </layout>
           </item>
-          <item row="0" column="2">
-           <layout class="QGridLayout" name="gridLayout_83">
-            <item row="0" column="0">
-             <widget class="QPushButton" name="TTV_readme_info">
-              <property name="font">
-               <font>
-                <pointsize>9</pointsize>
-                <italic>false</italic>
-                <bold>false</bold>
-                <stylestrategy>PreferDefault</stylestrategy>
-                <kerning>true</kerning>
-               </font>
-              </property>
-              <property name="text">
-               <string>READ ME !!!</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
           <item row="1" column="1">
            <spacer name="verticalSpacer_18">
             <property name="orientation">
@@ -115723,188 +117363,7 @@
             </property>
            </spacer>
           </item>
-          <item row="1" column="2">
-           <spacer name="verticalSpacer_104">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>118</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="2" column="1" rowspan="2" colspan="2">
-           <layout class="QGridLayout" name="gridLayout_323">
-            <property name="verticalSpacing">
-             <number>3</number>
-            </property>
-            <item row="0" column="1">
-             <widget class="QCheckBox" name="checkBox_first_TTV_epoch">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="font">
-               <font>
-                <pointsize>8</pointsize>
-                <italic>false</italic>
-                <bold>false</bold>
-                <stylestrategy>PreferDefault</stylestrategy>
-                <kerning>true</kerning>
-               </font>
-              </property>
-              <property name="text">
-               <string>first transit</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="label_time_step_of_model_2">
-              <property name="font">
-               <font>
-                <pointsize>8</pointsize>
-                <italic>false</italic>
-                <bold>false</bold>
-                <stylestrategy>PreferDefault</stylestrategy>
-                <kerning>true</kerning>
-               </font>
-              </property>
-              <property name="text">
-               <string>time step in dyn. model [d]</string>
-              </property>
-              <property name="textInteractionFlags">
-               <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="2">
-             <widget class="QDoubleSpinBox" name="Epoch_ttv_end">
-              <property name="font">
-               <font>
-                <pointsize>8</pointsize>
-                <italic>false</italic>
-                <bold>false</bold>
-                <stylestrategy>PreferDefault</stylestrategy>
-                <kerning>true</kerning>
-               </font>
-              </property>
-              <property name="decimals">
-               <number>3</number>
-              </property>
-              <property name="maximum">
-               <double>100000000.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>1000.000000000000000</double>
-              </property>
-              <property name="value">
-               <double>1000.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_Epoch_2">
-              <property name="font">
-               <font>
-                <pointsize>8</pointsize>
-                <italic>false</italic>
-                <bold>false</bold>
-                <stylestrategy>PreferDefault</stylestrategy>
-                <kerning>true</kerning>
-               </font>
-              </property>
-              <property name="text">
-               <string>Epoch [BJD]</string>
-              </property>
-              <property name="textInteractionFlags">
-               <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="2">
-             <widget class="QDoubleSpinBox" name="time_step_model_ttv">
-              <property name="font">
-               <font>
-                <pointsize>8</pointsize>
-                <italic>false</italic>
-                <bold>false</bold>
-                <stylestrategy>PreferDefault</stylestrategy>
-                <kerning>true</kerning>
-               </font>
-              </property>
-              <property name="singleStep">
-               <double>0.010000000000000</double>
-              </property>
-              <property name="value">
-               <double>0.020000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="2">
-             <widget class="QDoubleSpinBox" name="Epoch_ttv">
-              <property name="font">
-               <font>
-                <pointsize>8</pointsize>
-                <italic>false</italic>
-                <bold>false</bold>
-                <stylestrategy>PreferDefault</stylestrategy>
-                <kerning>true</kerning>
-               </font>
-              </property>
-              <property name="decimals">
-               <number>5</number>
-              </property>
-              <property name="maximum">
-               <double>5000000.000000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_dyn_model_accuracy_2">
-              <property name="font">
-               <font>
-                <pointsize>8</pointsize>
-                <italic>false</italic>
-                <bold>false</bold>
-                <stylestrategy>PreferDefault</stylestrategy>
-                <kerning>true</kerning>
-               </font>
-              </property>
-              <property name="text">
-               <string>End of model [BJD]</string>
-              </property>
-              <property name="textInteractionFlags">
-               <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QCheckBox" name="Epoch_ttv_end_plus_1000">
-              <property name="font">
-               <font>
-                <pointsize>8</pointsize>
-                <italic>false</italic>
-                <bold>false</bold>
-                <stylestrategy>PreferDefault</stylestrategy>
-                <kerning>true</kerning>
-               </font>
-              </property>
-              <property name="text">
-               <string>auto</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item row="3" column="0">
+          <item row="4" column="0">
            <spacer name="verticalSpacer_111">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
@@ -116326,7 +117785,7 @@
                    </size>
                   </property>
                   <property name="text">
-                   <string/>
+                   <string>Fit</string>
                   </property>
                   <property name="checked">
                    <bool>false</bool>
@@ -116334,6 +117793,18 @@
                   <attribute name="buttonGroup">
                    <string notr="true">buttonGroup_use_ast_data_to_planet_3</string>
                   </attribute>
+                  <property name="visible">
+                   <bool>true</bool>
+                  </property>
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="toolTip">
+                   <string>Include Gaia observations in the likelihood. Select Hipparcos, Gaia, or both; all fitted planets contribute to the stellar motion.</string>
+                  </property>
+                  <property name="accessibleName">
+                   <string>Fit Gaia astrometry</string>
+                  </property>
                  </widget>
                 </item>
                 <item row="3" column="5">
@@ -116379,7 +117850,7 @@
                    </size>
                   </property>
                   <property name="text">
-                   <string/>
+                   <string>Fit</string>
                   </property>
                   <property name="checked">
                    <bool>false</bool>
@@ -116387,6 +117858,18 @@
                   <attribute name="buttonGroup">
                    <string notr="true">buttonGroup_use_ast_data_to_planet_2</string>
                   </attribute>
+                  <property name="visible">
+                   <bool>true</bool>
+                  </property>
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="toolTip">
+                   <string>Include Hipparcos observations in the likelihood. Select Hipparcos, Gaia, or both; all fitted planets contribute to the stellar motion.</string>
+                  </property>
+                  <property name="accessibleName">
+                   <string>Fit Hipparcos astrometry</string>
+                  </property>
                  </widget>
                 </item>
                 <item row="4" column="2" colspan="3">
@@ -118176,7 +119659,7 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>535</width>
+               <width>369</width>
                <height>440</height>
               </rect>
              </property>
@@ -121459,7 +122942,7 @@
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>491</width>
+                       <width>405</width>
                        <height>443</height>
                       </rect>
                      </property>
@@ -133298,7 +134781,7 @@
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>491</width>
+                       <width>432</width>
                        <height>433</height>
                       </rect>
                      </property>
@@ -146257,7 +147740,7 @@
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>491</width>
+                       <width>459</width>
                        <height>440</height>
                       </rect>
                      </property>
@@ -159473,7 +160956,7 @@
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>491</width>
+                       <width>487</width>
                        <height>391</height>
                       </rect>
                      </property>
@@ -184354,7 +185837,7 @@
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>491</width>
+                       <width>249</width>
                        <height>440</height>
                       </rect>
                      </property>
@@ -190996,166 +192479,171 @@
    <extends>QComboBox</extends>
    <header>sample_label_combo</header>
   </customwidget>
+  <customwidget>
+   <class>OptimizerDoubleSpinBox</class>
+   <extends>QDoubleSpinBox</extends>
+   <header>optimizer_spinbox</header>
+  </customwidget>
  </customwidgets>
  <resources/>
  <connections/>
  <buttongroups>
+  <buttongroup name="buttonGroup_use_ld_5"/>
+  <buttongroup name="buttonGroup_apply_tra_data_options"/>
+  <buttongroup name="buttonGroup_use_ld_19"/>
+  <buttongroup name="buttonGroup_samp_corr"/>
+  <buttongroup name="buttonGroup_use_tra_reg_16"/>
+  <buttongroup name="buttonGroup_use_tra_reg_10"/>
   <buttongroup name="buttonGroup_use_ld_10"/>
-  <buttongroup name="buttonGroup_dom_fold"/>
-  <buttongroup name="buttonGroup_use_ast_data_to_planet">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_use_rho_aR"/>
-  <buttongroup name="buttonGroup_use_ld_16"/>
-  <buttongroup name="buttonGroup_use_tra_reg_20"/>
-  <buttongroup name="buttonGroup_AMD_satb_NS"/>
-  <buttongroup name="buttonGroup_theta_fold"/>
-  <buttongroup name="buttonGroup_use_tra_reg_3"/>
-  <buttongroup name="buttonGroup_Swift_integrators"/>
-  <buttongroup name="buttonGroup_remove_ttv_data"/>
-  <buttongroup name="buttonGroup_use_ld_2"/>
-  <buttongroup name="buttonGroup_use_tra_reg_17"/>
-  <buttongroup name="buttonGroup_use_ld_3"/>
-  <buttongroup name="buttonGroup_omega_dot_opt"/>
-  <buttongroup name="buttonGroup_use_tra_reg_15"/>
-  <buttongroup name="buttonGroup_apply_act_data_options"/>
-  <buttongroup name="buttonGroup_ast_data"/>
-  <buttongroup name="buttonGroup_AMD_stab_opt"/>
-  <buttongroup name="buttonGroup_transit_data"/>
+  <buttongroup name="buttonGroup_f77_or_scipy"/>
+  <buttongroup name="buttonGroup_detrend_tra"/>
+  <buttongroup name="buttonGroup_use_tra_reg_9"/>
   <buttongroup name="buttonGroup_mixed_fitting">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_ewm_hkl"/>
-  <buttongroup name="buttonGroup_color_picker_tra"/>
-  <buttongroup name="buttonGroup_symbol_picker_ast"/>
-  <buttongroup name="buttonGroup_use_tra_reg_1"/>
-  <buttongroup name="buttonGroup_use_tra_GP_kernel"/>
-  <buttongroup name="buttonGroup_symbol_picker_ttv"/>
+  <buttongroup name="buttonGroup_use_ast_data_to_planet">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_use_plmass"/>
   <buttongroup name="buttonGroup_use_ld_1"/>
-  <buttongroup name="buttonGroup_use_img_hipp_ast">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_f77_or_scipy"/>
-  <buttongroup name="buttonGroup_use_ld_14"/>
-  <buttongroup name="buttonGroup_ttv_data"/>
-  <buttongroup name="buttonGroup_use_tra_reg_19"/>
-  <buttongroup name="buttonGroup_remove_ast_data_3"/>
-  <buttongroup name="buttonGroup_options_act"/>
-  <buttongroup name="buttonGroup_color_picker_ttv"/>
-  <buttongroup name="buttonGroup_use_tra_reg_4"/>
-  <buttongroup name="buttonGroup_symbol_picker_tra"/>
-  <buttongroup name="buttonGroup_use_ld_11"/>
-  <buttongroup name="buttonGroup_use">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_type_fit"/>
-  <buttongroup name="buttonGroup_use_ld_4"/>
-  <buttongroup name="buttonGroup_use_tra_reg_6"/>
-  <buttongroup name="buttonGroup_use_tra_reg_10"/>
-  <buttongroup name="buttonGroup_activity_data"/>
-  <buttongroup name="buttonGroup_use_ld_5"/>
-  <buttongroup name="buttonGroup_use_ast_plot_RA_Dec"/>
-  <buttongroup name="buttonGroup_use_ld_6"/>
-  <buttongroup name="buttonGroup_simplex_or_lm"/>
-  <buttongroup name="buttonGroup_TTV_plot_Ntra_BJD"/>
-  <buttongroup name="buttonGroup_remove_ast_data_2"/>
-  <buttongroup name="buttonGroup_use_planets">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_use_ld_20"/>
-  <buttongroup name="buttonGroup_use_tra_reg_14"/>
-  <buttongroup name="buttonGroup_apply_rvs_data_options"/>
-  <buttongroup name="buttonGroup_use_ld_13"/>
-  <buttongroup name="buttonGroup_remove_activity_data"/>
-  <buttongroup name="buttonGroup_use_ast_data_to_planet_3">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_use_tra_reg_5"/>
-  <buttongroup name="buttonGroup_samp_corr"/>
-  <buttongroup name="buttonGroup_plot_i_Omega"/>
-  <buttongroup name="buttonGroup_AMD_stab_mcmc"/>
-  <buttongroup name="buttonGroup_use_tra_reg_11"/>
-  <buttongroup name="buttonGroup_use_ttv_data_to_planet">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_color_picker"/>
-  <buttongroup name="buttonGroup_use_nbody_pack"/>
-  <buttongroup name="buttonGroup_remove_transit_data"/>
-  <buttongroup name="buttonGroup_use_ld_8"/>
-  <buttongroup name="buttonGroup_adopt_nest_as_err"/>
-  <buttongroup name="buttonGroup_use_ld_18"/>
-  <buttongroup name="buttonGroup_use_tra_reg_16"/>
-  <buttongroup name="buttonGroup_use_tra_reg_18"/>
-  <buttongroup name="buttonGroup_use_ld_12"/>
-  <buttongroup name="buttonGroup_use_ld_9"/>
-  <buttongroup name="buttonGroup_kep_or_dyn"/>
-  <buttongroup name="buttonGroup_adopt_mcmc_as_par"/>
-  <buttongroup name="buttonGroup_use_ld_19"/>
-  <buttongroup name="buttonGroup_use_ld_17"/>
-  <buttongroup name="buttonGroup_detrend_tra"/>
-  <buttongroup name="buttonGroup_nest_stat_dyn"/>
-  <buttongroup name="buttonGroup_energy"/>
-  <buttongroup name="buttonGroup_Rebound_integrators"/>
-  <buttongroup name="buttonGroup_use_tra_reg_2"/>
-  <buttongroup name="buttonGroup_remove_ast_data"/>
-  <buttongroup name="buttonGroup_remove_RV_data"/>
-  <buttongroup name="buttonGroup_ast_data_3"/>
   <buttongroup name="buttonGroup_use_ld_7"/>
-  <buttongroup name="buttonGroup_use_tra_reg_8"/>
-  <buttongroup name="buttonGroup_link_tra_GP_to_RV_GP">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_adopt_nest_as_par"/>
-  <buttongroup name="buttonGroup_apply_tra_data_options"/>
-  <buttongroup name="buttonGroup_use_tra_reg_9"/>
-  <buttongroup name="buttonGroup_use_tra_reg_7"/>
-  <buttongroup name="buttonGroup_use_tra_data_GP">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_adopt_mcmc_as_err"/>
-  <buttongroup name="buttonGroup_use_GP">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
   <buttongroup name="buttonGroup_use_RV_GP_kernel">
    <property name="exclusive">
     <bool>true</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_test_arb_conf_kp_ma"/>
-  <buttongroup name="buttonGroup_symbol_picker"/>
-  <buttongroup name="buttonGroup_ei_eo_sincos"/>
-  <buttongroup name="buttonGroup_use_ld_15"/>
-  <buttongroup name="buttonGroup_options_rvs"/>
-  <buttongroup name="buttonGroup_use_tra_reg_12"/>
-  <buttongroup name="buttonGroup_add_RV_data"/>
-  <buttongroup name="buttonGroup_ast_data_2"/>
-  <buttongroup name="buttonGroup_use_tra_reg_13"/>
+  <buttongroup name="buttonGroup_omega_dot_opt"/>
+  <buttongroup name="buttonGroup_link_tra_GP_to_RV_GP">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_use_tra_reg_6"/>
+  <buttongroup name="buttonGroup_TTV_plot_Ntra_BJD"/>
+  <buttongroup name="buttonGroup_apply_act_data_options"/>
+  <buttongroup name="buttonGroup_remove_ast_data"/>
+  <buttongroup name="buttonGroup_dom_fold"/>
+  <buttongroup name="buttonGroup_symbol_picker_tra"/>
   <buttongroup name="buttonGroup_color_picker_ast"/>
-  <buttongroup name="buttonGroup_use_plmass"/>
+  <buttongroup name="buttonGroup_use_ld_4"/>
+  <buttongroup name="buttonGroup_use_tra_data_GP">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_ei_eo_sincos"/>
+  <buttongroup name="buttonGroup_use_ld_16"/>
+  <buttongroup name="buttonGroup_energy"/>
+  <buttongroup name="buttonGroup_type_fit"/>
+  <buttongroup name="buttonGroup_use_ld_17"/>
+  <buttongroup name="buttonGroup_remove_RV_data"/>
+  <buttongroup name="buttonGroup_use_tra_GP_kernel"/>
+  <buttongroup name="buttonGroup_use_ast_data_to_planet_3">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_remove_transit_data"/>
+  <buttongroup name="buttonGroup_use_tra_reg_7"/>
+  <buttongroup name="buttonGroup_use_GP">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_use_planets">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_use_ttv_data_to_planet">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_Swift_integrators"/>
+  <buttongroup name="buttonGroup_use_img_hipp_ast">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_use_ld_13"/>
   <buttongroup name="buttonGroup_use_ast_data_to_planet_2">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
+  <buttongroup name="buttonGroup_color_picker_ttv"/>
+  <buttongroup name="buttonGroup_use_tra_reg_5"/>
+  <buttongroup name="buttonGroup_AMD_stab_opt"/>
+  <buttongroup name="buttonGroup_transit_data"/>
+  <buttongroup name="buttonGroup_use_ld_20"/>
+  <buttongroup name="buttonGroup_use_tra_reg_4"/>
+  <buttongroup name="buttonGroup_Rebound_integrators"/>
+  <buttongroup name="buttonGroup_use_tra_reg_17"/>
+  <buttongroup name="buttonGroup_use_tra_reg_3"/>
+  <buttongroup name="buttonGroup_nest_stat_dyn"/>
+  <buttongroup name="buttonGroup_ast_data_2"/>
+  <buttongroup name="buttonGroup_use_ld_15"/>
+  <buttongroup name="buttonGroup_adopt_nest_as_err"/>
+  <buttongroup name="buttonGroup_options_act"/>
+  <buttongroup name="buttonGroup_kep_or_dyn"/>
+  <buttongroup name="buttonGroup_activity_data"/>
+  <buttongroup name="buttonGroup_use_ld_14"/>
+  <buttongroup name="buttonGroup_add_RV_data"/>
+  <buttongroup name="buttonGroup_remove_ast_data_2"/>
+  <buttongroup name="buttonGroup_remove_activity_data"/>
+  <buttongroup name="buttonGroup_use_tra_reg_20"/>
+  <buttongroup name="buttonGroup_use_tra_reg_19"/>
+  <buttongroup name="buttonGroup_options_rvs"/>
+  <buttongroup name="buttonGroup_use_tra_reg_14"/>
+  <buttongroup name="buttonGroup_symbol_picker"/>
+  <buttongroup name="buttonGroup_ast_data_3"/>
+  <buttongroup name="buttonGroup_use_ast_plot_RA_Dec"/>
+  <buttongroup name="buttonGroup_remove_ttv_data"/>
+  <buttongroup name="buttonGroup_AMD_stab_mcmc"/>
+  <buttongroup name="buttonGroup_remove_ast_data_3"/>
+  <buttongroup name="buttonGroup_AMD_satb_NS"/>
+  <buttongroup name="buttonGroup_symbol_picker_ast"/>
+  <buttongroup name="buttonGroup_use_tra_reg_18"/>
+  <buttongroup name="buttonGroup_use_ld_18"/>
+  <buttongroup name="buttonGroup_adopt_mcmc_as_err"/>
+  <buttongroup name="buttonGroup_ast_data"/>
+  <buttongroup name="buttonGroup_use_tra_reg_15"/>
+  <buttongroup name="buttonGroup_use_tra_reg_8"/>
+  <buttongroup name="buttonGroup_ewm_hkl"/>
+  <buttongroup name="buttonGroup_use_tra_reg_12"/>
+  <buttongroup name="buttonGroup_use_ld_9"/>
+  <buttongroup name="buttonGroup_use_ld_8"/>
+  <buttongroup name="buttonGroup_adopt_nest_as_par"/>
+  <buttongroup name="buttonGroup_color_picker_tra"/>
+  <buttongroup name="buttonGroup_use_ld_2"/>
+  <buttongroup name="buttonGroup_use_nbody_pack"/>
+  <buttongroup name="buttonGroup_use_ld_11"/>
+  <buttongroup name="buttonGroup_use_rho_aR"/>
+  <buttongroup name="buttonGroup_use_tra_reg_1"/>
+  <buttongroup name="buttonGroup_use_ld_6"/>
+  <buttongroup name="buttonGroup_ttv_data"/>
+  <buttongroup name="buttonGroup_use_ld_3"/>
+  <buttongroup name="buttonGroup_plot_i_Omega"/>
+  <buttongroup name="buttonGroup_theta_fold"/>
+  <buttongroup name="buttonGroup_use_tra_reg_11"/>
+  <buttongroup name="buttonGroup_color_picker"/>
+  <buttongroup name="buttonGroup_test_arb_conf_kp_ma"/>
+  <buttongroup name="buttonGroup_use_tra_reg_13"/>
+  <buttongroup name="buttonGroup_use_tra_reg_2"/>
+  <buttongroup name="buttonGroup_symbol_picker_ttv"/>
+  <buttongroup name="buttonGroup_apply_rvs_data_options"/>
+  <buttongroup name="buttonGroup_simplex_or_lm"/>
+  <buttongroup name="buttonGroup_adopt_mcmc_as_par"/>
+  <buttongroup name="buttonGroup_use">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_use_ld_12"/>
  </buttongroups>
 </ui>

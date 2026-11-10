@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TransitPhaseOptions</class>
+ <widget class="QDialog" name="TransitPhaseOptions">
+  <property name="windowTitle">
+   <string>Transit phase options</string>
+  </property>
+  <layout class="QFormLayout" name="formLayout">
+   <item row="0" column="0" rowspan="1" colspan="2">
+    <widget class="QLabel" name="info">
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" rowspan="1" colspan="2">
+    <widget class="QCheckBox" name="normalize">
+     <property name="text">
+      <string>Normalize phase to −0.5 … +0.5</string>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" rowspan="1" colspan="2">
+    <widget class="QCheckBox" name="gp">
+     <property name="text">
+      <string>Subtract fitted GP from flux</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" rowspan="1" colspan="2">
+    <widget class="QCheckBox" name="points">
+     <property name="text">
+      <string>Show model as points</string>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" rowspan="1" colspan="2">
+    <widget class="QCheckBox" name="dense">
+     <property name="text">
+      <string>Use cached dense model (all light curves, without GP)</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0" rowspan="1" colspan="2">
+    <widget class="QCheckBox" name="show_legend">
+     <property name="text">
+      <string>Legend</string>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0" rowspan="1" colspan="2">
+    <widget class="QCheckBox" name="auto">
+     <property name="text">
+      <string>Auto range</string>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0">
+    <widget class="QLabel" name="window_label">
+     <property name="text">
+      <string>Half-width around transit [days]</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1">
+    <widget class="QDoubleSpinBox" name="window">
+     <property name="decimals">
+      <number>5</number>
+     </property>
+     <property name="minimum">
+      <double>0.0</double>
+     </property>
+     <property name="maximum">
+      <double>1000000.0</double>
+     </property>
+     <property name="singleStep">
+      <double>0.01</double>
+     </property>
+     <property name="specialValueText">
+      <string>Full period</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0" rowspan="1" colspan="2">
+    <widget class="QPushButton" name="reset">
+     <property name="text">
+      <string>Reset phase view</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources />
+ <connections />
+</ui>
