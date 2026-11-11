@@ -6,12 +6,13 @@ from PyQt6 import QtWidgets
 # though their buttons happen to live alongside a plot.
 _LOCKED_BUTTONS = {
     'adopt_best_RV__o_c_GLS_per', 'adopt_mpl_param', 'calc_MLP',
-    'calc_TLS', 'calc_TLS_o_c', 'adopt_tls_o_c_param', 'pushButton',
+    'calc_TLS', 'calc_TLS_o_c', 'adopt_tls_o_c_param',
     'button_make_mcmc_cornerplot', 'button_make_nest_cornerplot',
     'remove_mcmc_samples', 'remove_ns_samples',
 }
 _DISPLAY_FIELDS = (
     'nbody_plot_options', 'ast_colors', 'gls_colors', 'rvs_colors', 'tra_colors', 'ttv_colors',
+    'act_colors', 'pyqt_color_alpha_act', 'pyqt_symbols_act', 'pyqt_symbols_size_act',
     'pyqt_color_alpha_rvs', 'pyqt_color_alpha_tra',
     'pyqt_symbols_ast', 'pyqt_symbols_rvs', 'pyqt_symbols_tra', 'pyqt_symbols_ttv',
     'pyqt_symbols_size_ast', 'pyqt_symbols_size_rvs',

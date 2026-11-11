@@ -13,11 +13,14 @@ from native_transit_model import from_session, _mass_axes
 def configure(session, opt):
     from activity_gp import configure as configure_activity_gp
     configure_activity_gp(session, opt)
+    from magnetic_cycle import configure as configure_cycle, active as cycle_active
+    configure_cycle(session, opt)
     backend = getattr(session, 'transit_likelihood_backend', 'auto')
     if backend not in ('auto', 'native', 'legacy'):
         raise ValueError('transit_likelihood_backend must be auto, native or legacy.')
     reason = None
     if not (session.type_fit.get('Transit') or session.type_fit.get('TTV')): reason = 'transit/timing likelihood is not selected'
+    elif cycle_active(session): reason = 'deterministic magnetic cycle (Python likelihood)'
     elif session.rtg[1] or session.rtg[3]: reason = 'Gaussian processes'
     elif opt['AST']: reason = 'astrometry'
     elif opt['AMD_stab'] or opt['Nbody_stab']: reason = 'stability penalties'

@@ -127,6 +127,15 @@ def update_model_curves(session, **options):
         target.model_jd = times.copy()
         target.model = rv.copy()
         target.fit = fit_array.copy()
+        from magnetic_cycle import active as cycle_active, configure as configure_cycle, mean as cycle_mean
+        if cycle_active(session) and getattr(target, '_magnetic_cycle_applied', False):
+            session.prepare_for_mcmc()
+            cycle_options = {'activity_gp': None}
+            configure_cycle(session, cycle_options)
+            cycle = cycle_mean(cycle_options['magnetic_cycle'], session.parameters, times)
+            target.model += cycle
+            target.fit[:,1] = target.model
+            session.magnetic_cycle_model_curve = cycle
         for field in ('res', 'res_dict'):
             mapping = getattr(target, field, None)
             if isinstance(mapping, dict):

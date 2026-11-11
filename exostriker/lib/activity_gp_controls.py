@@ -1,5 +1,6 @@
 """Session synchronization for the joint activity GP form defined in es.ui."""
-from activity_gp import ensure, FIELDS
+import copy
+from activity_gp import ensure, FIELDS, DIFFERENTIABLE
 
 
 class ActivityGPControls:
@@ -7,6 +8,7 @@ class ActivityGPControls:
         self.view, self.session = view, session
         self.updating = False
         view.activity_gp_open.clicked.connect(self.open_selection)
+        view.activity_gp_readme.clicked.connect(self.show_readme)
         view.activity_gp_dataset.currentIndexChanged.connect(self.refresh)
         view.activity_gp_enabled.toggled.connect(self.store)
         for name in (*FIELDS, 'rv_derivative'):
@@ -30,6 +32,23 @@ class ActivityGPControls:
         try:
             view, session = self.view, self.session()
             ensure(session)
+            derivatives_supported = session.gp_kernel in DIFFERENTIABLE
+            # Retain the user's differentiable-kernel setup across kernel
+            # switches, but leave a valid zero-derivative model for Rotation/DRW.
+            derivatives = [session.activity_gp_rv_derivative]
+            derivatives += [p['derivative'] for p in session.activity_gp.values()]
+            for parameter in derivatives:
+                if derivatives_supported:
+                    saved = parameter.pop('_differentiable_settings', None)
+                    if saved is not None:
+                        parameter.update(saved)
+                else:
+                    if '_differentiable_settings' not in parameter:
+                        parameter['_differentiable_settings'] = copy.deepcopy(parameter)
+                    parameter.update(value=0., fit=False)
+                    parameter['bounds'] = [min(parameter['bounds'][0], 0.),
+                                           max(parameter['bounds'][1], 0.)]
+                    parameter['normal'][2] = parameter['jeffreys'][2] = False
             slot = view.activity_gp_dataset.currentData()
             view.activity_gp_dataset.clear()
             loaded = [i for i, row in session.act_data_sets.items() if len(row)]
@@ -48,8 +67,10 @@ class ActivityGPControls:
             view.activity_gp_enabled.setEnabled(bool(settings))
             view.activity_gp_enabled.setChecked(bool(settings and session.activity_gp[slot]['enabled']))
             for name in (*FIELDS, 'rv_derivative'):
+                available = bool(settings) and (derivatives_supported or name not in ('derivative', 'rv_derivative'))
+                getattr(view, f'activity_gp_{name}_label').setEnabled(available)
                 for field in ('value', 'lower', 'upper', 'fit', 'prior', 'prior1', 'prior2'):
-                    getattr(view, f'activity_gp_{name}_{field}').setEnabled(bool(settings))
+                    getattr(view, f'activity_gp_{name}_{field}').setEnabled(available)
                 if not settings:
                     continue
                 parameter = settings[name]
@@ -63,7 +84,7 @@ class ActivityGPControls:
                 getattr(view, f'activity_gp_{name}_prior1').setValue(values[0])
                 getattr(view, f'activity_gp_{name}_prior2').setValue(values[1])
                 for field in ('prior1', 'prior2'):
-                    getattr(view, f'activity_gp_{name}_{field}').setEnabled(prior is not None)
+                    getattr(view, f'activity_gp_{name}_{field}').setEnabled(available and prior is not None)
                 error = parameter.get('error', [0., 0.])
                 getattr(view, f'activity_gp_{name}_value').setToolTip(f'Last uncertainty: -{error[0]:.6g} +{error[1]:.6g}')
             enabled = [str(i+1)+': '+str(session.act_data_sets[i][-1]) for i, p in session.activity_gp.items()
@@ -76,6 +97,9 @@ class ActivityGPControls:
     def open_selection(self):
         self.refresh()
         self.view.tabWidget_14.setCurrentWidget(self.view.tab_activity_joint_gp)
+
+    def show_readme(self):
+        self.view.dialog_GP_help.show_help('joint_activity_gp')
 
     def prior_changed(self, *args):
         if self.updating:
@@ -121,3 +145,6 @@ class ActivityGPControls:
                 chosen = setting['normal' if index == 1 else 'jeffreys']
                 chosen[:2] = [getattr(view, f'activity_gp_{name}_{field}').value() for field in ('prior1', 'prior2')]
         self.refresh()
+        other = getattr(view, 'magnetic_cycle_controls', None)
+        if other is not None:
+            other.refresh()

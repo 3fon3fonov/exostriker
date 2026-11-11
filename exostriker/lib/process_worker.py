@@ -13,6 +13,10 @@ import dill
 import job_serialization
 import psutil
 from PyQt6 import QtCore
+from psutil_compat import protect_pid_checks
+
+
+protect_pid_checks(psutil)
 
 
 class CalculationSignals(QtCore.QObject):

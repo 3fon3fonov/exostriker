@@ -7,7 +7,7 @@ class print_info(QtWidgets.QMainWindow):
     def __init__(self, parent=None, *, show_tools=True):
         super().__init__(parent)
         self.setWindowTitle('Exo-Striker information')
-        self.resize(720, 640)
+        self.resize(720, 800)
         self.setMinimumSize(400, 300)
         self.widget = QtWidgets.QWidget(self)
         layout = QtWidgets.QVBoxLayout(self.widget)

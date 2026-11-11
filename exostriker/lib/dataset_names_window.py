@@ -7,6 +7,7 @@ DATASET_GROUPS = (
     ('RV', 'rv_data_sets', 4, '', 'buttonGroup_add_RV_data'),
     ('Transits', 'tra_data_sets', -1, '', 'buttonGroup_transit_data'),
     ('TTV', 'ttv_data_sets', 5, '', 'buttonGroup_ttv_data'),
+    ('Activity', 'act_data_sets', -1, '', 'buttonGroup_activity_data'),
     ('Astrometry', 'ast_data_sets', 7, 'Imaging', 'buttonGroup_ast_data'),
     ('Astrometry', 'ast_data_sets_hipp', 4, 'Hipparcos', 'buttonGroup_ast_data_2'),
     ('Astrometry', 'ast_data_sets_gaia', -1, 'Gaia', 'buttonGroup_ast_data_3'),
@@ -39,7 +40,7 @@ class DatasetNamesDialog(QtWidgets.QDialog):
         contents = QtWidgets.QWidget(scroll)
         sections_layout = QtWidgets.QVBoxLayout(contents)
         self.sections = {}
-        for title in (('RV',) if qso_mode else ('RV', 'Transits', 'TTV', 'Astrometry')):
+        for title in (('RV',) if qso_mode else ('RV', 'Transits', 'TTV', 'Astrometry', 'Activity')):
             group = QtWidgets.QGroupBox('Data' if qso_mode else title, contents)
             self.sections[title] = QtWidgets.QFormLayout(group)
             sections_layout.addWidget(group)

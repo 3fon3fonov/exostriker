@@ -1,5 +1,5 @@
 <!-- **T**ransit and **R**adial velocity **I**nteractive **F**itting tool for **O**rbital analysis and **N**-body simulations: -->
-**The Exo-Striker — version 0.96.2**
+**The Exo-Striker — version 0.97.1**
 
 <p align="center">
   <img width="400" src="./exostriker/source/png/33_striker.png">
@@ -21,6 +21,17 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 * [Python scripts and Jupyter notebooks](examples/README.md) for HIP 5364, 51 Peg and WASP-6, provided by Trifon Trifonov with the aid of CODEX; use with caution.
 
 * (Work in progress) documentation is available at [https://exostriker-manual.readthedocs.io](https://exostriker-manual.readthedocs.io/en/latest/).
+
+**Changes in 0.97.1**
+
+* Joint RV–activity Gaussian processes fit selected activity indicators together with RVs in time, using the existing kernel parameters and priors. Per-index responses, offsets and jitters are configured in the GUI; derivative responses are available for supported kernels.
+* An independent magnetic-cycle sine model couples selected activity indices to the RVs through a shared period, with separate amplitudes and optional per-index phase offsets. It runs outside celerite and does not occupy a planet slot.
+* Activity plots now use the RV/transit Size, Alpha, Symbol and Color controls. Time-series and GLS residual views, crosshairs, legends, correlation plot options and display-name editing are available. Small activity values and uncertainties remain visible in scientific notation.
+* Native Fortran LM/Simplex options expose iteration/evaluation budgets, tolerances and step controls, saved with the fit. Supported Gaussian and Jeffreys priors enter inference; reported lnL remains the data likelihood without prior density.
+* Hipparcos and Gaia have independent Fit checkboxes for ExTRA: use either mission or both. Stellar-density transit parameterization uses the stellar-density bounds/priors and matching parameter labels.
+* GLS/MLP adoption transfers the best sine period, amplitude and phase into the first free planet slot without optimizing. Detailed information windows retain useful sizing.
+* Exoplanet-only activity coupling, magnetic-cycle and related controls stay hidden under `-QSO`; shared test-data plotting remains available.
+* Static GUI changes are maintained in `exostriker/lib/UI/es.ui` and regenerated with `cd exostriker/lib/UI && bash command`. See [GUI development](docs/GUI_DEVELOPMENT.md) and the [manual source](exostriker-manual/README.md).
 
 **Changes in 0.96.2**
 
@@ -46,9 +57,9 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 * TTVs extraction (outside of the GUI, contact me for instructions!).
 * TTVs and/or joint TTVs + RVs analysis.
 * Photodynammical modeling of transit light curves.
-* GP modeling (via "celerite").
+* GP modeling (via "celerite"), including Python joint RV–activity conditioning and an independent magnetic-cycle sine mean.
 * Linear models for detrending ground-based transit photometry.
-* Activity index signal search via GLS periodogram.
+* Activity index signal search via GLS periodogram, including model/mean residual periodograms.
 * RVs vs. Activity time-series correlation analysis/plots.
 * RV auto-fit (RV automated planet-finder algorithm).
 * Interactive data binning, clipping, outlier removal, etc.
@@ -69,7 +80,7 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 * Importable as a standard python library (i.e., "import exostriker").
 * Print the GUI screen into a .jpeg/.png image (useful for sharing quick results, just like the image above).
 * Direct import of TESS & K2 *lc.fits, and CHEOPS *SCI_COR*.fits files.
-* Combined modeling with Hipparcos, DR4 (when available) and Imaging Astrometry.
+* Combined modeling with Hipparcos, Gaia and imaging astrometry through ExTRA, with independent Hipparcos/Gaia dataset selection.
 * Larger arsenal of N-body/dynamical simulation/analysis tools ("REBOUND" is included). 
 <!-- * Internal TTV and photo-dynamical modeling (i.e. the external "TTVFast" will become a secondary option).-->
 

@@ -95,6 +95,8 @@ def check_for_missing_instances(fit,fit_new):
     # Old sessions must not inherit joint-activity selections from the open session.
     from activity_gp import ensure as ensure_activity_gp
     ensure_activity_gp(fit_new)
+    from magnetic_cycle import ensure as ensure_cycle
+    ensure_cycle(fit_new)
 
     from .dilution import ensure_dilution_parameters
     # Migrate before copying new defaults/markers into an older session.
@@ -3339,12 +3341,14 @@ def phase_RV_planet_signal_old(obj,planet):
 
         #copied_obj.params.planet_params[7*index+0] = 0.0000001 # then we set Kj to be 0, i.e. remove the j-th planet signal
         copied_obj.K[index] = 0.0000001 # then we set Kj to be 0, i.e. remove the j-th planet signal
-        copied_obj.fitting(minimize_loglik=True, amoeba_starts=0,
+        from magnetic_cycle import orbital_refresh, apply_rv_model
+        orbital_refresh(copied_obj, minimize_loglik=True, amoeba_starts=0,
                            outputfiles=[1,1,1],return_flag=False, npoints=int(obj.model_npoints),
                           # model_max=int(max(obj.fit_results.model_jd)-max(copied_obj.fit_results.rv_model.jd)),
                           # model_min=int(copied_obj.epoch -min(obj.fit_results.model_jd)))
                            model_max=int(copied_obj.model_max),
                            model_min=int(copied_obj.model_min))
+        apply_rv_model(copied_obj)
         # and we create the static Nplanet model for the data and the model curve
         # now this model residuals will contain ONLY the j-th planet signal + the best fit residuals
 

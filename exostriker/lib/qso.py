@@ -54,6 +54,17 @@ def _configure_tabs(self):
         (self.tab_185, 'Phase plots'), (self.tab_186, 'Mirrored plots')])
     self.extra_plot_RVphase_norm.show()
     self.rv_phase_options_button.hide()
+    # Shared test-data plotting remains useful in QSO mode. Stellar activity
+    # inference and its model styling must not expose exoplanet-only workflows.
+    for name in ('activity_gp_open', 'act_model_width', 'act_model_width_caption',
+                 'act_pushButton_color_21', 'act_pushButton_color_21_caption'):
+        getattr(self, name).hide()
+    # Shared GP labels gained explicit RV units in Exo-Striker; QSO data and
+    # their GP amplitude scales are in magnitudes instead.
+    from PyQt6 import QtWidgets
+    for root in (self.tab_GP_param, self.tab_20):
+        for label in root.findChildren(QtWidgets.QLabel):
+            label.setText(label.text().replace('m/s', 'mag'))
 
 
 def qso_mode(self):

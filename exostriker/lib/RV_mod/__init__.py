@@ -184,7 +184,8 @@ def init_dSHOKernel(params):
     return gps
 
 def get_RV_gps_model(obj,  kernel_id=-1, get_lnl=False):
- 
+    from magnetic_cycle import apply_rv_model
+    apply_rv_model(obj)
     
     initiate_RV_gps(obj,  kernel_id=-1)
     from activity_gp import selected, publish_model
@@ -1678,6 +1679,14 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
             return -np.inf
 
         rv_loglik = float(rvmod.loglik)
+        from magnetic_cycle import mean as cycle_mean, independent_activity
+        cycle = opt.get('magnetic_cycle')
+        rv_residual = rvmod.o_c-cycle_mean(cycle, par, rvmod.jd)
+        if cycle and not rtg[1]:
+            slots = opt.get('dataset_slots', np.arange(len(vel_files)))
+            jitters = {slot:par[len(vel_files)+j] for j,slot in enumerate(slots)}
+            variance = np.array([err**2+jitters[int(slot)]**2 for err,slot in zip(rvmod.rv_err,rvmod.idset)])
+            rv_loglik = -.5*float(np.sum(rv_residual**2/variance+np.log(2*np.pi*variance)))
          
         if(rtg[1]):
 
@@ -1716,12 +1725,13 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
                 for err, slot in zip(rvmod.rv_err, rvmod.idset)])
             if opt.get("activity_gp"):
                 from activity_gp import evaluate as activity_loglik
-                gp_rv_loglik = activity_loglik(gps.kernel, rvmod.jd, rvmod.o_c, errors_with_jitt, opt["activity_gp"], par)
+                gp_rv_loglik = activity_loglik(gps.kernel, rvmod.jd, rv_residual, errors_with_jitt, opt["activity_gp"], par)
             else:
                 gps.compute(rvmod.jd,yerr=errors_with_jitt)
-                gp_rv_loglik = gp_rv_loglik + gps.log_likelihood(rvmod.o_c)
+                gp_rv_loglik = gp_rv_loglik + gps.log_likelihood(rv_residual)
 
             rv_loglik =  gp_rv_loglik
+        rv_loglik += independent_activity(cycle, par)[0]
         
          
         
@@ -2363,6 +2373,8 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
     from activity_gp import publish_parameters as publish_activity_parameters
     publish_activity_parameters(obj, par, e_par, opt)
+    from magnetic_cycle import publish_parameters as publish_cycle_parameters
+    publish_cycle_parameters(obj, par, e_par, opt)
 
     for slot, index in opt.get('dilution_indices', {}).items():
         obj.tra_dil[slot] = float(par[index])
@@ -2595,7 +2607,8 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
     elif obj.type_fit["RV"] == True and obj.type_fit["Transit"] == False and obj.type_fit["TTV"] == False and obj.type_fit["AST"] == False:
 
-        obj.fitting(outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=False, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
+        from magnetic_cycle import orbital_refresh
+        orbital_refresh(obj, outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=False, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
 
         if rtg[1]:
             get_RV_gps_model(obj, get_lnl=True)
@@ -2662,7 +2675,8 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
                 obj.lamb[slot] = (Ma_ + om_)%360.0
 
 
-        obj.fitting(outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=False, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
+        from magnetic_cycle import orbital_refresh
+        orbital_refresh(obj, outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=False, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
         
         obj.transit_results = transit_loglik(mod, tr_files,vel_files,tr_params,tr_model,par,rv_gp_npar,tra_gp_npar,obj.npl,obj.hkl, obj.rtg , obj.tra_gps, stmass, obj.ttv_times, obj.epoch, get_TTVs, opt, return_model = True, tra_model_fact=obj.tra_model_fact, fit_results=obj.fit_results)
         
@@ -2677,7 +2691,8 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
  
     elif obj.type_fit["RV"] == True and obj.type_fit["TTV"] == True:
         
-        obj.fitting(outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=False, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
+        from magnetic_cycle import orbital_refresh
+        orbital_refresh(obj, outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=False, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
  
         # Use the fitted vector; obj.parameters still holds the pre-fit snapshot.
         ttv_loglik = ttvs_loglik(par,vel_files, obj.ttv_data_sets,obj.npl,obj.params.stellar_mass,obj.ttv_times,obj.hkl,
@@ -2693,7 +2708,8 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
     elif obj.type_fit["RV"] == True and obj.type_fit["AST"] == True:
         
-        obj.fitting(outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=False, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
+        from magnetic_cycle import orbital_refresh
+        orbital_refresh(obj, outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=False, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
 
 
         astr_loglik2 = ast_loglik_hipp(par,vel_files, obj.ast_data_sets_hipp,obj.npl,obj.params.stellar_mass,obj.ast_times,obj.hkl, fit_results=obj.fit_results, return_model = False)
@@ -2722,6 +2738,16 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
  
     if any(obj.type_fit.get(kind, False) for kind in ('RV', 'AST', 'TTV')) and not obj.mod_dynamical:
         update_jacobi_masses(obj)
+
+    if opt.get('magnetic_cycle'):
+        from magnetic_cycle import apply_rv_model, publish_activity, publish_summary
+        apply_rv_model(obj)
+        publish_activity(obj)
+        publish_summary(obj)
+        # Evaluate the data likelihood at the adopted point, without priors.
+        obj.loglik = model_loglik(np.asarray(par)[flags], mod, par, flags, npl,
+            vel_files, tr_files, tr_model, tr_params, epoch, stmass, gps, tra_gps,
+            rtg, mix_fit, opt)
 
 ############# Errors here ##############
 
@@ -3440,7 +3466,7 @@ def run_nestsamp(obj, **kwargs):
 #    obj.hack_around_rv_params()
 
 
-    if opt.get("native_context") is None and not opt.get('activity_gp') and (obj.ns_save_means or obj.ns_save_maxlnL):
+    if opt.get("native_context") is None and not opt.get('activity_gp') and not opt.get('magnetic_cycle') and (obj.ns_save_means or obj.ns_save_maxlnL):
         obj.loglik = maxlnl
 
 
@@ -3804,7 +3830,7 @@ def run_mcmc(obj, **kwargs):
     obj = return_results(obj, pp, ee, par, flags, npl,vel_files, tr_files, tr_model, tr_params, epoch, stmass, bb, priors, gps,tra_gps, rtg, mix_fit, new_par_errors,mod,opt)
 
  
-    if opt.get("native_context") is None and not opt.get('activity_gp') and (obj.mcmc_save_means or obj.mcmc_save_maxlnL):
+    if opt.get("native_context") is None and not opt.get('activity_gp') and not opt.get('magnetic_cycle') and (obj.mcmc_save_means or obj.mcmc_save_maxlnL):
         obj.loglik = sampler.lnL_max
 
  
@@ -5020,6 +5046,8 @@ class signal_fit(object):
 
         if hasattr(self, "activity_gp"):
             self.activity_gp.pop(act_idset, None)
+        if hasattr(self, 'magnetic_cycle'):
+            self.magnetic_cycle['indicators'].pop(act_idset, None)
         self.act_data_sets[act_idset] = []
         self.act_data_sets_init[act_idset] = []
 
@@ -6444,6 +6472,10 @@ class signal_fit(object):
 
     def fitting_sequence(self, return_flag=False, **options):
         """Run the configured RV-only Fortran stages, passing fitted values on."""
+        from magnetic_cycle import active as cycle_active
+        if cycle_active(self):
+            options = dict(options, minimize_fortran=False)
+            return self.fitting(return_flag=return_flag, **options)
         stages = []
         for stage, default in ((1, 'LM'), (2, 'Nelder-Mead')):
             method = getattr(self, f'Fortran_min_use_{stage}', default)
@@ -6494,6 +6526,10 @@ class signal_fit(object):
          eps, dt - accuracy and step for the integration in dynamical case, in keplerian case ignored, just given for input consistency
          which value to minimize (used for calling an appropriate fortran program)
         '''
+
+        from magnetic_cycle import active as cycle_active
+        if cycle_active(self) and not getattr(self, '_magnetic_cycle_orbital_refresh', False):
+            minimize_fortran = False
 
         if calculate_transit_events is not None:
             self.calculate_transit_events = bool(calculate_transit_events)
@@ -7274,6 +7310,8 @@ class signal_fit(object):
 
         from activity_gp import pack as pack_activity_gp
         pack_activity_gp(self, par, flag, par_str, bounds, prior_nr, prior_jeff)
+        from magnetic_cycle import pack as pack_cycle
+        pack_cycle(self, par, flag, par_str, bounds, prior_nr, prior_jeff)
 
        #### Astr. & Stellar parameters #####
        

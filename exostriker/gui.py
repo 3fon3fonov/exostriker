@@ -394,6 +394,7 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
     def update_gui_params(self, include_inactive=False):
         global fit
         self.activity_gp_controls.refresh()
+        self.magnetic_cycle_controls.refresh()
 
  
         for i in range(9):
@@ -5363,7 +5364,9 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         rows.extend(residuals)
         for i in range(len(fit.act_data_sets)):
             if len(fit.act_data_sets[i]):
-                rows.append(('act. data %s' % (i + 1), i + 1, fit.act_data_sets[i]))
+                name = fit.act_data_sets[i][-1]
+                label = str(name) if isinstance(name, str) else 'act. data %s' % (i+1)
+                rows.append((label, i + 1, fit.act_data_sets[i]))
 
         combos = (self.comboBox_corr_1, self.comboBox_corr_2)
         blocked = [combo.blockSignals(True) for combo in combos]
@@ -5384,7 +5387,9 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         ind1 = self.comboBox_corr_1.currentIndex()
         ind2 = self.comboBox_corr_2.currentIndex()
  
-        p6.plot(clear=True,)  
+        p6.plot(clear=True,)
+        if self.corr_plot_cross_hair.isChecked():
+            self.cross_hair(p6, log=False)
                 
         
         self.color_corr.setStyleSheet("color: %s;"%colors[0]) 
@@ -5529,6 +5534,7 @@ Polyfit coefficients:
         if preferred is None and new:
             preferred = min(new)
         self._activity_loaded_slots = loaded
+        self.update_color_picker_act()
         for combo in (self.comboBox_act_data, self.comboBox_act_data_gls):
             current = combo.currentIndex()
             blocker = QtCore.QSignalBlocker(combo)
@@ -5545,6 +5551,79 @@ Polyfit coefficients:
     def print_activity_periodogram_info(self):
         self.print_info_for_object(getattr(self, '_activity_periodogram_info', ''))
 
+    def get_activity_plot_data(self, ind, residual=False):
+        """Use the published observation-time mean, or the data mean if absent."""
+        global fit
+        t, y, err = (np.asarray(fit.act_data_sets[ind][i], float) for i in range(3))
+        model = getattr(fit, 'activity_gp_models', {}).get(ind)
+        from magnetic_cycle import active as cycle_active, selected as cycle_selected
+        gp_selected = fit.rtg[1] and getattr(fit, 'activity_gp', {}).get(ind, {}).get('enabled', False)
+        selected = gp_selected or (cycle_active(fit) and ind in cycle_selected(fit))
+        if (model is None or not selected or not np.array_equal(model['time'], t)
+                or np.shape(model['mean']) != y.shape or not np.all(np.isfinite(model['mean']))):
+            model = None
+        if residual:
+            y = y - (np.asarray(model['mean']) if model is not None else np.mean(y))
+        return t, y, err, model
+
+    def go_to_activity_plot_options(self):
+        self.param_tabs.setCurrentWidget(self.plot_options_tabs)
+        self.plot_opt_tab.setCurrentWidget(self.tab_21)
+
+    def update_color_picker_act(self):
+        global fit
+        font = QtGui.QFont()
+        font.setPointSize(9)
+        font.setBold(False)
+        for i in range(21):
+            button = self.buttonGroup_color_picker_act.button(i+1)
+            button.setStyleSheet("color: %s;" % fit.act_colors[i])
+            button.setText(fit.act_colors[i])
+            button.setFont(font)
+        for i in range(20):
+            button = self.buttonGroup_symbol_picker_act.button(i+1)
+            button.setStyleSheet("color: %s;" % fit.act_colors[i])
+            button.setText(fit.pyqt_symbols_act[i])
+            button.setFont(font)
+            for field, values in (('size',fit.pyqt_symbols_size_act),('alpha',fit.pyqt_color_alpha_act)):
+                control = getattr(self, 'act_data_%s_%s' % (field,i+1))
+                blocker = QtCore.QSignalBlocker(control)
+                control.setValue(values[i])
+                del blocker
+
+    def get_color_act(self):
+        global fit
+        but_ind = self.buttonGroup_color_picker_act.checkedId()
+        colorz = choose_color(self, fit.act_colors[but_ind-1], 'Activity dataset / model color')
+        if colorz.isValid():
+            fit.act_colors[but_ind-1] = dill.copy(colorz.name())
+            self.update_color_picker_act()
+            self.update_act_file_buttons()
+
+    def get_symbol_act(self):
+        global fit
+        but_ind = self.buttonGroup_symbol_picker_act.checkedId()
+        but_n = self.dialog_symbols.get_radio(self, current=fit.pyqt_symbols_act[but_ind-1])
+        if but_n is not None:
+            fit.pyqt_symbols_act[but_ind-1] = dill.copy(symbols[but_n-1])
+            self.update_color_picker_act()
+            self.update_activity_data_plots(self.comboBox_act_data.currentIndex())
+
+    def check_act_symbol_sizes(self):
+        global fit
+        for i in range(20):
+            fit.pyqt_symbols_size_act[i] = dill.copy(getattr(self,'act_data_size_%s' % (i+1)).value())
+            fit.pyqt_color_alpha_act[i] = dill.copy(getattr(self,'act_data_alpha_%s' % (i+1)).value())
+        self.update_activity_data_plots(self.comboBox_act_data.currentIndex())
+
+    def set_global_act_symbol_size(self):
+        for i in range(20):
+            control = getattr(self,'act_data_size_%s' % (i+1))
+            blocker = QtCore.QSignalBlocker(control)
+            control.setValue(self.act_data_size.value())
+            del blocker
+        self.check_act_symbol_sizes()
+
     def update_activity_gls_plots(self,ind):
         global fit, colors,  p11 
 
@@ -5559,7 +5638,8 @@ Polyfit coefficients:
 
         if len(fit.act_data_sets[ind]) != 0 and len(fit.act_data_sets[ind][0]) > 5:
 
-            data = tuple(np.asarray(fit.act_data_sets[ind][i], dtype=float) for i in range(3))
+            t, y, err, model = self.get_activity_plot_data(ind, self.gls_act_o_c.isChecked())
+            data = (t, y, err)
             if (not all(np.all(np.isfinite(x)) for x in data) or np.any(data[2] <= 0)
                     or np.ptp(data[0]) == 0 or np.ptp(data[1]) == 0):
                 return
@@ -5601,42 +5681,36 @@ Polyfit coefficients:
 
 
     def update_activity_data_plots(self,ind):
-        global fit, colors,  p5 
-
-        if ind in fit.act_data_sets and len(fit.act_data_sets[ind]) != 0:
-
-            p5.plot(clear=True,)  
-
-            err1 = pg.ErrorBarItem(x=fit.act_data_sets[ind][0], y=fit.act_data_sets[ind][1],symbol='o', 
-           # height=fit.act_data_sets[ind][2], beam=0.0, pen=fit.colors[ind])  
-            top=fit.act_data_sets[ind][2],
-            bottom=fit.act_data_sets[ind][2],
-            beam=0.0, pen=dill.copy(fit.act_colors[ind]))
-
-
-            p5.addItem(err1)      
-            p5.addItem(pg.InfiniteLine(pos=0., angle=0, pen=pg.mkPen('#ff9933', width=0.8)), ignoreBounds=True)
-
-            p5.plot(fit.act_data_sets[ind][0],fit.act_data_sets[ind][1], pen=None,symbol='o',
-            symbolSize=self.act_data_size.value(),enableAutoRange=True,viewRect=True,
-            symbolBrush=dill.copy(fit.act_colors[ind])
-            )
-
-            joint_model = getattr(fit, 'activity_gp_models', {}).get(ind)
-            if fit.rtg[1] and joint_model is not None and getattr(fit, 'activity_gp', {}).get(ind, {}).get('enabled', False):
-                times = joint_model.get('curve_time', joint_model['time'])
-                means = joint_model.get('curve_mean', joint_model['mean'])
-                order = np.argsort(times)
-                p5.plot(times[order], means[order], pen=pg.mkPen('#cc3311', width=1.5), name='Joint GP mean')
-
-            p5.setLabel('left', 'y', units='',  **self.plot_font_style())
-
+        global fit, colors, p5
+        p5.plot(clear=True)
+        plot_item = p5.getPlotItem() if hasattr(p5, 'getPlotItem') else p5
+        legend = plot_item.legend if plot_item.legend is not None else plot_item.addLegend()
+        legend.clear()
+        legend.setVisible(self.act_plot_legend.isChecked())
+        if self.act_plot_cross_hair.isChecked():
+            self.cross_hair(p5, log=False)
+        if ind not in fit.act_data_sets or not len(fit.act_data_sets[ind]):
             return
-        else:
-            p5.plot(clear=True,)
-
-            return
-
+        residual = self.act_plot_o_c.isChecked()
+        t, y, err, model = self.get_activity_plot_data(ind, residual)
+        color = dill.copy(fit.act_colors[ind])+"%02x" % int(fit.pyqt_color_alpha_act[ind])
+        p5.plot(t, y, pen=None,
+                symbol=dill.copy(fit.pyqt_symbols_act[ind]),
+                symbolPen={'color':color, 'width':1.1},
+                symbolSize=dill.copy(fit.pyqt_symbols_size_act[ind]),
+                enableAutoRange=True, viewRect=True, symbolBrush=color,
+                name=str(fit.act_data_sets[ind][-1]))
+        err1 = pg.ErrorBarItem(x=t, y=y, top=err, bottom=err, beam=0.0, pen=color)
+        p5.addItem(err1)
+        p5.addItem(pg.InfiniteLine(pos=0., angle=0, pen=pg.mkPen('#ff9933', width=0.8)), ignoreBounds=True)
+        if model is not None and not residual:
+            times = model.get('curve_time', model['time'])
+            means = model.get('curve_mean', model['mean'])
+            order = np.argsort(times)
+            p5.plot(times[order], means[order],
+                    pen={'color':dill.copy(fit.act_colors[20]), 'width':self.act_model_width.value()},
+                    name='Activity model mean')
+        p5.setLabel('left', 'o-c' if residual else 'y', units='', **self.plot_font_style())
 
 
 #### TTV plots ################
@@ -7762,6 +7836,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             fit.gp_kernel = 'dSHOKernel' 
 
         self.set_link_GP()
+        self.activity_gp_controls.refresh()
+        self.magnetic_cycle_controls.refresh()
 
     def set_tra_GP(self):
         global fit
@@ -8331,6 +8407,15 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 selected = self.comboBox_extra_plot.currentIndex()
                 if selected >= 0:
                     self.phase_plots(self.comboBox_extra_plot.itemData(selected))
+        if 'act_data_sets' in changed:
+            combos = (self.comboBox_corr_1, self.comboBox_corr_2)
+            indices = [combo.currentIndex() for combo in combos]
+            self.update_act_file_buttons()
+            for combo, index in zip(combos, indices):
+                blocker = QtCore.QSignalBlocker(combo)
+                combo.setCurrentIndex(index)
+                del blocker
+            self.update_correlations_data_plots()
         if 'tra_data_sets' in changed and fit.type_fit.get('Transit', False):
             self.update_transit_plots()
         if 'ttv_data_sets' in changed and fit.type_fit.get('TTV', False):
@@ -8507,7 +8592,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
     def update_act_file_buttons(self):
         global fit, colors
-        self.activity_gp_controls.refresh()          
+        self.activity_gp_controls.refresh()
+        self.magnetic_cycle_controls.refresh()          
         self.refresh_activity_views()
 
         for i in range(20):
@@ -10133,7 +10219,7 @@ Transit duration: %s d
        
         if init:
             ff, doGP, minimize_fortran = 0, False, True
-        elif self.radioButton_fortran77.isChecked() and not doGP:
+        elif self.radioButton_fortran77.isChecked() and not doGP and not getattr(fit, 'magnetic_cycle', {}).get('enabled', False):
             self.check_fortran_min()
             minimize_fortran = True
         else:
@@ -10143,7 +10229,7 @@ Transit duration: %s d
             self.update_params()
         options = self.optimizer_options()
         options.update(ff=ff, m_ln=m_ln, doGP=doGP,
-                       minimize_fortran=minimize_fortran)
+                       minimize_fortran=minimize_fortran, initialize=init)
         self.start_calculation('optimize', options, self.worker_RV_fitting_complete)
 
     def optimizer_options(self):
@@ -10185,7 +10271,8 @@ Transit duration: %s d
         global fit
         # LM holds jitter fixed; enable its fit controls if an active stage can
         # estimate it, or if SciPy/GP optimization is selected.
-        enabled = self.radioButton_scipy.isChecked() or self.do_RV_GP.isChecked()
+        enabled = (self.radioButton_scipy.isChecked() or self.do_RV_GP.isChecked()
+                   or getattr(fit, 'magnetic_cycle', {}).get('enabled', False))
         if not enabled:
             enabled = any(getattr(fit, f'Fortran_min_use_{stage}', default) == 'Nelder-Mead'
                           and getattr(fit, f'Fortran_min_N_use_{stage}', 1) > 0
@@ -10204,6 +10291,9 @@ Transit duration: %s d
           
     def optimize_fit(self,ff=20,m_ln=True, doGP=False, gp_kernel_id=-1, auto_fit = False, minimize_fortran=True, discovery=False):
         global fit
+        from magnetic_cycle import active as cycle_active
+        if cycle_active(fit):
+            minimize_fortran = False
         
          
         if not auto_fit:
@@ -10235,7 +10325,7 @@ Transit duration: %s d
         if getattr(fit, 'bound_error', False):
             return False
 
-        if fit.doGP == True:
+        if fit.doGP == True and not cycle_active(fit):
             rv.get_RV_gps_model(fit,get_lnl=fit.get_GP_lnl)
 
         #for i in range(fit.npl):
@@ -10283,7 +10373,7 @@ Transit duration: %s d
 
     def print_info_for_object(self,text):
         #self.dialog.statusBar().showMessage('Ready')
-        self.dialog.setGeometry(300, 300, 450, 250)
+        # Keep the report window's full default size and any user resizing.
         self.dialog.setWindowTitle('Detailed Info')  
 
         self.dialog.text.setPlainText(text)
@@ -13727,48 +13817,40 @@ Please install via 'pip install ttvfast'.
         fit.master_timeout = self.master_timeout.value()    
      
         
+    def adopt_RV_periodogram_param(self, periodogram):
+        """Adopt the best sine into the first free slot, then evaluate only."""
+        global fit
+        slot = next((i for i in range(9) if not fit.use_planet[i]), None)
+        if slot is None:
+            raise ValueError("All nine planet slots are occupied")
+        best = periodogram.hpstat
+        phase = (360.0 * ((fit.epoch - float(best['T0'])) % best['P']) / best['P'] - 90.0) % 360.0
+        fit.add_planet(best['amp'], best['P'], 0.0, 0.0, phase, 90.0, 0.0,
+                       usee=fit.auto_fit_allow_ecc, usew=fit.auto_fit_allow_ecc, index=slot)
+        if fit.hkl:
+            fit.e_sinw[slot] = 0.0
+            fit.e_cosw[slot] = 0.0
+            fit.lamb[slot] = phase
+            fit.e_sinw_use[slot] = fit.auto_fit_allow_ecc
+            fit.e_cosw_use[slot] = fit.auto_fit_allow_ecc
+            fit.lamb_use[slot] = True
+        # Publish the adopted values before any GUI synchronization can read
+        # the previously displayed defaults back into the session.
+        self.update_gui_params()
+        self.update_use_from_session()
+        self.update_use()
+        was_initializing = fit.init_fit
+        fit.init_fit = True
+        try:
+            self.optimize_fit(0, m_ln=True, auto_fit=True)
+        finally:
+            fit.init_fit = was_initializing
+
     def adopt_RV_GLS_param(self):
-        global fit   
-        
-        mean_anomaly_from_gls = np.degrees((((fit.epoch - float(fit.gls_o_c.hpstat["T0"]) )% (fit.gls_o_c.hpstat["P"]) )/ (fit.gls_o_c.hpstat["P"]) ) * 2*np.pi)
- 
-        fit.add_planet(fit.gls_o_c.hpstat["amp"],fit.gls_o_c.hpstat["P"],0.0,0.0,mean_anomaly_from_gls -90.0,90.0,0.0)
-#        fit.use.update_use_planet_params_one_planet(fit.npl-1,True,True,fit.auto_fit_allow_ecc,fit.auto_fit_allow_ecc,True,False,False)   
+        self.adopt_RV_periodogram_param(fit.gls_o_c)
 
-        fit.P_use[fit.npl] = True
-        fit.K_use[fit.npl] = True
-        fit.e_use[fit.npl] = fit.auto_fit_allow_ecc
-        fit.w_use[fit.npl] = fit.auto_fit_allow_ecc 
-        fit.M0_use[fit.npl] = True 
-      
-        self.update_use_from_session()   
-        self.update_use() 
-        #self.update_params()  
-       # self.update_gui_params()
-        self.optimize_fit(0,m_ln=True,auto_fit = True)
-    
- 
     def adopt_RV_mlp_param(self):
-        global fit   
-        
-        mean_anomaly_from_gls = np.degrees((((fit.epoch - float(fit.mlp.hpstat["T0"]) )% (fit.mlp.hpstat["P"]) )/ (fit.mlp.hpstat["P"]) ) * 2*np.pi)
- 
-        fit.add_planet(fit.mlp.hpstat["amp"],fit.mlp.hpstat["P"],0.0,0.0,mean_anomaly_from_gls -90.0,90.0,0.0)
-        #fit.use.update_use_planet_params_one_planet(fit.npl-1,True,True,fit.auto_fit_allow_ecc,fit.auto_fit_allow_ecc,True,False,False)   
-  
-
-        fit.P_use[fit.npl] = True
-        fit.K_use[fit.npl] = True
-        fit.e_use[fit.npl] = fit.auto_fit_allow_ecc
-        fit.w_use[fit.npl] = fit.auto_fit_allow_ecc 
-        fit.M0_use[fit.npl] = True 
-     
-        self.update_use_from_session()   
-        self.update_use() 
-        #self.update_params()  
-       # self.update_gui_params()
-        self.optimize_fit(0,m_ln=True,auto_fit = True)
-    
+        self.adopt_RV_periodogram_param(fit.mlp)
 
 
     def adopt_trans_TLS_param(self):
@@ -14107,6 +14189,8 @@ Please install via 'pip install ttvfast'.
         self.init_timing_component_controls()
         from activity_gp_controls import ActivityGPControls
         self.activity_gp_controls = ActivityGPControls(self, lambda: fit)
+        from magnetic_cycle_controls import MagneticCycleControls
+        self.magnetic_cycle_controls = MagneticCycleControls(self, lambda: fit)
         self._calculation = None
         self._calculation_controls = []
         self.Stop_button.clicked.connect(self.stop_calculation)
@@ -15010,6 +15094,47 @@ Please install via 'pip install ttvfast'.
         self.fortran_optimizer_controls = FortranOptimizerControls(self, lambda: fit)
         self.init_fortran_combo()
         self.init_gls_norm_combo()
+        self.buttonGroup_color_picker_act.setId(self.act_pushButton_color_1,1)
+        self.buttonGroup_color_picker_act.setId(self.act_pushButton_color_2,2)
+        self.buttonGroup_color_picker_act.setId(self.act_pushButton_color_3,3)
+        self.buttonGroup_color_picker_act.setId(self.act_pushButton_color_4,4)
+        self.buttonGroup_color_picker_act.setId(self.act_pushButton_color_5,5)
+        self.buttonGroup_color_picker_act.setId(self.act_pushButton_color_6,6)
+        self.buttonGroup_color_picker_act.setId(self.act_pushButton_color_7,7)
+        self.buttonGroup_color_picker_act.setId(self.act_pushButton_color_8,8)
+        self.buttonGroup_color_picker_act.setId(self.act_pushButton_color_9,9)
+        self.buttonGroup_color_picker_act.setId(self.act_pushButton_color_10,10)
+        self.buttonGroup_color_picker_act.setId(self.act_pushButton_color_11,11)
+        self.buttonGroup_color_picker_act.setId(self.act_pushButton_color_12,12)
+        self.buttonGroup_color_picker_act.setId(self.act_pushButton_color_13,13)
+        self.buttonGroup_color_picker_act.setId(self.act_pushButton_color_14,14)
+        self.buttonGroup_color_picker_act.setId(self.act_pushButton_color_15,15)
+        self.buttonGroup_color_picker_act.setId(self.act_pushButton_color_16,16)
+        self.buttonGroup_color_picker_act.setId(self.act_pushButton_color_17,17)
+        self.buttonGroup_color_picker_act.setId(self.act_pushButton_color_18,18)
+        self.buttonGroup_color_picker_act.setId(self.act_pushButton_color_19,19)
+        self.buttonGroup_color_picker_act.setId(self.act_pushButton_color_20,20)
+        self.buttonGroup_color_picker_act.setId(self.act_pushButton_color_21,21)
+        self.buttonGroup_symbol_picker_act.setId(self.act_pushButton_symbol_1,1)
+        self.buttonGroup_symbol_picker_act.setId(self.act_pushButton_symbol_2,2)
+        self.buttonGroup_symbol_picker_act.setId(self.act_pushButton_symbol_3,3)
+        self.buttonGroup_symbol_picker_act.setId(self.act_pushButton_symbol_4,4)
+        self.buttonGroup_symbol_picker_act.setId(self.act_pushButton_symbol_5,5)
+        self.buttonGroup_symbol_picker_act.setId(self.act_pushButton_symbol_6,6)
+        self.buttonGroup_symbol_picker_act.setId(self.act_pushButton_symbol_7,7)
+        self.buttonGroup_symbol_picker_act.setId(self.act_pushButton_symbol_8,8)
+        self.buttonGroup_symbol_picker_act.setId(self.act_pushButton_symbol_9,9)
+        self.buttonGroup_symbol_picker_act.setId(self.act_pushButton_symbol_10,10)
+        self.buttonGroup_symbol_picker_act.setId(self.act_pushButton_symbol_11,11)
+        self.buttonGroup_symbol_picker_act.setId(self.act_pushButton_symbol_12,12)
+        self.buttonGroup_symbol_picker_act.setId(self.act_pushButton_symbol_13,13)
+        self.buttonGroup_symbol_picker_act.setId(self.act_pushButton_symbol_14,14)
+        self.buttonGroup_symbol_picker_act.setId(self.act_pushButton_symbol_15,15)
+        self.buttonGroup_symbol_picker_act.setId(self.act_pushButton_symbol_16,16)
+        self.buttonGroup_symbol_picker_act.setId(self.act_pushButton_symbol_17,17)
+        self.buttonGroup_symbol_picker_act.setId(self.act_pushButton_symbol_18,18)
+        self.buttonGroup_symbol_picker_act.setId(self.act_pushButton_symbol_19,19)
+        self.buttonGroup_symbol_picker_act.setId(self.act_pushButton_symbol_20,20)
         self.init_activity_combo()
 
         self.comboBox_scipy_minimizer_1.activated.connect(self.check_scipy_min)
@@ -15034,7 +15159,20 @@ Please install via 'pip install ttvfast'.
        
         self.comboBox_act_data_gls.currentIndexChanged.connect(lambda: self.update_activity_gls_plots(self.comboBox_act_data_gls.currentIndex())) 
         self.comboBox_act_data.currentIndexChanged.connect(lambda: self.update_activity_data_plots(self.comboBox_act_data.currentIndex())) 
-        self.act_data_size.valueChanged.connect(lambda: self.update_activity_data_plots(self.comboBox_act_data.currentIndex())) 
+        self.act_data_size.valueChanged.connect(self.set_global_act_symbol_size)
+        self.pushButton.clicked.connect(self.go_to_activity_plot_options)
+        self.activity_corr_plot_options.clicked.connect(self.go_to_activity_plot_options)
+        self.corr_plot_cross_hair.toggled.connect(self.update_correlations_data_plots)
+        self.act_plot_cross_hair.toggled.connect(lambda: self.update_activity_data_plots(self.comboBox_act_data.currentIndex()))
+        self.act_plot_legend.toggled.connect(lambda: self.update_activity_data_plots(self.comboBox_act_data.currentIndex()))
+        self.act_plot_o_c.toggled.connect(lambda: self.update_activity_data_plots(self.comboBox_act_data.currentIndex()))
+        self.gls_act_o_c.toggled.connect(lambda: self.update_activity_gls_plots(self.comboBox_act_data_gls.currentIndex()))
+        self.act_model_width.valueChanged.connect(lambda: self.update_activity_data_plots(self.comboBox_act_data.currentIndex()))
+        for i in range(20):
+            getattr(self, 'act_data_size_%s' % (i+1)).valueChanged.connect(self.check_act_symbol_sizes)
+            getattr(self, 'act_data_alpha_%s' % (i+1)).valueChanged.connect(self.check_act_symbol_sizes)
+        self.buttonGroup_color_picker_act.buttonClicked.connect(self.get_color_act)
+        self.buttonGroup_symbol_picker_act.buttonClicked.connect(self.get_symbol_act) 
        
         self.comboBox_corr_1.activated.connect(self.update_correlations_data_plots) 
         self.comboBox_corr_2.activated.connect(self.update_correlations_data_plots) 
@@ -15045,6 +15183,7 @@ Please install via 'pip install ttvfast'.
 
         self.do_RV_GP.stateChanged.connect(self.set_use_RV_GP)
         self.do_RV_GP.stateChanged.connect(self.update_RV_jitter_flag)
+        self.cycle_enabled.toggled.connect(self.update_RV_jitter_flag)
         self.do_RV_GP.stateChanged.connect(self.mute_boxes)
         self.do_tra_GP.stateChanged.connect(self.set_use_tra_GP)
         

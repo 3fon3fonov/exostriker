@@ -23,8 +23,13 @@ def datasets_values(datasets):
 def selected_activity(fit):
     """Read prepared session metadata without importing the numerical GP backend."""
     data = getattr(fit, 'act_data_sets', {})
-    return [slot for slot, setting in getattr(fit, 'activity_gp', {}).items()
-            if setting.get('enabled', False) and len(data.get(slot, []))]
+    slots = {slot for slot, setting in getattr(fit, 'activity_gp', {}).items()
+             if fit.rtg[1] and setting.get('enabled', False) and len(data.get(slot, []))}
+    cycle = getattr(fit, 'magnetic_cycle', {})
+    if cycle.get('enabled', False) and fit.type_fit.get('RV'):
+        slots.update(slot for slot,p in cycle.get('indicators', {}).items()
+                     if p.get('enabled', False) and len(data.get(slot, [])))
+    return sorted(slots)
 
 
 def component_parameter_counts(prepared):
@@ -97,6 +102,7 @@ def component_parameter_counts(prepared):
             block(len(prepared.tra_ttv[i]), ('Transit',))
     block(len(getattr(prepared, 'tra_dil_parameter_indices', {})), ('Transit',))
     block(len(getattr(prepared, 'activity_gp_indices', {})), ('RV',))
+    block(len(getattr(prepared, 'magnetic_cycle_indices', {})), ('RV',))
     block(5, ('Astrometry',))  # catalogue position, parallax and proper-motion corrections
     stellar = block(1)
     if dynamical:
@@ -122,7 +128,7 @@ def joint_information_criteria(fit):
             if not count:
                 return {}
             n += count
-            if prepared.rtg[1]:
+            if prepared.rtg[1] or getattr(prepared, 'magnetic_cycle', {}).get('enabled', False):
                 n += sum(len(prepared.act_data_sets[i][0]) for i in selected_activity(prepared))
         if fit.type_fit.get('Transit', False):
             count = int(fit.transit_results[4][4])
@@ -213,6 +219,9 @@ def collect_fit_statistics(fit, backend):
                 chi2 = gp_fit.activity_gp_chi2
                 notes.append('RV row includes the joint RV–activity likelihood, activity observations, and covariance-weighted chi².')
             rows['RV'] = dict(lnL=loglik, N=count, chi2=float(chi2))
+            if getattr(fit, 'magnetic_cycle', {}).get('enabled', False):
+                rows['RV'] = dict(fit.magnetic_cycle_statistics)
+                notes.append('RV row includes the magnetic cycle and the union of selected activity observations, counted once.')
         except Exception as error:
             notes.append(f'RV statistics unavailable: {error}')
 

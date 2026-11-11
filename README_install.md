@@ -1,6 +1,6 @@
-# Installation — Exo-Striker 0.96.2
+# Installation — Exo-Striker 0.97
 
-These instructions cover the source version 0.96.2. PyPI commands install the version available on PyPI; use the source installation below to install this checkout.
+These instructions cover the source version 0.97. PyPI commands install the version available on PyPI; use the source installation below to install this checkout.
 
 Python 3.10 or newer is required. Native backends require a C compiler and GFortran on your `PATH`. The RV extension uses NumPy/f2py with Meson and Ninja; these build tools are declared package dependencies. Python development headers may also be needed when compiling extensions.
 
@@ -87,7 +87,7 @@ To upgrade an existing pip installation, use `python -m pip install --upgrade ex
 python -c "from importlib.metadata import version; print(version('exostriker'))"
 ```
 
-The RV Fortran extension is checked at startup against the application version and Python ABI. Updating to 0.96.2 may trigger recompilation, so keep GFortran and the build tools available. The first startup can take longer while compilation completes.
+The RV Fortran extension is checked at startup against the application version and Python ABI. Updating to 0.97 may trigger recompilation, so keep GFortran and the build tools available. The first startup can take longer while compilation completes.
 
 For the optional integrated AI chat, install the extra with `python -m pip install "exostriker[chat]"`, or `python -m pip install ".[chat]"` from the source checkout. An OpenAI API key is required to use the chat.
 

@@ -2,10 +2,15 @@
 
 
 def optimize(fit, *, ff=20, m_ln=True, doGP=False, gp_kernel_id=-1,
-             minimize_fortran=True, discovery=False, reset_errors=True, **options):
+             minimize_fortran=True, discovery=False, reset_errors=True, initialize=None, **options):
     import dill
     import RV_mod as rv
     from activity_gp import selected
+    from magnetic_cycle import active as cycle_active
+    if initialize is not None:
+        fit.init_fit = bool(initialize)
+    if cycle_active(fit):
+        minimize_fortran = False
     if fit.rtg[1] and selected(fit):
         # Joint activity conditioning lives in the Python likelihood, including
         # model initialization; never route its priors to the native optimizer.
@@ -26,7 +31,7 @@ def optimize(fit, *, ff=20, m_ln=True, doGP=False, gp_kernel_id=-1,
                     amoeba_starts=0 if not minimize_fortran else ff, **options)
     if getattr(fit, 'bound_error', False):
         return fit
-    if fit.doGP:
+    if fit.doGP and not cycle_active(fit):
         rv.get_RV_gps_model(fit, get_lnl=fit.get_GP_lnl)
     for index in range(9):
         if fit.type_fit.get('RV', False) and fit.use_planet[index]:

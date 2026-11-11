@@ -172,6 +172,8 @@ def has_enabled_priors(s):
 
 
 def unsupported_reason(s):
+    from magnetic_cycle import active as cycle_active
+    if cycle_active(s): return 'deterministic magnetic cycles (Python likelihood)'
     if not any(s.use_planet) and s.type_fit.get('TTV'): return 'timing fits without planets'
     if s.type_fit.get('AST',False): return 'astrometry'
     if s.rtg[1] or s.rtg[3]: return 'Gaussian processes'

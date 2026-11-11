@@ -1,6 +1,176 @@
 """Offline guides for the application's help and READ ME buttons."""
 
 HELP_PAGES = {
+    'magnetic_cycle': ('Magnetic cycle — help', """
+<h1>Magnetic cycle (shared sine model)</h1>
+<p>Open <b>GP param. → Joint act.+ RV Magnetic cycle proxy (sine)</b>, after the
+joint activity GP tab. These tabs can be dragged into another order.</p>
+<p>This is a deterministic Exo-Striker model, outside celerite, with no planet
+slot or transit GP component. It can be used alone or alongside any existing RV
+GP. Enable it separately from <b>Use RV GP</b>.</p>
+<pre>C(t) = sin[2π(t − tref)/P + phase]
+RV(t) = orbital model + RV amplitude × C(t) + optional rotational GP
+Index_j(t) = offset_j + amplitude_j × sin[2π(t − tref)/P + RV phase + phase offset_j]
+             + optional GP response + noise</pre>
+<p><b>P [d]</b> is shared across RVs and selected activity indices.
+<b>RV phase [deg]</b> defines the RV cycle. Each index has its own
+<b>Phase offset [deg]</b> relative to the RV phase; check its <b>Fit</b> box to
+infer an independent phase. Zero offsets with Fit unchecked preserve the previous
+shared-phase model. Offsets default to zero/fixed with bounds −180 to +180 degrees. <b>Phase reference [BJD]</b> is fixed, initially the first RV time; phase
+is measured at that reference. Changing it changes the phase convention, so
+refit/adjust phase accordingly. The reference is independent of the orbital epoch.</p>
+<p><b>RV amplitude [m/s]</b> is a semi-amplitude (half the peak-to-peak range),
+nonnegative by default. Each selected index has a signed <b>amplitude [U]</b>,
+where U is its uploaded unit. Negative values allow anticorrelation. Its offset
+and jitter also have units U. Measurement noise variance is error² + jitter².</p>
+<h2>Independent selections</h2>
+<p>Select a loaded file, check <b>Include in magnetic cycle</b>, then repeat for
+other indices. The summary lists the cycle selection. This is separate from
+<b>Joint activity GP</b>. For example, select FWHM here, and select BIS and Hα in
+Joint activity GP with dSHO enabled in RV GP. Both processes contribute to RVs.</p>
+<p>An index can participate in either or both components. If both are selected,
+its cycle mean is subtracted before joint GP conditioning; its offset and jitter
+are shared, and its observations contribute once to the likelihood. The offset
+and jitter edits on the two forms refer to the same parameters.</p>
+<h2>Fitting and priors</h2>
+<p>Rows place Fit before the value and show an uncertainty label beside it
+(three decimals, +/- the larger absolute lower/upper error, as in the planet fields; tiny nonzero errors use scientific notation). Activity
+fields retain small values such as RHK-prime amplitudes, offsets, jitters and priors.
+These display stored inference
+errors from MCMC, nested sampling or SciPy when available. Rows supply bounds, prior family and Gaussian mean/sigma or Jeffreys
+endpoints. These use the row's units. Period bounds must be positive; jitter
+bounds nonnegative. Signed activity amplitudes normally need uniform bounds or
+Gaussian priors. Jeffreys support must be strictly positive. Only checked Fit
+boxes add dimensions. The fixed reference epoch is not a fitted parameter.</p>
+<p>The initial period is max(3650 d, twice the RV time span); amplitudes are
+scatter-based guesses. Set a plausible cycle period and sensible bounds before
+fitting. Defaults leave the component disabled, with period, phase and amplitudes
+free when enabled; activity offsets start at their medians and jitter at zero/fixed.</p>
+<p>Initialize, Fit, MCMC and nested sampling evaluate the cycle jointly with the
+orbital model and selected GP. Active cycles use the Python likelihood/SciPy fit
+path, including when the main Fit button normally selects Fortran. No Fortran
+optimizer change is required. Priors enter inference normally; reported lnL
+is the data likelihood, excluding prior density. Statistics count the union of
+cycle and GP activity observations, not two copies of overlapping series.</p>
+<p>The RV model curve includes the sine contribution; RV residuals subtract it.
+Activity time-series plots show the cycle or cycle-plus-GP mean after model
+initialization/fitting. Save the session to retain values, fit flags, bounds,
+priors, selections and uncertainties. Removing an index removes its selection.</p>
+<h2>Limitations</h2>
+<p>The model assumes one coherent sinusoid per series, sharing only its period
+when the activity phase offsets are free. It does not model evolving cycle shapes.
+A negative activity amplitude is equivalent to a positive amplitude and a 180-degree
+phase change: use nonnegative activity-amplitude bounds when fitting a full-circle
+phase offset to avoid duplicate solutions. Phases are periodic; −180 and +180
+degrees are equivalent. An offset is a relative phase, not a unique physical time delay. Less than a full observed
+cycle gives a poorly constrained period and can be degenerate with RV trends
+or long-period planets. Compare alternative models and inspect posterior
+correlations. Cycle-only indices use independent Gaussian errors; selected GP
+indices use the existing covariance. The dense joint GP cost is unchanged.</p>
+"""),
+    'joint_activity_gp': ('Joint RV and activity Gaussian process — help', """
+<h1>Joint RV and activity Gaussian process</h1>
+<p>Fit RVs and several activity indicators (BIS, FWHM, Hα, NaD1, dLW, etc.)
+simultaneously with one shared process G(t). <b>Time remains the regressor.</b>
+Activity measurements constrain the same process as the RV residuals through
+cross-correlations. This is not an activity-only fit subsequently copied into RV.</p>
+<h2>1. Select the observations</h2>
+<ol><li>Load RV data and activity files. Each activity file supplies time, value
+and measurement uncertainty. Use finite values, positive errors and the same
+time system. Unequal timestamps are supported: no interpolation or matching is required.</li>
+<li>Under <b>GP param. → RV GP</b>, enable <b>Use RV GP</b> and choose the kernel,
+its values and Fit flags. Existing kernel bounds and priors remain in use.</li>
+<li>Open <b>Joint activity GP</b> (after Transit GP by default) or click
+<b>Select activity indicators…</b>. The selector lists loaded files only.</li>
+<li>Select a file, check <b>Include in joint RV GP</b>, then repeat for other
+indicators. The summary lists all included series. Changing the selector only
+changes which series' parameters are displayed; it does not deselect others.</li>
+<li>Initialize to evaluate the model, then fit or sample. Inspect predictions,
+residuals and posterior correlations. Drag the GP tabs to change their order.</li></ol>
+<p>No included indicators uses the existing RV-only time GP. Switching off
+Use RV GP disables joint conditioning but retains selections. <b>Include</b>
+controls dataset participation; <b>Fit</b> controls whether a parameter varies.
+Values and choices belong to the saved fit/session, not global plot settings.</p>
+<h2>2. Shared process and response parameters</h2>
+<pre>RV activity(t) = G(t) + b_RV dG/dt
+Index_j(t)     = offset_j + a_j G(t) + b_j dG/dt + noise_j
+noise variance = measurement error² + activity jitter²</pre>
+<p>The existing kernel parameters describe G's amplitude and time dependence
+(period, coherence, decay, etc.). The responses convert this process into each
+indicator's units and allow different signs and shapes. Identical numerical
+curves cannot generally describe observables with different units or baselines.</p>
+<table cellspacing="8" cellpadding="4">
+<tr><th align="left">Row</th><th align="left">Meaning and initial setting</th></tr>
+<tr><td>Activity × G</td><td>Signed direct response a_j. Initially estimated from
+scatter; Fit on. A negative value allows anticorrelation. For indicator units U,
+its units are U/(m/s). The guess is not a physical calibration.</td></tr>
+<tr><td>Activity × dG/dt</td><td>Optional derivative response b_j: sensitivity to
+how quickly activity changes, allowing a different shape or apparent phase.
+Units U day/(m/s). Initially zero with Fit off.</td></tr>
+<tr><td>Activity offset</td><td>Individual baseline, initially the median of the
+series with Fit on. G itself has zero mean. Units U.</td></tr>
+<tr><td>Activity jitter</td><td>Additional independent scatter, added in quadrature
+to measurement errors. Units U. Initially zero with Fit off.</td></tr>
+<tr><td>RV × dG/dt [d]</td><td>One common RV derivative response for all RV
+instruments, in days. It is the same parameter whichever activity file is
+selected. Initially zero with Fit off.</td></tr></table>
+<p><b>RV × G is fixed to one.</b> This anchors the amplitude to the existing RV
+kernel convention and avoids redundant scaling between its amplitude and all
+responses. Existing instrument-specific RV offsets and jitters are separate.
+Kernel amplitude conventions differ: SHO S0 is a spectral-density scale;
+Rotation/DRW amplitudes are covariance scales; sigma is a standard deviation.</p>
+<h2>3. Which kernels allow derivatives?</h2>
+<p><b>All five existing RV kernels support joint direct responses:</b> Rotation,
+DRW/RealTerm, SHO, double SHO and the approximate Matérn 3/2.</p>
+<p>Derivative responses require <b>SHO, double SHO or Matérn 3/2</b>. Rotation and
+DRW contain exponential cusps, so the required process derivative is not defined
+in the mean-square sense. Their derivative controls are grayed out and the
+model uses zero fixed derivatives. Previous derivative values, Fit flags,
+bounds and priors are retained and restored when you return to a supported kernel.</p>
+<h2>4. Bounds, priors and Fit flags</h2>
+<p>Each row supplies a value, Fit checkbox, lower/upper bounds and prior family.
+The last two fields are Gaussian mean/standard deviation or Jeffreys lower/upper
+support. Signed coefficients usually use uniform bounds or Gaussian priors;
+Jeffreys support must be strictly positive. Review all starting guesses and
+bounds. Fixing a parameter retains its value's contribution; it does not remove it.</p>
+<p>Start with direct responses and offsets. Add derivatives only when justified
+by the model and a compatible kernel, and jitter when the reported errors do not
+explain independent scatter. Independently known responses or offsets can be fixed.</p>
+<h2>5. How many extra free parameters?</h2>
+<p>Only checked Fit boxes add dimensions. <b>Three indicators with direct response
+and offset fitted add six parameters</b> (two per series), in addition to the
+existing kernel, orbital and instrument parameters. Fixed derivative/jitter
+rows add no free parameters. With M indicators, fitting all four per-series rows
+plus the one shared RV derivative adds <b>4M + 1</b> parameters (13 for three).</p>
+<h2>6. Inference, likelihood and plots</h2>
+<p>The joint likelihood runs in Python with SciPy optimization, MCMC and nested
+sampling; it requires no additional Fortran GP implementation. With enabled
+priors, SciPy finds a MAP solution; MCMC samples the posterior; nested sampling
+uses the data likelihood and its prior transform. <b>Reported lnL excludes prior
+density</b> and includes the selected activity observations and other selected
+components. The RV statistics row represents the joint RV–activity block,
+including activity counts and covariance-weighted chi-square, rather than an
+independent RV-only likelihood.</p>
+<p>Activity uploads populate time-series and GLS views automatically. After
+initialization/fitting, included indicators show their smooth conditional GP
+mean in red; RV GP predictions also condition on all selected indicators.
+These are predictions at the current parameters, not posterior-averaged means
+or uncertainty bands. The activity GLS shows measurements, not GP-subtracted
+residuals. Unselected or uninitialized indicators have no joint GP curve.</p>
+<h2>7. Why can it be more expensive?</h2>
+<p>There are two costs. More free parameters usually require more evaluations
+and may introduce posterior degeneracies. Separately, the current joint solver
+constructs a <b>dense covariance</b> from the existing celerite kernel coefficients:
+N = RV observations + all included activity observations. Measurements of different
+observables at the same epoch still count separately. Memory grows as O(N²)
+and factorization as O(N³), even if every added response parameter is fixed.
+Doubling N means roughly four times the covariance memory and eight times the
+factorization work. This joint implementation does not use celerite's fast solver;
+the fast RV-only path remains available when no activity series is included.</p>
+<p>A common process is a modeling assumption. Check sensitivity to kernel choice
+and priors and inspect correlations with planetary signals. A synthetic recovery
+alone does not demonstrate that real stellar activity and planets are separated.</p>
+"""),
     'ttv': ('Transit timing variations — help', """
 <h1>Transit timing variations</h1>
 <p>Fit measured mid-transit times with the dynamical TTVFast model, either alone
@@ -60,6 +230,24 @@ converts positive parameters to logarithms where required by celerite;
 do not enter their logarithms yourself. Periods and time scales use days.
 RV amplitudes use the RV data units, while transit amplitudes use the flux
 units supplied to the fit. A covariance amplitude has squared data units.</p>
+<p>Labels include units in the value, bounds and prior panels. <b>[1]</b> means
+ dimensionless; <b>flux</b> means the units of the supplied photometric values
+ (relative flux is dimensionless). With signal units Y = m/s for RV or flux for
+ photometry, the conventions are:</p>
+<table cellspacing="6" cellpadding="3">
+<tr><th align="left">Parameter</th><th align="left">Units</th></tr>
+<tr><td>SHO S₀</td><td>Y² d; variance = S₀ ω₀ Q</td></tr>
+<tr><td>SHO ω₀</td><td>rad/d</td></tr>
+<tr><td>SHO Q; double-SHO Q₀, ΔQ, f; Rotation factor</td><td>1 (dimensionless)</td></tr>
+<tr><td>Double-SHO σ; Matérn σ</td><td>Y</td></tr>
+<tr><td>Double-SHO P; Rotation period/decay time; Matérn ρ</td><td>d</td></tr>
+<tr><td>Rotation amplitude; DRW a</td><td>Y²</td></tr>
+<tr><td>DRW c; Matérn eps</td><td>d⁻¹</td></tr></table>
+<p>In the implemented celerite approximation, eps multiplies the time lag in
+ an oscillatory term, so its unit is inverse days. It controls approximation
+ quality, rather than an additional physical variability amplitude. Bounds,
+ Gaussian means/standard deviations and Jeffreys endpoints use the associated
+ parameter's units.</p>
 <h2>Available kernels</h2>
 <table cellspacing="8" cellpadding="4">
 <tr><th align="left">Kernel</th><th align="left">Parameters and interpretation</th></tr>

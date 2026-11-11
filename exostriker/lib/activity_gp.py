@@ -147,7 +147,9 @@ class JointGP:
                 raise ValueError('Activity GP jitter must be nonnegative.')
             self.slices[slot] = slice(total, total+len(t)); total += len(t)
             self.offsets[slot] = get(slot, 'offset')
-            times.append(t); values.append(y-self.offsets[slot]); noise.append(err**2+jitter**2)
+            from magnetic_cycle import mean as cycle_mean
+            baseline = cycle_mean(context.get('magnetic_cycle'), par, t, slot)
+            times.append(t); values.append(y-self.offsets[slot]-baseline); noise.append(err**2+jitter**2)
             aa.append(np.full(len(t), get(slot, 'response'))); bb.append(np.full(len(t), get(slot, 'derivative')))
         self.t, self.y, self.noise, self.a, self.b = map(np.concatenate, (times, values, noise, aa, bb))
         if not np.all(np.isfinite(np.r_[self.t, self.y, self.noise, self.a, self.b])) or np.any(self.noise <= 0):
@@ -187,6 +189,8 @@ def publish_model(session, get_lnl):
     """Use the same joint conditioning for RV data, RV curves and activity plots."""
     session.prepare_for_mcmc()
     opt = {}; configure(session, opt)
+    from magnetic_cycle import configure as configure_cycle, mean as cycle_mean
+    configure_cycle(session, opt)
     result = session.fit_results
     time = np.asarray(result.rv_model.jd); y = np.asarray(result.rv_model.o_c)
     errors = np.array([np.hypot(err, session.jitt[int(slot)]) for err, slot in zip(result.rv_err, result.idset)])
@@ -201,8 +205,9 @@ def publish_model(session, get_lnl):
         m, v = joint.predict(t, setting['response']['value'], setting['derivative']['value'])
         grid = np.linspace(float(np.min(t)), float(np.max(t)), max(200, min(1000, len(t))))
         curve = joint.predict(grid, setting['response']['value'], setting['derivative']['value'], return_var=False)
-        session.activity_gp_models[slot] = dict(time=t.copy(), mean=m+setting['offset']['value'], variance=v,
-            curve_time=grid, curve_mean=curve+setting['offset']['value'])
+        session.activity_gp_models[slot] = dict(time=t.copy(),
+            mean=m+setting['offset']['value']+cycle_mean(opt.get('magnetic_cycle'),session.parameters,t,slot), variance=v,
+            curve_time=grid, curve_mean=curve+setting['offset']['value']+cycle_mean(opt.get('magnetic_cycle'),session.parameters,grid,slot))
     session.activity_gp_loglik = joint.loglik
     session.activity_gp_ndata = len(joint.y)-joint.nrv
     session.activity_gp_chi2 = joint.chi2
