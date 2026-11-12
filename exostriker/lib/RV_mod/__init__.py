@@ -524,6 +524,7 @@ def ttvs_mod(par,vel_files,npl, stellar_mass, times, planet_N, hkl, fit_results=
 
 
 def ast_loglik_hipp(par,vel_files, ast_files_hipp,npl,stellar_mass, times, hkl, fit_results = False , return_model = False, model_max=0, model_samp=1000):
+    """Evaluate the Hipparcos likelihood and optionally prepare sky-plane plots."""
 
  
     loglik_ast_hipp = 0
@@ -586,18 +587,47 @@ def ast_loglik_hipp(par,vel_files, ast_files_hipp,npl,stellar_mass, times, hkl, 
 
     if return_model:
         for slot in loaded_slots:
+
+            # Read the observations and set the time range for the plotted orbit.
             data = ast_files_hipp[slot][0]
             timestamps = ex.hip_JD(data)
-            model_times = np.linspace(min(timestamps), max(timestamps) + model_max, model_samp)
-            corrected_residuals = ex.abs_res(data[-2], correction, np.zeros(5), data[:5])
+
+            model_start = min(timestamps)
+            model_end = max(timestamps) + model_max
+            model_times = np.linspace(model_start, model_end, model_samp)
+
+            # Apply the fitted position, parallax and proper-motion corrections.
+            scan_residuals = data[-2]
+            astrometric_derivatives = data[:5]
+            reference_correction = np.zeros(5)
+
+            corrected_residuals = ex.abs_res(
+                scan_residuals,
+                correction,
+                reference_correction,
+                astrometric_derivatives,
+            )
+
+            # Evaluate the orbit on the plotting grid and at the observation times.
             ast_x_model, ast_y_model = ex.orbit_total(pl_params, model_times)
-            ast_x, ast_y = ex.orbit_total(pl_params, timestamps)
-            residuals = corrected_residuals - (data[0] * ast_x + data[1] * ast_y)
+            ast_x_data, ast_y_data = ex.orbit_total(pl_params, timestamps)
+
+            # Project the orbital displacement onto each measurement's scan direction.
+            scan_x = data[0]
+            scan_y = data[1]
+            along_scan_model = scan_x * ast_x_data + scan_y * ast_y_data
+            residuals = corrected_residuals - along_scan_model
+
+            # Convert to sky coordinates. The second helper adds the orbit back
+            # to the projected residuals so the observations can be plotted around it.
             observed = ex.hip_2d(data)
-            projected_residuals = ex.res_to_orbit(residuals, data, pl_params)
-            record = np.empty(3, dtype=object)
-            record[:] = [observed, projected_residuals, timestamps]
-            calc_data[slot] = record
+            observations_on_orbit = ex.res_to_orbit(residuals, data, pl_params)
+
+            # Preserve the plot-data layout: observations, orbit projection, times.
+            plot_data = np.empty(3, dtype=object)
+            plot_data[:] = [observed, observations_on_orbit, timestamps]
+
+            calc_data[slot] = plot_data
             calc_model[slot] = np.array([ast_x_model, ast_y_model, model_times])
 
     if return_model == True:
@@ -607,6 +637,7 @@ def ast_loglik_hipp(par,vel_files, ast_files_hipp,npl,stellar_mass, times, hkl, 
 
  
 def ast_loglik_gaia(par,vel_files, ast_files_gaia,npl,stellar_mass, times, hkl, fit_results = False , return_model = False, model_max=0, model_samp=1000):
+    """Evaluate the Gaia likelihood and optionally prepare sky-plane plots."""
  
     loglik_ast_gaia = 0
     calc_data   = {kx: [] for kx in range(10)}
@@ -669,18 +700,47 @@ def ast_loglik_gaia(par,vel_files, ast_files_gaia,npl,stellar_mass, times, hkl, 
 
     if return_model:
         for slot in loaded_slots:
+
+            # Read the observations and set the time range for the plotted orbit.
             data = prepare_gaia_dataset(ast_files_gaia[slot])
             timestamps = ex.gaia_JD(data)
-            model_times = np.linspace(min(timestamps), max(timestamps) + model_max, model_samp)
-            corrected_residuals = ex.abs_res(data[-2], correction, np.zeros(5), data[:5])
+
+            model_start = min(timestamps)
+            model_end = max(timestamps) + model_max
+            model_times = np.linspace(model_start, model_end, model_samp)
+
+            # Apply the fitted position, parallax and proper-motion corrections.
+            scan_residuals = data[-2]
+            astrometric_derivatives = data[:5]
+            reference_correction = np.zeros(5)
+
+            corrected_residuals = ex.abs_res(
+                scan_residuals,
+                correction,
+                reference_correction,
+                astrometric_derivatives,
+            )
+
+            # Evaluate the orbit on the plotting grid and at the observation times.
             ast_x_model, ast_y_model = ex.orbit_total(pl_params, model_times)
-            ast_x, ast_y = ex.orbit_total(pl_params, timestamps)
-            residuals = corrected_residuals - (data[0] * ast_x + data[1] * ast_y)
+            ast_x_data, ast_y_data = ex.orbit_total(pl_params, timestamps)
+
+            # Project the orbital displacement onto each measurement's scan direction.
+            scan_x = data[0]
+            scan_y = data[1]
+            along_scan_model = scan_x * ast_x_data + scan_y * ast_y_data
+            residuals = corrected_residuals - along_scan_model
+
+            # Convert to sky coordinates. The second helper adds the orbit back
+            # to the projected residuals so the observations can be plotted around it.
             observed = ex.hip_2d(data)
-            projected_residuals = ex.res_to_orbit_gaia(residuals, data, pl_params)
-            record = np.empty(3, dtype=object)
-            record[:] = [observed, projected_residuals, timestamps]
-            calc_data[slot] = record
+            observations_on_orbit = ex.res_to_orbit_gaia(residuals, data, pl_params)
+
+            # Preserve the plot-data layout: observations, orbit projection, times.
+            plot_data = np.empty(3, dtype=object)
+            plot_data[:] = [observed, observations_on_orbit, timestamps]
+
+            calc_data[slot] = plot_data
             calc_model[slot] = np.array([ast_x_model, ast_y_model, model_times])
 
     if return_model == True:
@@ -6348,7 +6408,7 @@ class signal_fit(object):
         return
 
 
-    ### this function is a wrapper calling a fortran program to fit parameters in keplerian mode by minimizing chi^2   WORK IN PROGRESS ON THAT ONE!
+    ################ Bounds and priors from fitted uncertainties ################
 
     def update_priors_from_fit(self, n_sigma=3, round_digits=None, sync_gui=True, gaussian=False):
         """Set RV/transit bounds from fitted values/errors; optionally enable Gaussians.
@@ -6366,33 +6426,50 @@ class signal_fit(object):
         if round_digits is not None and (isinstance(round_digits, (bool, np.bool_)) or
                 not isinstance(round_digits, (int, np.integer)) or not 0 <= round_digits <= 15):
             raise ValueError('round_digits must be None or an integer from 0 to 15')
+
+        # Collect the parameter families that have fitted uncertainties.
         planets = list(np.flatnonzero(self.use_planet))
         fields = [(name, name + '_bound', planets, False) for name in
                   ('K', 'P', 'e', 'w', 'M0', 'i', 'Node', 'e_sinw', 'e_cosw', 'lamb')]
         fields.append(('omega_dot', 'omega_dot_bounds', planets, False))
-        fields.extend((name,name+'_bound',planets,False) for name in ('t0','pl_a','pl_rad'))
-        transit_slots=[i for i,row in getattr(self,'tra_data_sets',{}).items() if len(row)]
+        fields.extend(((name, name + '_bound', planets, False) for name in ('t0', 'pl_a', 'pl_rad')))
+        transit_data = getattr(self, 'tra_data_sets', {})
+        transit_rows = transit_data.items() if hasattr(transit_data, 'items') else enumerate(transit_data)
+        transit_slots = [i for (i, row) in transit_rows if len(row)]
+        limb_darkening = getattr(self, 'ld_m', {})
+        if not hasattr(limb_darkening, 'get'):
+            limb_darkening = dict(enumerate(limb_darkening))
         fields.extend((name,name+'_bounds',transit_slots,False) for name in
                       ('tra_off','tra_jitt','tra_dil','tra_lintr','tra_quadtr'))
         for law,size in (('linear',1),('quadratic',2),('nonlinear',4)):
-            name={'linear':'ld_u_lin','quadratic':'ld_u_quad','nonlinear':'ld_u_nonlin'}[law]
-            entries=[(i,j) for i in transit_slots if getattr(self,'ld_m',{}).get(i)==law for j in range(size)]
-            fields.append((name,name+'_bound',entries,False))
+            name = {'linear': 'ld_u_lin', 'quadratic': 'ld_u_quad', 'nonlinear': 'ld_u_nonlin'}[law]
+            entries = [(i, j) for i in transit_slots if limb_darkening.get(i) == law for j in range(size)]
+            fields.append((name, name + '_bound', entries, False))
         datasets = [i for i in range(len(self.rv_data_sets)) if len(self.rv_data_sets[i])]
-        fields.extend((name, name + '_bounds', datasets, False) for name in ('rvoff', 'jitt'))
-        fields.extend((name, name + '_bounds', [0], True) for name in ('rv_lintr', 'rv_quadtr'))
+        fields.extend(((name, name + '_bounds', datasets, False) for name in ('rvoff', 'jitt')))
+        fields.extend(((name, name + '_bounds', [0], True) for name in ('rv_lintr', 'rv_quadtr')))
+
+        # Build each new interval, then apply its physical limits.
         changes = []
         for name, bounds_name, slots, scalar in fields:
             if not all(hasattr(self, attr) for attr in
                        (name, name + '_err', bounds_name) + ((name + '_norm_pr',) if gaussian else ())):
                 continue
             for key in slots:
-                slot,component=key if isinstance(key,tuple) else (key,None)
+                slot, component = key if isinstance(key, tuple) else (key, None)
                 def item(attribute):
-                    value=getattr(self,attribute) if scalar and attribute in (name,name+'_err') else getattr(self,attribute)[slot]
-                    return value if component is None else value[component]
+                    """Read a scalar, dataset value or limb-darkening component."""
+                    if scalar and attribute in (name, name + '_err'):
+                        value = getattr(self, attribute)
+                    else:
+                        value = getattr(self, attribute)[slot]
+
+                    if component is None:
+                        return value
+
+                    return value[component]
                 value = float(item(name))
-                error = np.asarray(item(name+'_err'),dtype=float)
+                error = np.asarray(item(name + '_err'), dtype=float)
                 if not np.isfinite(value) or not np.isfinite(error).all() or np.any(error < 0):
                     continue
                 uncertainty = float(np.max(error)) if error.size else 0.
@@ -6427,16 +6504,20 @@ class signal_fit(object):
                 if bounds[0] >= bounds[1]:
                     continue
                 if component is None:
-                    getattr(self,bounds_name)[slot]=bounds
+                    getattr(self, bounds_name)[slot] = bounds
                 else:
-                    getattr(self,bounds_name)[slot][component]=bounds
+                    getattr(self, bounds_name)[slot][component] = bounds
                 if gaussian:
-                    prior=item(name+'_norm_pr')
-                    prior[:]=[mean,width,True]
-                    if hasattr(self,name+'_jeff_pr'):item(name+'_jeff_pr')[2]=False
+                    prior = item(name + '_norm_pr')
+                    prior[:] = [mean, width, True]
+                    if hasattr(self,name+'_jeff_pr'):
+                        item(name + '_jeff_pr')[2] = False
                 changes.append(dict(parameter=name, slot=int(slot), bounds=bounds.copy(),
                                     mean=mean, sigma=width, gaussian=bool(gaussian)))
-                if component is not None:changes[-1]['component']=component
+                if component is not None:
+                    changes[-1]['component'] = component
+
+        # Publish once, after all bounds and selected priors are updated.
         if sync_gui:
             reference = globals().get('_fit_prior_gui_sync')
             callback = reference() if reference is not None else None

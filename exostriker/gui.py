@@ -5514,21 +5514,25 @@ Polyfit coefficients:
 ######################## Activity plots ######################################  
 
     def init_activity_combo(self):
+        """Create the activity selectors and show the available files."""
+
         for combo in (self.comboBox_act_data, self.comboBox_act_data_gls):
             blocker = QtCore.QSignalBlocker(combo)
             combo.clear()
             for i in range(20):
-                combo.addItem('act. data %s' % (i+1), i+1)
+                combo.addItem('act. data %s' % (i + 1), i + 1)
             del blocker
         self._activity_views_ready = True
         self.refresh_activity_views()
 
     def refresh_activity_views(self, preferred=None):
+        """Refresh file names and plots after imports, fits or session changes."""
+
         global fit
         if not getattr(self, '_activity_views_ready', False):
             return
-        loaded = tuple(i for i in range(20) if len(fit.act_data_sets[i]))
-        new = set(loaded)-set(getattr(self, '_activity_loaded_slots', ()))
+        loaded = tuple((i for i in range(20) if len(fit.act_data_sets[i])))
+        new = set(loaded) - set(getattr(self, '_activity_loaded_slots', ()))
         if new:
             self.tabWidget_44.setCurrentWidget(self.Activity_index_timeseries_plot)
         if preferred is None and new:
@@ -5539,7 +5543,10 @@ Polyfit coefficients:
             current = combo.currentIndex()
             blocker = QtCore.QSignalBlocker(combo)
             for i in range(combo.count()):
-                combo.setItemText(i, str(fit.act_data_sets[i][-1]) if i in loaded else 'act. data %s' % (i+1))
+                combo.setItemText(
+                    i,
+                    str(fit.act_data_sets[i][-1]) if i in loaded else 'act. data %s' % (i + 1),
+                )
                 combo.model().item(i).setEnabled(i in loaded)
             combo.setEnabled(bool(loaded))
             selected = preferred if preferred in loaded else current if current in loaded else loaded[0] if loaded else 0
@@ -5549,6 +5556,8 @@ Polyfit coefficients:
         self.update_activity_gls_plots(self.comboBox_act_data_gls.currentIndex())
 
     def print_activity_periodogram_info(self):
+        """Show the information for the currently displayed activity GLS."""
+
         self.print_info_for_object(getattr(self, '_activity_periodogram_info', ''))
 
     def get_activity_plot_data(self, ind, residual=False):
@@ -5564,77 +5573,91 @@ Polyfit coefficients:
             model = None
         if residual:
             y = y - (np.asarray(model['mean']) if model is not None else np.mean(y))
-        return t, y, err, model
+        return (t, y, err, model)
 
     def go_to_activity_plot_options(self):
+        """Open the shared activity styling and correlation controls."""
+
         self.param_tabs.setCurrentWidget(self.plot_options_tabs)
         self.plot_opt_tab.setCurrentWidget(self.tab_21)
 
     def update_color_picker_act(self):
+        """Show saved activity colors, symbols, sizes and alpha values."""
+
         global fit
         font = QtGui.QFont()
         font.setPointSize(9)
         font.setBold(False)
         for i in range(21):
-            button = self.buttonGroup_color_picker_act.button(i+1)
-            button.setStyleSheet("color: %s;" % fit.act_colors[i])
+            button = self.buttonGroup_color_picker_act.button(i + 1)
+            button.setStyleSheet('color: %s;' % fit.act_colors[i])
             button.setText(fit.act_colors[i])
             button.setFont(font)
         for i in range(20):
-            button = self.buttonGroup_symbol_picker_act.button(i+1)
-            button.setStyleSheet("color: %s;" % fit.act_colors[i])
+            button = self.buttonGroup_symbol_picker_act.button(i + 1)
+            button.setStyleSheet('color: %s;' % fit.act_colors[i])
             button.setText(fit.pyqt_symbols_act[i])
             button.setFont(font)
             for field, values in (('size',fit.pyqt_symbols_size_act),('alpha',fit.pyqt_color_alpha_act)):
-                control = getattr(self, 'act_data_%s_%s' % (field,i+1))
+                control = getattr(self, 'act_data_%s_%s' % (field, i + 1))
                 blocker = QtCore.QSignalBlocker(control)
                 control.setValue(values[i])
                 del blocker
 
     def get_color_act(self):
+        """Apply the chosen activity dataset or model color."""
+
         global fit
         but_ind = self.buttonGroup_color_picker_act.checkedId()
-        colorz = choose_color(self, fit.act_colors[but_ind-1], 'Activity dataset / model color')
+        colorz = choose_color(self, fit.act_colors[but_ind - 1], 'Activity dataset / model color')
         if colorz.isValid():
-            fit.act_colors[but_ind-1] = dill.copy(colorz.name())
+            fit.act_colors[but_ind - 1] = dill.copy(colorz.name())
             self.update_color_picker_act()
             self.update_act_file_buttons()
 
     def get_symbol_act(self):
+        """Apply a symbol chosen with the standard RV/transit picker."""
+
         global fit
         but_ind = self.buttonGroup_symbol_picker_act.checkedId()
-        but_n = self.dialog_symbols.get_radio(self, current=fit.pyqt_symbols_act[but_ind-1])
+        but_n = self.dialog_symbols.get_radio(self, current=fit.pyqt_symbols_act[but_ind - 1])
         if but_n is not None:
-            fit.pyqt_symbols_act[but_ind-1] = dill.copy(symbols[but_n-1])
+            fit.pyqt_symbols_act[but_ind - 1] = dill.copy(symbols[but_n - 1])
             self.update_color_picker_act()
             self.update_activity_data_plots(self.comboBox_act_data.currentIndex())
 
     def check_act_symbol_sizes(self):
+        """Store the per-dataset marker settings and redraw the activity plot."""
+
         global fit
         for i in range(20):
-            fit.pyqt_symbols_size_act[i] = dill.copy(getattr(self,'act_data_size_%s' % (i+1)).value())
-            fit.pyqt_color_alpha_act[i] = dill.copy(getattr(self,'act_data_alpha_%s' % (i+1)).value())
+            fit.pyqt_symbols_size_act[i] = dill.copy(getattr(self, 'act_data_size_%s' % (i + 1)).value())
+            fit.pyqt_color_alpha_act[i] = dill.copy(getattr(self, 'act_data_alpha_%s' % (i + 1)).value())
         self.update_activity_data_plots(self.comboBox_act_data.currentIndex())
 
     def set_global_act_symbol_size(self):
+        """Apply the global marker size to each activity dataset."""
+
         for i in range(20):
-            control = getattr(self,'act_data_size_%s' % (i+1))
+            control = getattr(self, 'act_data_size_%s' % (i + 1))
             blocker = QtCore.QSignalBlocker(control)
             control.setValue(self.act_data_size.value())
             del blocker
         self.check_act_symbol_sizes()
 
     def update_activity_gls_plots(self,ind):
-        global fit, colors,  p11 
+        """Plot the selected activity series or its model/mean residual GLS."""
 
-        p11.plot(clear=True,) 
+        global fit, colors, p11
+
+        p11.plot(clear=True)
         self._activity_periodogram_info = ''
         if ind not in fit.act_data_sets:
             return
 
         ind_norm = self.gls_norm_combo.currentIndex()
       #  omega = 1/ np.logspace(np.log10(self.gls_min_period.value()), np.log10(self.gls_max_period.value()), num=int(self.gls_n_omega.value()))
-        power_levels = np.array([self.gls_fap1.value(),self.gls_fap2.value(),self.gls_fap3.value()])
+        power_levels = np.array([self.gls_fap1.value(), self.gls_fap2.value(), self.gls_fap3.value()])
 
         if len(fit.act_data_sets[ind]) != 0 and len(fit.act_data_sets[ind][0]) > 5:
 
@@ -5652,35 +5675,46 @@ Polyfit coefficients:
                 act_per = gls.Gls(data, fast=True, verbose=False, norm=self.norms[ind_norm],
                     ofac=self.gls_ofac.value(), fbeg=1/self.gls_max_period.value(),
                     fend=1/self.gls_min_period.value())
-                cache[ind] = (key, act_per)            
+                cache[ind] = (key, act_per)
             ######################## GLS ##############################
             if self.radioButton_act_GLS_period.isChecked():
-                p11.setLogMode(True,False)        
-                p11.plot(1/act_per.freq, act_per.power,pen=dill.copy(fit.act_colors[ind]),symbol=None ) 
-                p11.setLabel('bottom', 'period [d]', units='',  **self.plot_font_style()) 
+                p11.setLogMode(True, False)
+                p11.plot(1 / act_per.freq, act_per.power, pen=dill.copy(fit.act_colors[ind]), symbol=None)
+                p11.setLabel('bottom', 'period [d]', units='', **self.plot_font_style())
 
             else:
-                p11.setLogMode(False,False)        
-                p11.plot(act_per.freq, act_per.power,pen=dill.copy(fit.act_colors[ind]),symbol=None )
-                p11.setLabel('bottom', 'frequency [1/d]', units='',  **self.plot_font_style()) 
+                p11.setLogMode(False, False)
+                p11.plot(act_per.freq, act_per.power, pen=dill.copy(fit.act_colors[ind]), symbol=None)
+                p11.setLabel('bottom', 'frequency [1/d]', units='', **self.plot_font_style())
 
-            [p11.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.PenStyle.DotLine)) for ii,fap in enumerate(act_per.powerLevel(np.array(power_levels)))]
-  
-            text_peaks, pos_peaks = self.identify_power_peaks(1/act_per.freq, act_per.power, power_level = power_levels, sig_level = act_per.powerLevel(np.array(power_levels)) )    
+            [p11.addLine(x=None, y=fap, pen=pg.mkPen('k', width=0.8, style=QtCore.Qt.PenStyle.DotLine)) for (ii, fap) in enumerate(act_per.powerLevel(np.array(power_levels)))]
 
-            self.label_peaks(p11, pos_peaks, GLS = True, activity = True)
+            text_peaks, pos_peaks = self.identify_power_peaks(
+                1 / act_per.freq,
+                act_per.power,
+                power_level=power_levels,
+                sig_level=act_per.powerLevel(np.array(power_levels)),
+            )
+
+            self.label_peaks(p11, pos_peaks, GLS=True, activity=True)
             self._activity_periodogram_info = act_per.info(stdout=False) + text_peaks
             if not getattr(self, '_activity_info_connected', False):
                 self.act_periodogram_print_info.clicked.connect(self.print_activity_periodogram_info)
-                self._activity_info_connected = True   
+                self._activity_info_connected = True
 
         if self.gls_act_cross_hair.isChecked():
             #self.cross_hair(p11,log=self.radioButton_act_GLS_period.isChecked()) 
 
-            self.cross_hair(p11,log=self.radioButton_act_GLS_period.isChecked(), alias=[self.show_alias_GLS.isChecked(), self.alias_days_gls.value(), colors_GLS_alias[0]])    
+            self.cross_hair(
+                p11,
+                log=self.radioButton_act_GLS_period.isChecked(),
+                alias=[self.show_alias_GLS.isChecked(), self.alias_days_gls.value(), colors_GLS_alias[0]],
+            )
 
 
     def update_activity_data_plots(self,ind):
+        """Draw activity data, optional model, residuals and display overlays."""
+
         global fit, colors, p5
         p5.plot(clear=True)
         plot_item = p5.getPlotItem() if hasattr(p5, 'getPlotItem') else p5
@@ -5693,7 +5727,7 @@ Polyfit coefficients:
             return
         residual = self.act_plot_o_c.isChecked()
         t, y, err, model = self.get_activity_plot_data(ind, residual)
-        color = dill.copy(fit.act_colors[ind])+"%02x" % int(fit.pyqt_color_alpha_act[ind])
+        color = dill.copy(fit.act_colors[ind]) + '%02x' % int(fit.pyqt_color_alpha_act[ind])
         p5.plot(t, y, pen=None,
                 symbol=dill.copy(fit.pyqt_symbols_act[ind]),
                 symbolPen={'color':color, 'width':1.1},
@@ -7431,7 +7465,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         if not fit.type_fit.get('RV', False):
             return
         self.comboBox_extra_plot.clear()
-        if fit.npl == 0:
+        if fit.npl == 0 or not len(fit.fit_results.rv_model.jd):
             self.clear_RV_phase_plots()
             return
         self.comboBox_extra_plot.setEnabled(True)
@@ -7544,6 +7578,10 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         global fit, colors,pe0,pe1,legend_RV_phased
 
         if not fit.type_fit.get('RV', False):
+            return
+
+        if ind is None or not len(fit.fit_results.rv_model.jd):
+            self.clear_RV_phase_plots()
             return
 
        # pe.plot(clear=True,)
@@ -13822,7 +13860,7 @@ Please install via 'pip install ttvfast'.
         global fit
         slot = next((i for i in range(9) if not fit.use_planet[i]), None)
         if slot is None:
-            raise ValueError("All nine planet slots are occupied")
+            raise ValueError('All nine planet slots are occupied')
         best = periodogram.hpstat
         phase = (360.0 * ((fit.epoch - float(best['T0'])) % best['P']) / best['P'] - 90.0) % 360.0
         fit.add_planet(best['amp'], best['P'], 0.0, 0.0, phase, 90.0, 0.0,

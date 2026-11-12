@@ -16,15 +16,17 @@ DATASET_GROUPS = (
 
 def imported_dataset_names(session):
     """Yield occupied slots, preserving actual indices and each record layout."""
-    for section, attribute, name_index, prefix, button_group in DATASET_GROUPS:
+    for (section, attribute, name_index, prefix, button_group) in DATASET_GROUPS:
         collection = getattr(session, attribute, {})
         items = collection.items() if hasattr(collection, 'items') else enumerate(collection)
-        for slot, record in sorted(items):
+        for (slot, record) in sorted(items):
             if len(record):
-                yield section, attribute, slot, name_index, prefix, button_group, record
+                yield (section, attribute, slot, name_index, prefix, button_group, record)
 
 
 class DatasetNamesDialog(QtWidgets.QDialog):
+    """Edit imported display names without changing paths or observations."""
+
     def __init__(self, session, parent=None, qso_mode=False):
         super().__init__(parent)
         self.session = session
@@ -40,14 +42,14 @@ class DatasetNamesDialog(QtWidgets.QDialog):
         contents = QtWidgets.QWidget(scroll)
         sections_layout = QtWidgets.QVBoxLayout(contents)
         self.sections = {}
-        for title in (('RV',) if qso_mode else ('RV', 'Transits', 'TTV', 'Astrometry', 'Activity')):
+        for title in ('RV',) if qso_mode else ('RV', 'Transits', 'TTV', 'Astrometry', 'Activity'):
             group = QtWidgets.QGroupBox('Data' if qso_mode else title, contents)
             self.sections[title] = QtWidgets.QFormLayout(group)
             sections_layout.addWidget(group)
         self.editors = {}
         self.records = {}
         self.changed_datasets = set()
-        for section, attribute, slot, name_index, prefix, _, record in imported_dataset_names(session):
+        for (section, attribute, slot, name_index, prefix, _, record) in imported_dataset_names(session):
             if section not in self.sections:
                 continue
             key = (attribute, slot)
@@ -68,8 +70,9 @@ class DatasetNamesDialog(QtWidgets.QDialog):
         self.message.setWordWrap(True)
         layout.addWidget(self.message)
         buttons = QtWidgets.QDialogButtonBox(
-            QtWidgets.QDialogButtonBox.StandardButton.Apply |
-            QtWidgets.QDialogButtonBox.StandardButton.Cancel, parent=self)
+            QtWidgets.QDialogButtonBox.StandardButton.Apply | QtWidgets.QDialogButtonBox.StandardButton.Cancel,
+            parent=self,
+        )
         self.apply_button = buttons.button(QtWidgets.QDialogButtonBox.StandardButton.Apply)
         self.apply_button.setEnabled(bool(self.editors))
         self.apply_button.clicked.connect(self.apply_names)
@@ -80,7 +83,7 @@ class DatasetNamesDialog(QtWidgets.QDialog):
         # Validate every row before changing anything. Cancel/window-close never
         # touch the session, and a dataset replaced during editing is protected.
         changes = []
-        for key, field in self.editors.items():
+        for (key, field) in self.editors.items():
             attribute, slot = key
             original, name_index = self.records[key]
             current = getattr(self.session, attribute)[slot]
@@ -94,7 +97,7 @@ class DatasetNamesDialog(QtWidgets.QDialog):
                 return
             if name != str(original[name_index]):
                 changes.append((attribute, slot, original, name_index, name))
-        for attribute, slot, record, name_index, name in changes:
+        for (attribute, slot, record, name_index, name) in changes:
             record[name_index] = name
             initial = getattr(self.session, attribute + '_init', {})
             try:

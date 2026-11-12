@@ -3,6 +3,8 @@
 
 def optimize(fit, *, ff=20, m_ln=True, doGP=False, gp_kernel_id=-1,
              minimize_fortran=True, discovery=False, reset_errors=True, initialize=None, **options):
+    """Choose the optimizer while keeping initialization explicit."""
+
     import dill
     import RV_mod as rv
     from activity_gp import selected
@@ -14,9 +16,9 @@ def optimize(fit, *, ff=20, m_ln=True, doGP=False, gp_kernel_id=-1,
     if fit.rtg[1] and selected(fit):
         # Joint activity conditioning lives in the Python likelihood, including
         # model initialization; never route its priors to the native optimizer.
-        minimize_fortran, doGP = False, True
+        minimize_fortran, doGP = (False, True)
     old_errors = dill.copy(fit.param_errors.GP_params_errors)
-    if minimize_fortran and not doGP and not discovery:
+    if minimize_fortran and (not doGP) and (not discovery):
         from native_joint_fit import has_enabled_priors
         if has_enabled_priors(fit):
             fit.init_fit = ff == 0
@@ -24,14 +26,14 @@ def optimize(fit, *, ff=20, m_ln=True, doGP=False, gp_kernel_id=-1,
     options.update(doGP=doGP, kernel_id=gp_kernel_id, minimize_fortran=minimize_fortran)
     if discovery:
         fit.fitting(minimize_loglik=False, amoeba_starts=ff, **options)
-    elif minimize_fortran and not doGP and ff > 0 and not fit.init_fit:
+    elif minimize_fortran and (not doGP) and (ff > 0) and (not fit.init_fit):
         fit.fitting_sequence(**options)
     else:
         fit.fitting(minimize_loglik=True if ff == 0 or not minimize_fortran or doGP else m_ln,
                     amoeba_starts=0 if not minimize_fortran else ff, **options)
     if getattr(fit, 'bound_error', False):
         return fit
-    if fit.doGP and not cycle_active(fit):
+    if fit.doGP and (not cycle_active(fit)):
         rv.get_RV_gps_model(fit, get_lnl=fit.get_GP_lnl)
     for index in range(9):
         if fit.type_fit.get('RV', False) and fit.use_planet[index]:
@@ -45,6 +47,8 @@ def optimize(fit, *, ff=20, m_ln=True, doGP=False, gp_kernel_id=-1,
 
 
 def calculate(fit, operation, options):
+    """Run one requested calculation on the worker session."""
+
     import RV_mod as rv
     print(f'Running {operation} calculation in an isolated process…', flush=True)
     if operation == 'optimize':
@@ -75,15 +79,13 @@ def calculate(fit, operation, options):
             return fit
         residual = options.pop('residual')
         gp = options.pop('gp')
-        if gp and not fit.doGP:
+        if gp and (not fit.doGP):
             raise ValueError('No GP model available for residual MLP')
         model = fit.fit_results.rv_model
         values = model.o_c if residual or gp else model.rvs
         if gp:
             values = values - fit.gp_model_data[0]
-        datasets = [(model.jd[fit.fit_results.idset == i],
-                     values[fit.fit_results.idset == i],
-                     model.rv_err[fit.fit_results.idset == i]) for i in range(fit.ndset)]
+        datasets = [(model.jd[fit.fit_results.idset == i], values[fit.fit_results.idset == i], model.rv_err[fit.fit_results.idset == i]) for i in range(fit.ndset)]
         fit.mlp = mlp.Gls(datasets, fast=True, verbose=False, nojit=True, norm='dlnL', **options)
         return fit
     if operation == 'tls':
@@ -91,8 +93,7 @@ def calculate(fit, operation, options):
         from transitleastsquares_ES import transitleastsquares_ES
         residual = options.pop('residual')
         slots = [i for i in range(20) if len(fit.tra_data_sets[i])]
-        values = np.concatenate([fit.transit_results[1][4 if residual else 1][i]
-                                 for i in slots])
+        values = np.concatenate([fit.transit_results[1][4 if residual else 1][i] for i in slots])
         if residual:
             values = values + 1.0
         times = np.concatenate([fit.transit_results[1][0][i] for i in slots])

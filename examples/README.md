@@ -68,3 +68,21 @@ by opening or running all cells with the defaults.
 Shared plotting and export code lives in [example_tools.py](example_tools.py).
 Historical examples, session files and generated plots have been preserved in
 [legacy/](legacy/) for reference; start with the tutorials above.
+
+## Model-only simulations and posterior bands
+
+[GetModel_synthetic_data.ipynb](GetModel_synthetic_data.ipynb) tests the named
+`GetModel` dictionaries with approximately one-Jupiter-mass planets on 320/680-day
+orbits. It plots Keplerian/N-body RV, transit flux, timing/depth/duration,
+standard-plus-planet astrometry, irregular BJD, Gaussian measurement noise and
+timestamp jitter, and exports synthetic CSV data under `results/GetModel_demo/`.
+
+The notebook loads the included
+[sessions/GetModel_giant_planets.ses](sessions/GetModel_giant_planets.ses), with
+its [RV data](sessions/GetModel_giant_planets.vels) and retained real MCMC/weighted
+NS samples. Default Run All does not launch samplers. It demonstrates reusable
+session adapters and grey pointwise 1/2/3-sigma posterior model bands for every
+observable. See [fixture assumptions](sessions/README.md),
+[GetModel options](../docs/MODEL_ONLY.md) and
+[posterior API/conventions](../docs/MODEL_POSTERIORS.md). Plotting and fixture
+helpers live in [model_simulation_tools.py](model_simulation_tools.py).

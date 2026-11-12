@@ -1,7 +1,6 @@
 
 import numpy as np
 from astropy.table import Table
-import pandas as pd
 from .hipparcos import hip_JD
 
 __all__ = ["RV_read", "RV_order", "hip_data", "hip_read","hip_init"]
@@ -74,6 +73,15 @@ def hip_data(location,hip_id,format=""):
     cols = ["IORB", "EPOCH", "PARF", "CPSI", "SPSI", "RES", "SRES"]
 
     if format=="pandas":
+        # Preserve the optional legacy DataFrame return without importing
+        # pandas during normal model/session startup.
+        try:
+            import pandas as pd
+        except ImportError as error:
+            raise ImportError(
+                'hip_data(format="pandas") requires the optional pandas package. '
+                'Use the default Astropy table or install exostriker[pandas].'
+            ) from error
         df = pd.read_csv(
         destination,
         comment="#",

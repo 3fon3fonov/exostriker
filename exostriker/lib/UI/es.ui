@@ -1702,7 +1702,7 @@
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>84</width>
+                  <width>98</width>
                   <height>70</height>
                  </rect>
                 </property>
@@ -61777,7 +61777,7 @@
                    </font>
                   </property>
                   <property name="currentIndex">
-                   <number>1</number>
+                   <number>0</number>
                   </property>
                   <widget class="QWidget" name="tab_123">
                    <attribute name="title">
@@ -62977,17 +62977,20 @@
                              <height>134</height>
                             </rect>
                            </property>
-                           <layout class="QGridLayout" name="fortran_simplex_form">
-                            <property name="sizeConstraint">
-                             <enum>QLayout::SetMinimumSize</enum>
-                            </property>
-                            <property name="verticalSpacing">
-                             <number>3</number>
-                            </property>
+                           <layout class="QGridLayout" name="gridLayout_322">
                             <item row="0" column="0">
                              <layout class="QGridLayout" name="gridLayout_308">
+                              <property name="spacing">
+                               <number>6</number>
+                              </property>
                               <item row="0" column="0">
                                <widget class="QLabel" name="fortran_simplex_maxfev_label">
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>140</width>
+                                  <height>16777215</height>
+                                 </size>
+                                </property>
                                 <property name="toolTip">
                                  <string>0 keeps existing limits: RV Simplex 200000 (Keplerian) / 50000 (N-body) per restart; RV LM and joint fits have no separate cap. A positive cap covers RV optimizer objective evaluations across internal restarts, or each joint run. Final model/covariance work is outside this cap.</string>
                                 </property>
@@ -62998,6 +63001,12 @@
                               </item>
                               <item row="0" column="2">
                                <widget class="QLabel" name="fortran_simplex_maxiter_label">
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>140</width>
+                                  <height>16777215</height>
+                                 </size>
+                                </property>
                                 <property name="toolTip">
                                  <string>0 keeps existing limits: RV LM 200; RV Simplex no extra iteration cap; joint fits 5000 per run.</string>
                                 </property>
@@ -63012,6 +63021,12 @@
                                  <size>
                                   <width>130</width>
                                   <height>24</height>
+                                 </size>
+                                </property>
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>140</width>
+                                  <height>16777215</height>
                                  </size>
                                 </property>
                                 <property name="toolTip">
@@ -63039,6 +63054,12 @@
                                   <height>24</height>
                                  </size>
                                 </property>
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>140</width>
+                                  <height>16777215</height>
+                                 </size>
+                                </property>
                                 <property name="toolTip">
                                  <string>1 preserves the existing parameter-specific simplex displacements. Multiplies displacements, not parameter values.</string>
                                 </property>
@@ -63061,6 +63082,12 @@
                               </item>
                               <item row="3" column="0">
                                <widget class="QLabel" name="fortran_simplex_restart_ftol_label">
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>140</width>
+                                  <height>16777215</height>
+                                 </size>
+                                </property>
                                 <property name="toolTip">
                                  <string>RV internal Simplex runs stop when absolute objective improvement is below this value; default 1e-6. Joint runs use the selected run count.</string>
                                 </property>
@@ -63075,6 +63102,12 @@
                                  <size>
                                   <width>130</width>
                                   <height>24</height>
+                                 </size>
+                                </property>
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>140</width>
+                                  <height>16777215</height>
                                  </size>
                                 </property>
                                 <property name="toolTip">
@@ -63102,6 +63135,12 @@
                               </item>
                               <item row="1" column="0">
                                <widget class="QLabel" name="fortran_simplex_ftol_label">
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>140</width>
+                                  <height>16777215</height>
+                                 </size>
+                                </property>
                                 <property name="toolTip">
                                  <string>0 preserves the backend convergence rule: RV Simplex relative objective spread 1e-6 / 1e-3; RV LM absolute chi-square improvement 0.01 / 1e-5; joint absolute objective tolerance 1e-7.</string>
                                 </property>
@@ -63116,6 +63155,12 @@
                                  <size>
                                   <width>130</width>
                                   <height>24</height>
+                                 </size>
+                                </property>
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>140</width>
+                                  <height>16777215</height>
                                  </size>
                                 </property>
                                 <property name="toolTip">
@@ -63140,6 +63185,12 @@
                               </item>
                               <item row="2" column="0">
                                <widget class="QLabel" name="fortran_simplex_step_scale_label">
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>140</width>
+                                  <height>16777215</height>
+                                 </size>
+                                </property>
                                 <property name="toolTip">
                                  <string>1 preserves the existing parameter-specific simplex displacements. Multiplies displacements, not parameter values.</string>
                                 </property>
@@ -63154,6 +63205,12 @@
                                  <size>
                                   <width>130</width>
                                   <height>24</height>
+                                 </size>
+                                </property>
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>140</width>
+                                  <height>16777215</height>
                                  </size>
                                 </property>
                                 <property name="toolTip">
@@ -63175,6 +63232,12 @@
                               </item>
                               <item row="1" column="2">
                                <widget class="QLabel" name="fortran_simplex_xtol_label">
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>140</width>
+                                  <height>16777215</height>
+                                 </size>
+                                </property>
                                 <property name="toolTip">
                                  <string>0 preserves existing behavior: no extra RV step/diameter criterion; joint LM scaled step 1e-7; joint Simplex diameter sqrt(1e-7). Positive RV values use relative parameter changes (scale at least 1); joint values use internal scaled coordinates.</string>
                                 </property>
@@ -63185,6 +63248,12 @@
                               </item>
                               <item row="3" column="3">
                                <widget class="QPushButton" name="fortran_simplex_restore_defaults">
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>140</width>
+                                  <height>16777215</height>
+                                 </size>
+                                </property>
                                 <property name="text">
                                  <string>Restore existing defaults</string>
                                 </property>
@@ -63192,6 +63261,12 @@
                               </item>
                               <item row="2" column="2">
                                <widget class="QLabel" name="fortran_simplex_restarts_label">
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>140</width>
+                                  <height>16777215</height>
+                                 </size>
+                                </property>
                                 <property name="toolTip">
                                  <string>0 keeps RV Keplerian 20, RV N-body 1, joint 1. Positive values repeat Simplex from the preceding solution, separately from the primary/secondary stage counts. Explicit RV fitting(amoeba_starts=...) still chooses its own count.</string>
                                 </property>
@@ -63206,6 +63281,12 @@
                                  <size>
                                   <width>130</width>
                                   <height>24</height>
+                                 </size>
+                                </property>
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>140</width>
+                                  <height>16777215</height>
                                  </size>
                                 </property>
                                 <property name="toolTip">
@@ -63239,6 +63320,12 @@
                                   <height>24</height>
                                  </size>
                                 </property>
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>140</width>
+                                  <height>16777215</height>
+                                 </size>
+                                </property>
                                 <property name="toolTip">
                                  <string>0 keeps RV Keplerian 20, RV N-body 1, joint 1. Positive values repeat Simplex from the preceding solution, separately from the primary/secondary stage counts. Explicit RV fitting(amoeba_starts=...) still chooses its own count.</string>
                                 </property>
@@ -63257,6 +63344,19 @@
                                </widget>
                               </item>
                              </layout>
+                            </item>
+                            <item row="0" column="1">
+                             <spacer name="horizontalSpacer_160">
+                              <property name="orientation">
+                               <enum>Qt::Horizontal</enum>
+                              </property>
+                              <property name="sizeHint" stdset="0">
+                               <size>
+                                <width>74</width>
+                                <height>20</height>
+                               </size>
+                              </property>
+                             </spacer>
                             </item>
                            </layout>
                           </widget>
@@ -63282,21 +63382,21 @@
                             <rect>
                              <x>0</x>
                              <y>0</y>
-                             <width>590</width>
+                             <width>679</width>
                              <height>134</height>
                             </rect>
                            </property>
-                           <layout class="QGridLayout" name="fortran_lm_form">
-                            <property name="sizeConstraint">
-                             <enum>QLayout::SetMinimumSize</enum>
-                            </property>
-                            <property name="verticalSpacing">
-                             <number>3</number>
-                            </property>
+                           <layout class="QGridLayout" name="gridLayout_329">
                             <item row="0" column="0">
                              <layout class="QGridLayout" name="fortran_lm_options_grid">
                               <item row="0" column="0">
                                <widget class="QLabel" name="fortran_lm_maxfev_label">
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>140</width>
+                                  <height>16777215</height>
+                                 </size>
+                                </property>
                                 <property name="toolTip">
                                  <string>0 keeps existing limits: RV Simplex 200000 (Keplerian) / 50000 (N-body) per restart; RV LM and joint fits have no separate cap. A positive cap covers RV optimizer objective evaluations across internal restarts, or each joint run. Final model/covariance work is outside this cap.</string>
                                 </property>
@@ -63311,6 +63411,12 @@
                                  <size>
                                   <width>130</width>
                                   <height>24</height>
+                                 </size>
+                                </property>
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>140</width>
+                                  <height>16777215</height>
                                  </size>
                                 </property>
                                 <property name="toolTip">
@@ -63332,6 +63438,12 @@
                               </item>
                               <item row="0" column="2">
                                <widget class="QLabel" name="fortran_lm_maxiter_label">
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>140</width>
+                                  <height>16777215</height>
+                                 </size>
+                                </property>
                                 <property name="toolTip">
                                  <string>0 keeps existing limits: RV LM 200; RV Simplex no extra iteration cap; joint fits 5000 per run.</string>
                                 </property>
@@ -63346,6 +63458,12 @@
                                  <size>
                                   <width>130</width>
                                   <height>24</height>
+                                 </size>
+                                </property>
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>140</width>
+                                  <height>16777215</height>
                                  </size>
                                 </property>
                                 <property name="toolTip">
@@ -63367,6 +63485,12 @@
                               </item>
                               <item row="1" column="0">
                                <widget class="QLabel" name="fortran_lm_ftol_label">
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>140</width>
+                                  <height>16777215</height>
+                                 </size>
+                                </property>
                                 <property name="toolTip">
                                  <string>0 preserves the backend convergence rule: RV Simplex relative objective spread 1e-6 / 1e-3; RV LM absolute chi-square improvement 0.01 / 1e-5; joint absolute objective tolerance 1e-7.</string>
                                 </property>
@@ -63381,6 +63505,12 @@
                                  <size>
                                   <width>130</width>
                                   <height>24</height>
+                                 </size>
+                                </property>
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>140</width>
+                                  <height>16777215</height>
                                  </size>
                                 </property>
                                 <property name="toolTip">
@@ -63408,6 +63538,12 @@
                               </item>
                               <item row="1" column="2">
                                <widget class="QLabel" name="fortran_lm_xtol_label">
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>140</width>
+                                  <height>16777215</height>
+                                 </size>
+                                </property>
                                 <property name="toolTip">
                                  <string>0 preserves existing behavior: no extra RV step/diameter criterion; joint LM scaled step 1e-7; joint Simplex diameter sqrt(1e-7). Positive RV values use relative parameter changes (scale at least 1); joint values use internal scaled coordinates.</string>
                                 </property>
@@ -63422,6 +63558,12 @@
                                  <size>
                                   <width>130</width>
                                   <height>24</height>
+                                 </size>
+                                </property>
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>140</width>
+                                  <height>16777215</height>
                                  </size>
                                 </property>
                                 <property name="toolTip">
@@ -63449,6 +63591,12 @@
                               </item>
                               <item row="2" column="0">
                                <widget class="QLabel" name="fortran_lm_gtol_label">
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>140</width>
+                                  <height>16777215</height>
+                                 </size>
+                                </property>
                                 <property name="toolTip">
                                  <string>Joint LM normalized gradient threshold; 0 retains the existing 1e-7 rule and numerical floor. The established RV LM has no gradient stopping control.</string>
                                 </property>
@@ -63463,6 +63611,12 @@
                                  <size>
                                   <width>130</width>
                                   <height>24</height>
+                                 </size>
+                                </property>
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>140</width>
+                                  <height>16777215</height>
                                  </size>
                                 </property>
                                 <property name="toolTip">
@@ -63490,6 +63644,12 @@
                               </item>
                               <item row="2" column="2">
                                <widget class="QLabel" name="fortran_lm_initial_damping_label">
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>140</width>
+                                  <height>16777215</height>
+                                 </size>
+                                </property>
                                 <property name="toolTip">
                                  <string>Default 0.001 preserves the existing LM damping. Subsequent damping adjustments remain automatic.</string>
                                 </property>
@@ -63504,6 +63664,12 @@
                                  <size>
                                   <width>130</width>
                                   <height>24</height>
+                                 </size>
+                                </property>
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>140</width>
+                                  <height>16777215</height>
                                  </size>
                                 </property>
                                 <property name="toolTip">
@@ -63528,6 +63694,12 @@
                               </item>
                               <item row="3" column="0">
                                <widget class="QLabel" name="fortran_lm_diff_step_scale_label">
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>140</width>
+                                  <height>16777215</height>
+                                 </size>
+                                </property>
                                 <property name="toolTip">
                                  <string>1 preserves existing derivative steps. Applies to numerical N-body RV and joint derivatives; analytic Keplerian RV derivatives are unchanged. Separate from the N-body integration time step.</string>
                                 </property>
@@ -63542,6 +63714,12 @@
                                  <size>
                                   <width>130</width>
                                   <height>24</height>
+                                 </size>
+                                </property>
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>140</width>
+                                  <height>16777215</height>
                                  </size>
                                 </property>
                                 <property name="toolTip">
@@ -63566,12 +63744,31 @@
                               </item>
                               <item row="3" column="3">
                                <widget class="QPushButton" name="fortran_lm_restore_defaults">
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>140</width>
+                                  <height>16777215</height>
+                                 </size>
+                                </property>
                                 <property name="text">
                                  <string>Restore existing defaults</string>
                                 </property>
                                </widget>
                               </item>
                              </layout>
+                            </item>
+                            <item row="0" column="1">
+                             <spacer name="horizontalSpacer_208">
+                              <property name="orientation">
+                               <enum>Qt::Horizontal</enum>
+                              </property>
+                              <property name="sizeHint" stdset="0">
+                               <size>
+                                <width>74</width>
+                                <height>20</height>
+                               </size>
+                              </property>
+                             </spacer>
                             </item>
                            </layout>
                           </widget>
@@ -69539,7 +69736,7 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>723</width>
+                   <width>675</width>
                    <height>528</height>
                   </rect>
                  </property>
@@ -77687,7 +77884,7 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>723</width>
+                   <width>440</width>
                    <height>473</height>
                   </rect>
                  </property>
@@ -197373,164 +197570,164 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_use_tra_reg_7"/>
-  <buttongroup name="buttonGroup_ast_data_3"/>
-  <buttongroup name="buttonGroup_use_plmass"/>
-  <buttongroup name="buttonGroup_use_ld_4"/>
-  <buttongroup name="buttonGroup_remove_RV_data"/>
-  <buttongroup name="buttonGroup_use_planets">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_use_tra_reg_14"/>
-  <buttongroup name="buttonGroup_use_nbody_pack"/>
-  <buttongroup name="buttonGroup_ast_data_2"/>
-  <buttongroup name="buttonGroup_AMD_stab_mcmc"/>
   <buttongroup name="buttonGroup_remove_activity_data"/>
-  <buttongroup name="buttonGroup_use_ld_12"/>
-  <buttongroup name="buttonGroup_test_arb_conf_kp_ma"/>
-  <buttongroup name="buttonGroup_use_ld_11"/>
-  <buttongroup name="buttonGroup_use_tra_data_GP">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_use_tra_reg_13"/>
-  <buttongroup name="buttonGroup_plot_i_Omega"/>
-  <buttongroup name="buttonGroup_type_fit"/>
-  <buttongroup name="buttonGroup_color_picker_ttv"/>
-  <buttongroup name="buttonGroup_use_ld_14"/>
-  <buttongroup name="buttonGroup_ast_data"/>
-  <buttongroup name="buttonGroup_use_rho_aR"/>
-  <buttongroup name="buttonGroup_use_RV_GP_kernel">
-   <property name="exclusive">
-    <bool>true</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_ei_eo_sincos"/>
-  <buttongroup name="buttonGroup_options_rvs"/>
-  <buttongroup name="buttonGroup_AMD_satb_NS"/>
-  <buttongroup name="buttonGroup_color_picker_tra"/>
-  <buttongroup name="buttonGroup_symbol_picker_ast"/>
-  <buttongroup name="buttonGroup_use_tra_reg_10"/>
-  <buttongroup name="buttonGroup_use_ld_17"/>
-  <buttongroup name="buttonGroup_color_picker"/>
+  <buttongroup name="buttonGroup_TTV_plot_Ntra_BJD"/>
+  <buttongroup name="buttonGroup_use_tra_reg_3"/>
   <buttongroup name="buttonGroup_use_ast_data_to_planet">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_dom_fold"/>
-  <buttongroup name="buttonGroup_adopt_nest_as_par"/>
-  <buttongroup name="buttonGroup_use_tra_reg_1"/>
-  <buttongroup name="buttonGroup_use_ld_8"/>
-  <buttongroup name="buttonGroup_use_tra_reg_2"/>
-  <buttongroup name="buttonGroup_omega_dot_opt"/>
-  <buttongroup name="buttonGroup_color_picker_ast"/>
-  <buttongroup name="buttonGroup_remove_transit_data"/>
-  <buttongroup name="buttonGroup_use_tra_GP_kernel"/>
-  <buttongroup name="buttonGroup_remove_ast_data"/>
-  <buttongroup name="buttonGroup_use_ld_9"/>
-  <buttongroup name="buttonGroup_simplex_or_lm"/>
-  <buttongroup name="buttonGroup_use_ld_6"/>
-  <buttongroup name="buttonGroup_use_ast_data_to_planet_3">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_theta_fold"/>
-  <buttongroup name="buttonGroup_add_RV_data"/>
-  <buttongroup name="buttonGroup_use_tra_reg_15"/>
-  <buttongroup name="buttonGroup_adopt_mcmc_as_par"/>
-  <buttongroup name="buttonGroup_activity_data"/>
-  <buttongroup name="buttonGroup_use_tra_reg_4"/>
-  <buttongroup name="buttonGroup_use_ttv_data_to_planet">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_use_ld_15"/>
-  <buttongroup name="buttonGroup_use_ld_2"/>
-  <buttongroup name="buttonGroup_color_picker_act"/>
-  <buttongroup name="buttonGroup_use_ast_plot_RA_Dec"/>
-  <buttongroup name="buttonGroup_options_act"/>
-  <buttongroup name="buttonGroup_Rebound_integrators"/>
-  <buttongroup name="buttonGroup_apply_tra_data_options"/>
   <buttongroup name="buttonGroup_use_ld_18"/>
-  <buttongroup name="buttonGroup_apply_act_data_options"/>
-  <buttongroup name="buttonGroup_use_img_hipp_ast">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_use_ld_7"/>
-  <buttongroup name="buttonGroup_remove_ast_data_3"/>
-  <buttongroup name="buttonGroup_use_ld_13"/>
-  <buttongroup name="buttonGroup_use_tra_reg_9"/>
-  <buttongroup name="buttonGroup_use">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_use_tra_reg_6"/>
-  <buttongroup name="buttonGroup_apply_rvs_data_options"/>
-  <buttongroup name="buttonGroup_symbol_picker_act"/>
-  <buttongroup name="buttonGroup_use_ld_10"/>
-  <buttongroup name="buttonGroup_remove_ttv_data"/>
+  <buttongroup name="buttonGroup_symbol_picker_tra"/>
+  <buttongroup name="buttonGroup_kep_or_dyn"/>
+  <buttongroup name="buttonGroup_ei_eo_sincos"/>
   <buttongroup name="buttonGroup_mixed_fitting">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_detrend_tra"/>
-  <buttongroup name="buttonGroup_remove_ast_data_2"/>
-  <buttongroup name="buttonGroup_samp_corr"/>
-  <buttongroup name="buttonGroup_use_tra_reg_11"/>
+  <buttongroup name="buttonGroup_use_tra_reg_5"/>
+  <buttongroup name="buttonGroup_use_ld_4"/>
+  <buttongroup name="buttonGroup_energy"/>
+  <buttongroup name="buttonGroup_apply_act_data_options"/>
+  <buttongroup name="buttonGroup_remove_ast_data_3"/>
+  <buttongroup name="buttonGroup_adopt_nest_as_par"/>
   <buttongroup name="buttonGroup_f77_or_scipy"/>
-  <buttongroup name="buttonGroup_use_tra_reg_18"/>
-  <buttongroup name="buttonGroup_use_ld_5"/>
+  <buttongroup name="buttonGroup_use_ld_1"/>
+  <buttongroup name="buttonGroup_use_tra_reg_17"/>
+  <buttongroup name="buttonGroup_dom_fold"/>
+  <buttongroup name="buttonGroup_use">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_options_rvs"/>
+  <buttongroup name="buttonGroup_ast_data_3"/>
+  <buttongroup name="buttonGroup_use_tra_reg_13"/>
+  <buttongroup name="buttonGroup_use_tra_reg_2"/>
+  <buttongroup name="buttonGroup_use_ld_6"/>
+  <buttongroup name="buttonGroup_detrend_tra"/>
+  <buttongroup name="buttonGroup_AMD_stab_mcmc"/>
+  <buttongroup name="buttonGroup_color_picker"/>
+  <buttongroup name="buttonGroup_options_act"/>
+  <buttongroup name="buttonGroup_use_tra_GP_kernel"/>
   <buttongroup name="buttonGroup_use_GP">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_use_tra_reg_5"/>
-  <buttongroup name="buttonGroup_transit_data"/>
-  <buttongroup name="buttonGroup_energy"/>
-  <buttongroup name="buttonGroup_TTV_plot_Ntra_BJD"/>
-  <buttongroup name="buttonGroup_use_tra_reg_19"/>
-  <buttongroup name="buttonGroup_use_tra_reg_8"/>
-  <buttongroup name="buttonGroup_adopt_mcmc_as_err"/>
-  <buttongroup name="buttonGroup_AMD_stab_opt"/>
-  <buttongroup name="buttonGroup_Swift_integrators"/>
+  <buttongroup name="buttonGroup_ttv_data"/>
+  <buttongroup name="buttonGroup_omega_dot_opt"/>
   <buttongroup name="buttonGroup_adopt_nest_as_err"/>
-  <buttongroup name="buttonGroup_use_ld_20"/>
-  <buttongroup name="buttonGroup_ewm_hkl"/>
-  <buttongroup name="buttonGroup_use_ld_16"/>
-  <buttongroup name="buttonGroup_use_ld_1"/>
-  <buttongroup name="buttonGroup_use_tra_reg_3"/>
-  <buttongroup name="buttonGroup_use_ld_19"/>
-  <buttongroup name="buttonGroup_kep_or_dyn"/>
-  <buttongroup name="buttonGroup_symbol_picker_ttv"/>
-  <buttongroup name="buttonGroup_use_ast_data_to_planet_2">
+  <buttongroup name="buttonGroup_use_planets">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_use_tra_reg_20"/>
-  <buttongroup name="buttonGroup_use_ld_3"/>
-  <buttongroup name="buttonGroup_use_tra_reg_17"/>
+  <buttongroup name="buttonGroup_AMD_stab_opt"/>
+  <buttongroup name="buttonGroup_use_tra_reg_19"/>
+  <buttongroup name="buttonGroup_use_ld_11"/>
+  <buttongroup name="buttonGroup_use_tra_reg_6"/>
+  <buttongroup name="buttonGroup_activity_data"/>
+  <buttongroup name="buttonGroup_use_tra_reg_9"/>
+  <buttongroup name="buttonGroup_use_tra_data_GP">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_use_tra_reg_15"/>
+  <buttongroup name="buttonGroup_use_tra_reg_18"/>
+  <buttongroup name="buttonGroup_use_ld_10"/>
+  <buttongroup name="buttonGroup_AMD_satb_NS"/>
+  <buttongroup name="buttonGroup_use_tra_reg_7"/>
+  <buttongroup name="buttonGroup_add_RV_data"/>
+  <buttongroup name="buttonGroup_remove_ttv_data"/>
+  <buttongroup name="buttonGroup_color_picker_tra"/>
   <buttongroup name="buttonGroup_link_tra_GP_to_RV_GP">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_ttv_data"/>
-  <buttongroup name="buttonGroup_use_tra_reg_12"/>
-  <buttongroup name="buttonGroup_symbol_picker_tra"/>
+  <buttongroup name="buttonGroup_use_ld_14"/>
+  <buttongroup name="buttonGroup_use_ast_plot_RA_Dec"/>
+  <buttongroup name="buttonGroup_use_tra_reg_14"/>
+  <buttongroup name="buttonGroup_use_ast_data_to_planet_3">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_use_tra_reg_11"/>
+  <buttongroup name="buttonGroup_use_ld_9"/>
+  <buttongroup name="buttonGroup_use_ld_15"/>
+  <buttongroup name="buttonGroup_use_tra_reg_10"/>
+  <buttongroup name="buttonGroup_use_ld_13"/>
+  <buttongroup name="buttonGroup_adopt_mcmc_as_par"/>
+  <buttongroup name="buttonGroup_apply_tra_data_options"/>
+  <buttongroup name="buttonGroup_use_ast_data_to_planet_2">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_plot_i_Omega"/>
+  <buttongroup name="buttonGroup_use_tra_reg_8"/>
+  <buttongroup name="buttonGroup_apply_rvs_data_options"/>
+  <buttongroup name="buttonGroup_use_img_hipp_ast">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_use_ld_5"/>
   <buttongroup name="buttonGroup_symbol_picker"/>
+  <buttongroup name="buttonGroup_use_RV_GP_kernel">
+   <property name="exclusive">
+    <bool>true</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_use_ld_20"/>
+  <buttongroup name="buttonGroup_simplex_or_lm"/>
+  <buttongroup name="buttonGroup_Rebound_integrators"/>
+  <buttongroup name="buttonGroup_use_tra_reg_12"/>
+  <buttongroup name="buttonGroup_theta_fold"/>
+  <buttongroup name="buttonGroup_symbol_picker_ttv"/>
+  <buttongroup name="buttonGroup_use_ld_12"/>
+  <buttongroup name="buttonGroup_color_picker_ast"/>
+  <buttongroup name="buttonGroup_use_tra_reg_1"/>
+  <buttongroup name="buttonGroup_remove_transit_data"/>
+  <buttongroup name="buttonGroup_remove_ast_data_2"/>
+  <buttongroup name="buttonGroup_samp_corr"/>
+  <buttongroup name="buttonGroup_color_picker_ttv"/>
+  <buttongroup name="buttonGroup_use_ld_16"/>
+  <buttongroup name="buttonGroup_remove_ast_data"/>
+  <buttongroup name="buttonGroup_use_tra_reg_20"/>
   <buttongroup name="buttonGroup_nest_stat_dyn"/>
+  <buttongroup name="buttonGroup_ast_data"/>
+  <buttongroup name="buttonGroup_use_plmass"/>
+  <buttongroup name="buttonGroup_ewm_hkl"/>
+  <buttongroup name="buttonGroup_use_rho_aR"/>
+  <buttongroup name="buttonGroup_transit_data"/>
+  <buttongroup name="buttonGroup_use_ld_19"/>
+  <buttongroup name="buttonGroup_use_ld_2"/>
+  <buttongroup name="buttonGroup_color_picker_act"/>
+  <buttongroup name="buttonGroup_type_fit"/>
+  <buttongroup name="buttonGroup_use_ld_7"/>
+  <buttongroup name="buttonGroup_Swift_integrators"/>
+  <buttongroup name="buttonGroup_test_arb_conf_kp_ma"/>
+  <buttongroup name="buttonGroup_use_ld_8"/>
+  <buttongroup name="buttonGroup_use_tra_reg_4"/>
+  <buttongroup name="buttonGroup_remove_RV_data"/>
+  <buttongroup name="buttonGroup_use_ld_3"/>
+  <buttongroup name="buttonGroup_use_ttv_data_to_planet">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_symbol_picker_ast"/>
   <buttongroup name="buttonGroup_use_tra_reg_16"/>
+  <buttongroup name="buttonGroup_use_nbody_pack"/>
+  <buttongroup name="buttonGroup_adopt_mcmc_as_err"/>
+  <buttongroup name="buttonGroup_ast_data_2"/>
+  <buttongroup name="buttonGroup_symbol_picker_act"/>
+  <buttongroup name="buttonGroup_use_ld_17"/>
  </buttongroups>
 </ui>

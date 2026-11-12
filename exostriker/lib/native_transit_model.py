@@ -44,7 +44,7 @@ def _native():
     source = Path(__file__).resolve().parent / 'RV_mod' / 'rvmod'
     debug = os.environ.get('EXOSTRIKER_TRANSIT_DEBUG', '0') == '1'
     digest = hashlib.sha256((np.__version__ + str(debug) + 'joint-fit-api-1').encode())
-    for path in [source / 'rvmod_for.f95', source / 'joint_fit.f95', source / 'shared_nbody.f95', *sorted(source.glob('*.inc'))]:
+    for path in [source / 'rvmod_for.f95', source / 'joint_fit.f95', source / 'shared_nbody.f95', source / 'model_only.f95', *sorted(source.glob('*.inc'))]:
         digest.update(path.read_bytes())
     module_name = 'rvtransit_' + digest.hexdigest()[:16]
     cache = Path(os.environ.get('EXOSTRIKER_TRANSIT_CACHE_DIR',
@@ -56,7 +56,7 @@ def _native():
             raise RuntimeError('Native transit models require gfortran, meson and ninja on PATH.')
         with tempfile.TemporaryDirectory(prefix='rv-transit-model-') as directory:
             directory = Path(directory)
-            for path in [source / 'rvmod_for.f95', source / 'joint_fit.f95', source / 'shared_nbody.f95', *source.glob('*.inc')]:
+            for path in [source / 'rvmod_for.f95', source / 'joint_fit.f95', source / 'shared_nbody.f95', source / 'model_only.f95', *source.glob('*.inc')]:
                 shutil.copy2(path, directory / path.name)
             env = os.environ.copy()
             options = '-O0 -g -fcheck=all -fbacktrace' if debug else '-O3'
@@ -66,7 +66,7 @@ def _native():
             env['FFLAGS'] += ' ' + (subprocess.list2cmdline([include])
                                     if sys.platform == 'win32' else shlex.quote(include))
             command = [sys.executable, '-m', 'numpy.f2py', '-c', '--backend', 'meson',
-                       '-m', module_name, 'rvmod_for.f95', 'joint_fit.f95', 'shared_nbody.f95', 'only:', 'rv_transit_model', 'rv_transit_nbody', 'rv_transit_model_parts', 'rv_transit_nbody_parts', 'rv_transit_phased_model', 'rv_transit_geometry', 'rv_transit_event_flux', 'rv_transit_density', 'rv_transit_nbody_ttvfast_parts', 'rv_transit_geometry_ttvfast', 'rv_transit_likelihood', 'ttv_likelihood', 'native_joint_fit', 'native_joint_loglik', 'joint_timing_likelihood', 'joint_shared_nbody', ':']
+                       '-m', module_name, 'rvmod_for.f95', 'joint_fit.f95', 'shared_nbody.f95', 'model_only.f95', 'only:', 'timing_model', 'astrometry_model', 'astrometry_nbody', 'transit_event_model', 'rv_transit_model', 'rv_transit_nbody', 'rv_transit_model_parts', 'rv_transit_nbody_parts', 'rv_transit_phased_model', 'rv_transit_geometry', 'rv_transit_event_flux', 'rv_transit_density', 'rv_transit_nbody_ttvfast_parts', 'rv_transit_geometry_ttvfast', 'rv_transit_likelihood', 'ttv_likelihood', 'native_joint_fit', 'native_joint_loglik', 'joint_timing_likelihood', 'joint_shared_nbody', ':']
             result = subprocess.run(command, cwd=directory, env=env, stdout=subprocess.PIPE,
                                     stderr=subprocess.STDOUT, text=True, timeout=180)
             if result.returncode:

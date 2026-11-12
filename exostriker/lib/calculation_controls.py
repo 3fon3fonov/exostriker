@@ -5,18 +5,38 @@ from PyQt6 import QtWidgets
 # These actions alter data/parameters or launch another numerical job, even
 # though their buttons happen to live alongside a plot.
 _LOCKED_BUTTONS = {
-    'adopt_best_RV__o_c_GLS_per', 'adopt_mpl_param', 'calc_MLP',
-    'calc_TLS', 'calc_TLS_o_c', 'adopt_tls_o_c_param',
-    'button_make_mcmc_cornerplot', 'button_make_nest_cornerplot',
-    'remove_mcmc_samples', 'remove_ns_samples',
+    'adopt_best_RV__o_c_GLS_per',
+    'adopt_mpl_param',
+    'calc_MLP',
+    'calc_TLS',
+    'calc_TLS_o_c',
+    'adopt_tls_o_c_param',
+    'button_make_mcmc_cornerplot',
+    'button_make_nest_cornerplot',
+    'remove_mcmc_samples',
+    'remove_ns_samples',
 }
 _DISPLAY_FIELDS = (
-    'nbody_plot_options', 'ast_colors', 'gls_colors', 'rvs_colors', 'tra_colors', 'ttv_colors',
-    'act_colors', 'pyqt_color_alpha_act', 'pyqt_symbols_act', 'pyqt_symbols_size_act',
-    'pyqt_color_alpha_rvs', 'pyqt_color_alpha_tra',
-    'pyqt_symbols_ast', 'pyqt_symbols_rvs', 'pyqt_symbols_tra', 'pyqt_symbols_ttv',
-    'pyqt_symbols_size_ast', 'pyqt_symbols_size_rvs',
-    'pyqt_symbols_size_tra', 'pyqt_symbols_size_ttv',
+    'nbody_plot_options',
+    'ast_colors',
+    'gls_colors',
+    'rvs_colors',
+    'tra_colors',
+    'ttv_colors',
+    'act_colors',
+    'pyqt_color_alpha_act',
+    'pyqt_symbols_act',
+    'pyqt_symbols_size_act',
+    'pyqt_color_alpha_rvs',
+    'pyqt_color_alpha_tra',
+    'pyqt_symbols_ast',
+    'pyqt_symbols_rvs',
+    'pyqt_symbols_tra',
+    'pyqt_symbols_ttv',
+    'pyqt_symbols_size_ast',
+    'pyqt_symbols_size_rvs',
+    'pyqt_symbols_size_tra',
+    'pyqt_symbols_size_ttv',
 )
 
 
@@ -33,7 +53,7 @@ def lockable_controls(gui, controls):
                           and action.menu().objectName() not in ('menuview','menuHelp','menuSettings'))
             continue
         if isinstance(control, QtWidgets.QWidget):
-            in_plot = any(root is control or root.isAncestorOf(control) for root in roots)
+            in_plot = any((root is control or root.isAncestorOf(control) for root in roots))
             if in_plot and control.objectName() not in _LOCKED_BUTTONS:
                 # Include editors inside a plot spin box/combo box as well.
                 locked_parent = control.parentWidget()

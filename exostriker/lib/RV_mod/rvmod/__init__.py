@@ -554,7 +554,7 @@ class Rvfit:
             if supports_meson:
                 command += ["--backend", "distutils"]
             command += ["--fcompiler=gnu95", "--opt=" + flags]
-        command += ["-m", "rvmod_for" + __version__, "rvmod_for.f95"]
+        command += ["-m", "rvmod_for" + __version__, "rvmod_for.f95", "joint_fit.f95", "shared_nbody.f95", "model_only.f95"]
         if not use_meson:
             command += ["-I" + str(path)]
         # Internal solvers use Fortran callbacks and common-block dimensions
@@ -562,7 +562,8 @@ class Rvfit:
         # but generate wrappers only for the supported Python API.
         command += ["only:", "kepfit_amoeba", "kepfit_lm", "dynfit_amoeba",
                     "dynfit_lm", "rv_capacity_check", "rv_get_status", "rv_transit_model", "rv_transit_nbody",
-                    "rv_transit_model_parts", "rv_transit_nbody_parts", "rv_transit_phased_model", ":"]
+                    "rv_transit_model_parts", "rv_transit_nbody_parts", "rv_transit_phased_model", "rv_transit_density", "rv_transit_geometry",
+                    "timing_model", "astrometry_model", "astrometry_nbody", "transit_event_model", ":"]
         # Use the running interpreter, preserve the caller's working directory,
         # and report build failures rather than continuing with a stale binary.
         subprocess.run(command, cwd=path, env=env, check=True)
@@ -614,8 +615,10 @@ class Rvfit:
                 self.f_compile(path=path, __version__=version)
                 if not (path / expected).is_file():
                     raise RuntimeError(f"RV build did not produce {expected}")
-        source = path / 'rvmod_for.f95'
-        if source.exists() and source.stat().st_mtime > (path / expected).stat().st_mtime:
+        sources = [path / name for name in (
+            'rvmod_for.f95', 'joint_fit.f95', 'shared_nbody.f95', 'model_only.f95')]
+        binary_time = (path / expected).stat().st_mtime
+        if any(source.exists() and source.stat().st_mtime > binary_time for source in sources):
             self.f_compile(path=path, __version__=version)
         return version
 
@@ -918,3 +921,42 @@ if __name__ != '__main__':
     import importlib
     _register_windows_dll_directories()
     rvmod_for = importlib.import_module(".rvmod_for" + exo_ver, package=__package__)
+
+
+def model(*args, **kwargs):
+    """Predict RV, transit flux and optional timing events without datasets."""
+    from model_only import model as evaluate_model
+    return evaluate_model(*args, **kwargs)
+
+
+def astrometric_model(*args, **kwargs):
+    """Predict ExTRA-compatible astrometry without loading Gaia observations."""
+    from model_only import astrometric_model as evaluate_astrometry
+    return evaluate_astrometry(*args, **kwargs)
+
+def GetModel(*args, **kwargs):
+    """Return RV, Transit, TTV and optional Astrometry structures without data."""
+    from model_only import GetModel as get_model
+    return get_model(*args, **kwargs)
+
+def GetModelDefaults():
+    """Return fresh editable observable-selection and simulation dictionaries."""
+    from model_only import GetModelDefaults as get_defaults
+    return get_defaults()
+
+def GetModelFromSession(*args, **kwargs):
+    """Predict models from a session's planet parameters or a posterior row."""
+    from model_posterior import GetModelFromSession as evaluate_session
+    return evaluate_session(*args, **kwargs)
+
+
+def GetPosteriorModels(*args, **kwargs):
+    """Return weighted pointwise model bands from retained MCMC/NS samples."""
+    from model_posterior import GetPosteriorModels as evaluate_posterior
+    return evaluate_posterior(*args, **kwargs)
+
+
+def GetModelEnsemble(*args, **kwargs):
+    """Propagate parameter rows through a caller-supplied GetModel evaluator."""
+    from model_posterior import GetModelEnsemble as evaluate_ensemble
+    return evaluate_ensemble(*args, **kwargs)

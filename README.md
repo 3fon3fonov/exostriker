@@ -1,5 +1,5 @@
 <!-- **T**ransit and **R**adial velocity **I**nteractive **F**itting tool for **O**rbital analysis and **N**-body simulations: -->
-**The Exo-Striker — version 0.97.1**
+**The Exo-Striker — version 0.97.2**
 
 <p align="center">
   <img width="400" src="./exostriker/source/png/33_striker.png">
@@ -31,7 +31,7 @@ The Exo-Striker analyzes exoplanet orbitals, performs N-body simulations, and mo
 * Hipparcos and Gaia have independent Fit checkboxes for ExTRA: use either mission or both. Stellar-density transit parameterization uses the stellar-density bounds/priors and matching parameter labels.
 * GLS/MLP adoption transfers the best sine period, amplitude and phase into the first free planet slot without optimizing. Detailed information windows retain useful sizing.
 * Exoplanet-only activity coupling, magnetic-cycle and related controls stay hidden under `-QSO`; shared test-data plotting remains available.
-* Static GUI changes are maintained in `exostriker/lib/UI/es.ui` and regenerated with `cd exostriker/lib/UI && bash command`. See [GUI development](docs/GUI_DEVELOPMENT.md) and the [manual source](exostriker-manual/README.md).
+* Static GUI changes are maintained in `exostriker/lib/UI/es.ui` and regenerated with `cd exostriker/lib/UI && bash command`. See [GUI development](docs/GUI_DEVELOPMENT.md) and the [manual](https://exostriker-manual.readthedocs.io/en/latest/).
 
 **Changes in 0.96.2**
 

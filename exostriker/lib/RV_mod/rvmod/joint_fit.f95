@@ -24,7 +24,7 @@ subroutine joint_timing_likelihood(elements,planet_mass,stellar_mass,epoch,start
     integer :: ngrid,i,j,k,iteration,d,n,allocation_status
     status=7;event_count=0;event_model=0.d0;data_model=0.d0;residual=0.d0
     point_loglik=0.d0;by_dataset=0.d0;loglik=-huge(1.d0)
-    if(npl<1 .or. npl>9 .or. nobs<1 .or. max_events<1 .or. max_samples<4) return
+    if(npl<1 .or. npl>9 .or. nobs<0 .or. max_events<1 .or. max_samples<4) return
     if(samples_per_orbit<32 .or. max_steps<1 .or. jacobi_mode<0 .or. jacobi_mode>1) return
     if(.not.all(ieee_is_finite(elements)) .or. .not.all(ieee_is_finite(planet_mass))) return
     if(.not.all(ieee_is_finite([stellar_mass,epoch,start_time,end_time,step_days,tolerance]))) return

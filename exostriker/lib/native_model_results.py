@@ -3,6 +3,8 @@ import numpy as np
 
 
 def clear_transit_models(result, reason='not calculated'):
+    """Remove cached transit predictions and record why they are absent."""
+
     result.transit_model = None
     result.transit_model_jd = None
     result.transit_model_with_offset = None
@@ -23,9 +25,9 @@ def shared_model_reason(session):
     if session.gr_flag:
         return 'GR is not supported by the shared transit model'
     slots = np.flatnonzero(session.use_planet)
-    if any(session.omega_dot[i] != 0 for i in slots):
+    if any((session.omega_dot[i] != 0 for i in slots)):
         return 'apsidal precession is not supported by the shared transit model'
-    if any(session.K[i] < 0 for i in slots):
+    if any((session.K[i] < 0 for i in slots)):
         return 'negative K is not supported by the shared transit model'
     if session.mod_dynamical:
         mixed = getattr(session, 'mixed_fit', {0: False})
@@ -40,37 +42,37 @@ def model_time_grid(session, epoch, *, component='rv'):
     RV curves prefer RV dates; transit curves prefer photometry dates. The
     all-data range remains available for optional event searches.
     """
-    if component not in ('rv','transit','all'):
+    if component not in ('rv', 'transit', 'all'):
         raise ValueError('Plotting component must be rv, transit or all.')
     ranges = {}
-    for name, column in (('rv_data_sets', 0), ('tra_data_sets', 0), ('ttv_data_sets', 1)):
-        bounds=[]
+    for (name, column) in (('rv_data_sets', 0), ('tra_data_sets', 0), ('ttv_data_sets', 1)):
+        bounds = []
         for data in getattr(session, name, {}).values():
             if not len(data):
                 continue
-            if name == 'ttv_data_sets' and not bool(data[4]):
+            if name == 'ttv_data_sets' and (not bool(data[4])):
                 continue
             times = np.asarray(data[column], dtype=float)
             times = times[np.isfinite(times)]
             if times.size:
                 bounds.extend((np.min(times), np.max(times)))
-        ranges[name]=bounds
-    rv,transit,timing=(ranges[name] for name in ('rv_data_sets','tra_data_sets','ttv_data_sets'))
-    if component=='rv':
-        bounds=rv or transit+timing
-    elif component=='transit':
-        bounds=transit or timing or rv
+        ranges[name] = bounds
+    rv, transit, timing = (ranges[name] for name in ('rv_data_sets', 'tra_data_sets', 'ttv_data_sets'))
+    if component == 'rv':
+        bounds = rv or transit + timing
+    elif component == 'transit':
+        bounds = transit or timing or rv
     else:
-        bounds=[float(epoch)]+rv+transit+timing
+        bounds = [float(epoch)] + rv + transit + timing
     if not bounds:
-        bounds=[float(epoch)]
+        bounds = [float(epoch)]
     npoints = session.model_npoints
     if not np.isfinite(npoints) or npoints != int(npoints) or npoints < 2:
         raise ValueError('model_npoints must be an integer >= 2.')
     margins = np.array([session.model_min, session.model_max], dtype=float)
     if not np.all(np.isfinite(margins)) or np.any(margins < 0):
         raise ValueError('Plotting margins model_min/model_max must be finite and nonnegative.')
-    lo, hi = min(bounds)-margins[0], max(bounds)+margins[1]
+    lo, hi = (min(bounds) - margins[0], max(bounds) + margins[1])
     if lo == hi:
         periods = [session.P[i] for i in np.flatnonzero(session.use_planet)]
         hi = lo + (min(periods) if periods else 1.)
@@ -96,27 +98,26 @@ def update_model_curves(session, **options):
         return None
     from native_transit_model import from_session
     from model_epoch import resolve_epoch
-    default_epoch=resolve_epoch(session)
+    default_epoch = resolve_epoch(session)
     epoch = float(options.get('epoch', default_epoch))
     times = model_time_grid(session, epoch)
     transit_times = model_time_grid(session, epoch, component='transit')
     slots = [d for d in range(60) if len(session.tra_data_sets[d])] or [0]
     # Repeated timestamps with different passbands share the same propagated
     # N-body state. Only the occultation integral changes between datasets.
-    same_grid=np.array_equal(times,transit_times)
-    query_times=np.tile(transit_times,len(slots))
-    query_slots=np.repeat(slots,len(transit_times))
-    transit_start=0
+    same_grid = np.array_equal(times, transit_times)
+    query_times = np.tile(transit_times, len(slots))
+    query_slots = np.repeat(slots, len(transit_times))
+    transit_start = 0
     if not same_grid:
-        transit_start=len(times)
-        query_times=np.r_[times,query_times]
-        query_slots=np.r_[np.full(len(times),slots[0]),query_slots]
+        transit_start = len(times)
+        query_times = np.r_[times, query_times]
+        query_slots = np.r_[np.full(len(times), slots[0]), query_slots]
     result = from_session(session, query_times, dataset=query_slots, **options)
     flux = result.flux[transit_start:].reshape(len(slots), len(transit_times))
     shifted_flux = result.model_flux[transit_start:].reshape(len(slots), len(transit_times))
-    elapsed = times-epoch
-    rv = (result.rv[:len(times)] + session.rv_lintr*elapsed
-          + session.rv_quadtr*elapsed**2)
+    elapsed = times - epoch
+    rv = result.rv[:len(times)] + session.rv_lintr * elapsed + session.rv_quadtr * elapsed ** 2
     # Existing phased RV plotting uses component columns in increasing-period
     # order, even though session/native adapter outputs follow enabled-slot order.
     active = list(np.flatnonzero(session.use_planet))
@@ -134,7 +135,7 @@ def update_model_curves(session, **options):
             configure_cycle(session, cycle_options)
             cycle = cycle_mean(cycle_options['magnetic_cycle'], session.parameters, times)
             target.model += cycle
-            target.fit[:,1] = target.model
+            target.fit[:, 1] = target.model
             session.magnetic_cycle_model_curve = cycle
         for field in ('res', 'res_dict'):
             mapping = getattr(target, field, None)
@@ -142,20 +143,22 @@ def update_model_curves(session, **options):
                 mapping['fit'] = target.fit.copy()
         target.transit_model_jd = target.model_jd if same_grid else transit_times.copy()
         target.transit_model_dataset = slots[0]
-        target.transit_models = {slot: flux[i].copy() for i, slot in enumerate(slots)}
-        target.transit_models_with_offset = {slot: shifted_flux[i].copy() for i, slot in enumerate(slots)}
+        target.transit_models = {slot: flux[i].copy() for (i, slot) in enumerate(slots)}
+        target.transit_models_with_offset = {slot: shifted_flux[i].copy() for (i, slot) in enumerate(slots)}
         target.transit_model = target.transit_models[slots[0]]
         target.transit_model_with_offset = target.transit_models_with_offset[slots[0]]
         target.transit_model_status = 'ready'
     session.model_saved = True
     from native_transit_events import update_transit_events
-    event_options = {k: v for k, v in options.items() if k in ("epoch", "model", "phase", "step", "tolerance", "max_steps", "rho_star", "stellar_mass", "stellar_radius", "radius_mode", "jacobi_convention")}
-    event_times=model_time_grid(session,epoch,component='all')
+    event_options = {k: v for (k, v) in options.items() if k in ('epoch', 'model', 'phase', 'step', 'tolerance', 'max_steps', 'rho_star', 'stellar_mass', 'stellar_radius', 'radius_mode', 'jacobi_convention')}
+    event_times = model_time_grid(session, epoch, component='all')
     update_transit_events(session, start=event_times[0], end=event_times[-1], **event_options)
     return session.fit_results.transit_model
 
 
 def clear_transit_data_models(result):
+    """Remove predictions cached at the observed transit times."""
+
     result.transit_data_jd = {}
     result.transit_data_models = {}
     result.transit_data_models_with_baseline = {}
@@ -184,34 +187,37 @@ def update_transit_data_models(session, *, dataset=None, phase='M0', **options):
     if dataset is None:
         slots = [i for i in range(60) if len(session.tra_data_sets[i])]
     else:
-        if not np.isscalar(dataset) or not np.isfinite(dataset) or dataset != int(dataset) or not 0 <= dataset < 60:
+        if not np.isscalar(dataset) or not np.isfinite(dataset) or dataset != int(dataset) or (not 0 <= dataset < 60):
             raise ValueError('dataset must be a single slot in 0..59, or None for all loaded slots.')
         slots = [int(dataset)]
-    if not slots or any(not len(session.tra_data_sets[i]) for i in slots):
+    if not slots or any((not len(session.tra_data_sets[i]) for i in slots)):
         raise ValueError('Load a transit dataset before generating data-time models.')
     times = [np.asarray(session.tra_data_sets[i][0], dtype=float) for i in slots]
-    if any(t.ndim != 1 or not t.size for t in times):
+    if any((t.ndim != 1 or not t.size for t in times)):
         raise ValueError('Transit datasets must contain nonempty one-dimensional time arrays.')
     from native_transit_model import from_session
-    labels = np.concatenate([np.full(len(t), i) for i, t in zip(slots, times)])
+    labels = np.concatenate([np.full(len(t), i) for (i, t) in zip(slots, times)])
     result = from_session(session, np.concatenate(times), dataset=labels, phase=phase, **options)
     lengths = np.cumsum([0] + [len(t) for t in times])
-    physical, baselined, shifted, velocities = {}, {}, {}, {}
-    for k, i in enumerate(slots):
-        sl = slice(lengths[k], lengths[k+1])
+    physical, baselined, shifted, velocities = ({}, {}, {}, {})
+    for (k, i) in enumerate(slots):
+        sl = slice(lengths[k], lengths[k + 1])
         physical[i] = result.flux[sl].copy()
         data = session.tra_data_sets[i]
         # Match the legacy data-time baseline exactly: raw airmass or elapsed
         # time from the first sample (not the integration epoch).
-        covariate = np.asarray(data[3], dtype=float) if len(data) > 10 and data[10] else times[k]-times[k][0]
+        covariate = np.asarray(
+            data[3],
+            dtype=float,
+        ) if len(data) > 10 and data[10] else times[k] - times[k][0]
         linear = getattr(session, 'tra_lintr', {}).get(i, 0.)
         quadratic = getattr(session, 'tra_quadtr', {}).get(i, 0.)
         dilution = getattr(session, 'tra_dil', {}).get(i, data[8] if len(data) > 8 else 1.)
-        baselined[i] = (physical[i] + linear*covariate + quadratic*covariate**2)*dilution + 1.-dilution
+        baselined[i] = (physical[i] + linear * covariate + quadratic * covariate ** 2) * dilution + 1. - dilution
         shifted[i] = baselined[i] - session.tra_off[i]
         velocities[i] = result.rv[sl].copy()
     for target in targets:
-        target.transit_data_jd = {i: t.copy() for i, t in zip(slots, times)}
+        target.transit_data_jd = {i: t.copy() for (i, t) in zip(slots, times)}
         target.transit_data_models = physical.copy()
         target.transit_data_models_with_baseline = baselined.copy()
         target.transit_data_models_with_offset = shifted.copy()
