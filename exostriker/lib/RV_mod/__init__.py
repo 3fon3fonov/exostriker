@@ -4377,7 +4377,9 @@ class signal_fit(object):
         self.ast_mu_alpha  = {k: 0.0 for k in range(1)}        
         self.ast_mu_delta  = {k: 0.0 for k in range(1)}   
         self.ast_mu_alpha_dot  = {k: 0.0 for k in range(1)}        
+        self.ast_mu_alpha_ddot  = {k: 0.0 for k in range(1)}        
         self.ast_mu_delta_dot  = {k: 0.0 for k in range(1)}   
+        self.ast_mu_delta_ddot  = {k: 0.0 for k in range(1)}   
          
         self.ast_alpha_use     = {k: False for k in range(1)}
         self.ast_delta_use      = {k: False for k in range(1)}
@@ -4385,7 +4387,9 @@ class signal_fit(object):
         self.ast_mu_alpha_use  = {k: False for k in range(1)}        
         self.ast_mu_delta_use  = {k: False for k in range(1)}          
         self.ast_mu_alpha_dot_use  = {k: False for k in range(1)}        
+        self.ast_mu_alpha_ddot_use  = {k: False for k in range(1)}        
         self.ast_mu_delta_dot_use  = {k: False for k in range(1)}         
+        self.ast_mu_delta_ddot_use  = {k: False for k in range(1)}         
         
         self.ast_alpha_err     = {k: np.array([0.0,0.0])  for k in range(1)}
         self.ast_delta_err      = {k: np.array([0.0,0.0])  for k in range(1)}
@@ -4393,7 +4397,9 @@ class signal_fit(object):
         self.ast_mu_alpha_err  = {k: np.array([0.0,0.0])  for k in range(1)}        
         self.ast_mu_delta_err  = {k: np.array([0.0,0.0])  for k in range(1)}          
         self.ast_mu_alpha_dot_err  = {k: np.array([0.0,0.0])  for k in range(1)}        
+        self.ast_mu_alpha_ddot_err  = {k: np.array([0.0,0.0])  for k in range(1)}        
         self.ast_mu_delta_dot_err  = {k: np.array([0.0,0.0])  for k in range(1)}  
+        self.ast_mu_delta_ddot_err  = {k: np.array([0.0,0.0])  for k in range(1)}  
                   
         self.ast_alpha_bound      = {k: np.array([-360,360.0])  for k in range(1)}
         self.ast_delta_bound       = {k: np.array([-180.0,180.0])  for k in range(1)}
@@ -4401,7 +4407,9 @@ class signal_fit(object):
         self.ast_mu_alpha_bound   = {k: np.array([-1000.0,1000.0])  for k in range(1)}        
         self.ast_mu_delta_bound   = {k: np.array([-1000.0,1000.0])  for k in range(1)}          
         self.ast_mu_alpha_dot_bound   = {k: np.array([-1000.0,1000.0])  for k in range(1)}        
+        self.ast_mu_alpha_ddot_bound   = {k: np.array([-1000.0,1000.0])  for k in range(1)}        
         self.ast_mu_delta_dot_bound   = {k: np.array([-1000.0,1000.0])  for k in range(1)}                                  
+        self.ast_mu_delta_ddot_bound   = {k: np.array([-1000.0,1000.0])  for k in range(1)}                                  
                              
         self.ast_alpha_norm_pr     = {k: np.array([0.0,10.0, False])  for k in range(1)}
         self.ast_delta_norm_pr      = {k: np.array([0.0,10.0, False])  for k in range(1)}
@@ -4409,7 +4417,9 @@ class signal_fit(object):
         self.ast_mu_alpha_norm_pr  = {k: np.array([0.0,100.0, False])  for k in range(1)}        
         self.ast_mu_delta_norm_pr  = {k: np.array([0.0,100.0, False])  for k in range(1)}      
         self.ast_mu_alpha_dot_norm_pr  = {k: np.array([0.0,100.0, False])  for k in range(1)}        
+        self.ast_mu_alpha_ddot_norm_pr  = {k: np.array([0.0,100.0, False])  for k in range(1)}        
         self.ast_mu_delta_dot_norm_pr  = {k: np.array([0.0,100.0, False])  for k in range(1)}  
+        self.ast_mu_delta_ddot_norm_pr  = {k: np.array([0.0,100.0, False])  for k in range(1)}  
 
         self.ast_alpha_jeff_pr     = {k: np.array([-10.0,10.0, False])  for k in range(1)}
         self.ast_delta_jeff_pr      = {k: np.array([-10.0,10.0, False])  for k in range(1)}
@@ -4417,7 +4427,9 @@ class signal_fit(object):
         self.ast_mu_alpha_jeff_pr  = {k: np.array([-100.0,100.0, False])  for k in range(1)}        
         self.ast_mu_delta_jeff_pr  = {k: np.array([-100.0,100.0, False])  for k in range(1)}    
         self.ast_mu_alpha_dot_jeff_pr  = {k: np.array([-100.0,100.0, False])  for k in range(1)}        
+        self.ast_mu_alpha_ddot_jeff_pr  = {k: np.array([-100.0,100.0, False])  for k in range(1)}        
         self.ast_mu_delta_dot_jeff_pr  = {k: np.array([-100.0,100.0, False])  for k in range(1)}   
+        self.ast_mu_delta_ddot_jeff_pr  = {k: np.array([-100.0,100.0, False])  for k in range(1)}   
           
         self.ast_alpha_str           = {k: r'$\alpha$ [mas]' for k in range(1)}
         self.ast_delta_str           = {k: r'$\delta$ [mas]' for k in range(1)}
@@ -4425,7 +4437,9 @@ class signal_fit(object):
         self.ast_mu_alpha_str        = {k: r'$\mu\alpha$ [mas/yr]' for k in range(1)}       
         self.ast_mu_delta_str        = {k: r'$\mu\delta$ [mas/yr]' for k in range(1)}   
         self.ast_mu_alpha_dot_str        = {k: r'$\mu\alpha dot$ [mas/yr]' for k in range(1)}       
+        self.ast_mu_alpha_ddot_str        = {k: r'$\mu\alpha ddot$ [mas/yr³]' for k in range(1)}       
         self.ast_mu_delta_dot_str        = {k: r'$\mu\delta dot$ [mas/yr]' for k in range(1)}   
+        self.ast_mu_delta_ddot_str        = {k: r'$\mu\delta ddot$ [mas/yr³]' for k in range(1)}   
         
 
     def init_hkl(self) :

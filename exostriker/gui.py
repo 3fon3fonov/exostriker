@@ -489,7 +489,9 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         self.param_gui_ast[3].setValue(fit.ast_mu_alpha[0])        
         self.param_gui_ast[4].setValue(fit.ast_mu_delta[0])                
         self.param_gui_ast[5].setValue(fit.ast_mu_alpha_dot[0])        
+        self.param_gui_ast[7].setValue(fit.ast_mu_alpha_ddot[0])        
         self.param_gui_ast[6].setValue(fit.ast_mu_delta_dot[0])     
+        self.param_gui_ast[8].setValue(fit.ast_mu_delta_ddot[0])     
 
         #self.St_mass_input.setValue(fit.params.stellar_mass)  
         #self.St_radius_input.setValue(fit.stellar_radius)  
@@ -678,7 +680,9 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         fit.ast_mu_alpha[0] = self.param_gui_ast[3].value()
         fit.ast_mu_delta[0] = self.param_gui_ast[4].value()
         fit.ast_mu_alpha_dot[0] = self.param_gui_ast[5].value()
+        fit.ast_mu_alpha_ddot[0] = self.param_gui_ast[7].value()
         fit.ast_mu_delta_dot[0] = self.param_gui_ast[6].value()
+        fit.ast_mu_delta_ddot[0] = self.param_gui_ast[8].value()
             
 
     def set_hkl(self):
@@ -950,7 +954,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.param_errors_gui_ast[3].setText("+/- %.3f"%max(np.abs(fit.ast_mu_alpha_err[0])))
         self.param_errors_gui_ast[4].setText("+/- %.3f"%max(np.abs(fit.ast_mu_delta_err[0])))    
         self.param_errors_gui_ast[5].setText("+/- %.3f"%max(np.abs(fit.ast_mu_alpha_dot_err[0])))
+        self.param_errors_gui_ast[7].setText("+/- %.3f"%max(np.abs(fit.ast_mu_alpha_ddot_err[0])))
         self.param_errors_gui_ast[6].setText("+/- %.3f"%max(np.abs(fit.ast_mu_delta_dot_err[0])))        
+        self.param_errors_gui_ast[8].setText("+/- %.3f"%max(np.abs(fit.ast_mu_delta_ddot_err[0])))        
     
     
         diagnostic = getattr(fit, 'scipy_uncertainty_diagnostics', {})
@@ -1102,7 +1108,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.use_param_gui_ast[3].setChecked(bool(fit.ast_mu_alpha_use[0]))
         self.use_param_gui_ast[4].setChecked(bool(fit.ast_mu_delta_use[0]))        
         self.use_param_gui_ast[5].setChecked(bool(fit.ast_mu_alpha_dot_use[0]))
+        self.use_param_gui_ast[7].setChecked(bool(fit.ast_mu_alpha_ddot_use[0]))
         self.use_param_gui_ast[6].setChecked(bool(fit.ast_mu_delta_dot_use[0]))    
+        self.use_param_gui_ast[8].setChecked(bool(fit.ast_mu_delta_ddot_use[0]))    
 
 
     def update_mixed_fitting(self):
@@ -1245,7 +1253,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         fit.ast_mu_alpha_use[0]  = self.use_param_gui_ast[3].isChecked()        
         fit.ast_mu_delta_use[0]  = self.use_param_gui_ast[4].isChecked()          
         fit.ast_mu_alpha_dot_use[0]  = self.use_param_gui_ast[5].isChecked()        
+        fit.ast_mu_alpha_ddot_use[0]  = self.use_param_gui_ast[7].isChecked()        
         fit.ast_mu_delta_dot_use[0]  = self.use_param_gui_ast[6].isChecked()   
+        fit.ast_mu_delta_ddot_use[0]  = self.use_param_gui_ast[8].isChecked()   
 
     def sort_planets_by_period(self):
         """Capture pending edits, reorder in RV_mod, and refresh every GUI field."""
@@ -2048,7 +2058,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             self.ast_bounds_gui[3][z].setValue(fit.ast_mu_alpha_bound[0][z])
             self.ast_bounds_gui[4][z].setValue(fit.ast_mu_delta_bound[0][z])                        
             self.ast_bounds_gui[5][z].setValue(fit.ast_mu_alpha_dot_bound[0][z])
+            self.ast_bounds_gui[7][z].setValue(fit.ast_mu_alpha_ddot_bound[0][z])
             self.ast_bounds_gui[6][z].setValue(fit.ast_mu_delta_dot_bound[0][z])   
+            self.ast_bounds_gui[8][z].setValue(fit.ast_mu_delta_ddot_bound[0][z])   
 
     def update_ast_priors_nr(self):
         global fit
@@ -2060,7 +2072,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             self.ast_norm_pr_gui[3][z].setValue(fit.ast_mu_alpha_norm_pr[0][z])
             self.ast_norm_pr_gui[4][z].setValue(fit.ast_mu_delta_norm_pr[0][z])  
             self.ast_norm_pr_gui[5][z].setValue(fit.ast_mu_alpha_dot_norm_pr[0][z])
+            self.ast_norm_pr_gui[7][z].setValue(fit.ast_mu_alpha_ddot_norm_pr[0][z])
             self.ast_norm_pr_gui[6][z].setValue(fit.ast_mu_delta_dot_norm_pr[0][z])  
+            self.ast_norm_pr_gui[8][z].setValue(fit.ast_mu_delta_ddot_norm_pr[0][z])  
             
         self.ast_norm_pr_gui[0][2].setChecked(int(fit.ast_alpha_norm_pr[0][2]))
         self.ast_norm_pr_gui[1][2].setChecked(int(fit.ast_delta_norm_pr[0][2]))
@@ -2068,7 +2082,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.ast_norm_pr_gui[3][2].setChecked(int(fit.ast_mu_alpha_norm_pr[0][2]))
         self.ast_norm_pr_gui[4][2].setChecked(int(fit.ast_mu_delta_norm_pr[0][2]))   
         self.ast_norm_pr_gui[5][2].setChecked(int(fit.ast_mu_alpha_dot_norm_pr[0][2]))
+        self.ast_norm_pr_gui[7][2].setChecked(int(fit.ast_mu_alpha_ddot_norm_pr[0][2]))
         self.ast_norm_pr_gui[6][2].setChecked(int(fit.ast_mu_delta_dot_norm_pr[0][2])) 
+        self.ast_norm_pr_gui[8][2].setChecked(int(fit.ast_mu_delta_ddot_norm_pr[0][2])) 
         
     def update_ast_priors_jeff(self):
         global fit
@@ -2080,7 +2096,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             self.ast_jeff_pr_gui[3][z].setValue(fit.ast_mu_alpha_jeff_pr[0][z])
             self.ast_jeff_pr_gui[4][z].setValue(fit.ast_mu_delta_jeff_pr[0][z])  
             self.ast_jeff_pr_gui[5][z].setValue(fit.ast_mu_alpha_dot_jeff_pr[0][z])
+            self.ast_jeff_pr_gui[7][z].setValue(fit.ast_mu_alpha_ddot_jeff_pr[0][z])
             self.ast_jeff_pr_gui[6][z].setValue(fit.ast_mu_delta_dot_jeff_pr[0][z])  
+            self.ast_jeff_pr_gui[8][z].setValue(fit.ast_mu_delta_ddot_jeff_pr[0][z])  
                         
         self.ast_jeff_pr_gui[0][2].setChecked(int(fit.ast_alpha_jeff_pr[0][2]))
         self.ast_jeff_pr_gui[1][2].setChecked(int(fit.ast_delta_jeff_pr[0][2]))
@@ -2088,7 +2106,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.ast_jeff_pr_gui[3][2].setChecked(int(fit.ast_mu_alpha_jeff_pr[0][2]))
         self.ast_jeff_pr_gui[4][2].setChecked(int(fit.ast_mu_delta_jeff_pr[0][2]))          
         self.ast_jeff_pr_gui[5][2].setChecked(int(fit.ast_mu_alpha_dot_jeff_pr[0][2]))
+        self.ast_jeff_pr_gui[7][2].setChecked(int(fit.ast_mu_alpha_ddot_jeff_pr[0][2]))
         self.ast_jeff_pr_gui[6][2].setChecked(int(fit.ast_mu_delta_dot_jeff_pr[0][2]))  
+        self.ast_jeff_pr_gui[8][2].setChecked(int(fit.ast_mu_delta_ddot_jeff_pr[0][2]))  
 
     def check_ast_bounds(self):
         global fit
@@ -2100,7 +2120,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             fit.ast_mu_alpha_bound[0][z] = self.ast_bounds_gui[3][z].value()
             fit.ast_mu_delta_bound[0][z] = self.ast_bounds_gui[4][z].value()
             fit.ast_mu_alpha_dot_bound[0][z] = self.ast_bounds_gui[5][z].value()
+            fit.ast_mu_alpha_ddot_bound[0][z] = self.ast_bounds_gui[7][z].value()
             fit.ast_mu_delta_dot_bound[0][z] = self.ast_bounds_gui[6][z].value()
+            fit.ast_mu_delta_ddot_bound[0][z] = self.ast_bounds_gui[8][z].value()
             
     def check_ast_priors_nr(self):
         global fit
@@ -2112,7 +2134,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             fit.ast_mu_alpha_norm_pr[0][z] = self.ast_norm_pr_gui[3][z].value()
             fit.ast_mu_delta_norm_pr[0][z] = self.ast_norm_pr_gui[4][z].value()
             fit.ast_mu_alpha_dot_norm_pr[0][z] = self.ast_norm_pr_gui[5][z].value()
+            fit.ast_mu_alpha_ddot_norm_pr[0][z] = self.ast_norm_pr_gui[7][z].value()
             fit.ast_mu_delta_dot_norm_pr[0][z] = self.ast_norm_pr_gui[6][z].value()
+            fit.ast_mu_delta_ddot_norm_pr[0][z] = self.ast_norm_pr_gui[8][z].value()
                       
         fit.ast_alpha_norm_pr[0][2]    = self.ast_norm_pr_gui[0][2].isChecked()
         fit.ast_delta_norm_pr[0][2]    = self.ast_norm_pr_gui[1][2].isChecked() 
@@ -2120,7 +2144,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         fit.ast_mu_alpha_norm_pr[0][2] = self.ast_norm_pr_gui[3][2].isChecked()
         fit.ast_mu_delta_norm_pr[0][2] = self.ast_norm_pr_gui[4][2].isChecked()
         fit.ast_mu_alpha_dot_norm_pr[0][2] = self.ast_norm_pr_gui[5][2].isChecked()
+        fit.ast_mu_alpha_ddot_norm_pr[0][2] = self.ast_norm_pr_gui[7][2].isChecked()
         fit.ast_mu_delta_dot_norm_pr[0][2] = self.ast_norm_pr_gui[6][2].isChecked()
+        fit.ast_mu_delta_ddot_norm_pr[0][2] = self.ast_norm_pr_gui[8][2].isChecked()
                             
     def check_ast_priors_jeff(self):
         global fit
@@ -2132,7 +2158,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             fit.ast_mu_alpha_jeff_pr[0][z] = self.ast_jeff_pr_gui[3][z].value()
             fit.ast_mu_delta_jeff_pr[0][z] = self.ast_jeff_pr_gui[4][z].value()
             fit.ast_mu_alpha_dot_jeff_pr[0][z] = self.ast_jeff_pr_gui[5][z].value()
+            fit.ast_mu_alpha_ddot_jeff_pr[0][z] = self.ast_jeff_pr_gui[7][z].value()
             fit.ast_mu_delta_dot_jeff_pr[0][z] = self.ast_jeff_pr_gui[6][z].value()
+            fit.ast_mu_delta_ddot_jeff_pr[0][z] = self.ast_jeff_pr_gui[8][z].value()
                                   
         fit.ast_alpha_jeff_pr[0][2]    = self.ast_jeff_pr_gui[0][2].isChecked()
         fit.ast_delta_jeff_pr[0][2]    = self.ast_jeff_pr_gui[1][2].isChecked() 
@@ -2140,7 +2168,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         fit.ast_mu_alpha_jeff_pr[0][2] = self.ast_jeff_pr_gui[3][2].isChecked()
         fit.ast_mu_delta_jeff_pr[0][2] = self.ast_jeff_pr_gui[4][2].isChecked()
         fit.ast_mu_alpha_dot_jeff_pr[0][2] = self.ast_jeff_pr_gui[5][2].isChecked()
+        fit.ast_mu_alpha_ddot_jeff_pr[0][2] = self.ast_jeff_pr_gui[7][2].isChecked()
         fit.ast_mu_delta_dot_jeff_pr[0][2] = self.ast_jeff_pr_gui[6][2].isChecked()                                    
+        fit.ast_mu_delta_ddot_jeff_pr[0][2] = self.ast_jeff_pr_gui[8][2].isChecked()                                    
                                     
     ################################# 
 
@@ -9040,7 +9070,9 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         blockers = [QtCore.QSignalBlocker(widget) for widget in self.use_ast_data_to_planet_2]
 
         for i in range(2):
-            if len(fit.ast_data_sets_hipp[i]) ==0:
+            dataset_loaded = len(fit.ast_data_sets_hipp[i]) != 0
+            self.use_ast_data_to_planet_2[i].setEnabled(dataset_loaded)
+            if not dataset_loaded:
                 self.ast_data_to_planet_2[i].setValue(1)
                 self.use_ast_data_to_planet_2[i].setChecked(False)
                 continue
@@ -9192,7 +9224,9 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         blockers = [QtCore.QSignalBlocker(widget) for widget in self.use_ast_data_to_planet_3]
 
         for i in range(2):
-            if len(fit.ast_data_sets_gaia[i]) ==0:
+            dataset_loaded = len(fit.ast_data_sets_gaia[i]) != 0
+            self.use_ast_data_to_planet_3[i].setEnabled(dataset_loaded)
+            if not dataset_loaded:
                 self.ast_data_to_planet_3[i].setValue(1)
                 self.use_ast_data_to_planet_3[i].setChecked(False)
                 continue

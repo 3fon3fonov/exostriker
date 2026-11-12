@@ -19070,13 +19070,172 @@
          </attribute>
          <layout class="QGridLayout" name="gridLayout_287">
           <item row="0" column="0">
+           <layout class="QHBoxLayout" name="astrometric_parametrisation_layout">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="astrometric_parametrisation_label">
+              <property name="text">
+               <string>Astrometric parametrisation</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="radioButton_astrometry_standard">
+              <property name="text">
+               <string>Standard</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+              <attribute name="buttonGroup">
+               <string notr="true">buttonGroup_astrometric_parametrisation</string>
+              </attribute>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="radioButton_astrometry_cartesian">
+              <property name="text">
+               <string>Cartesian</string>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+              <attribute name="buttonGroup">
+               <string notr="true">buttonGroup_astrometric_parametrisation</string>
+              </attribute>
+             </widget>
+            </item>
+            <item>
+             <spacer name="astrometric_parametrisation_spacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item row="1" column="1">
+           <spacer name="horizontalSpacer_203">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>241</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="1" column="0">
            <layout class="QGridLayout" name="gridLayout_419">
             <property name="bottomMargin">
              <number>9</number>
             </property>
-            <property name="verticalSpacing">
-             <number>0</number>
+            <property name="horizontalSpacing">
+             <number>6</number>
             </property>
+            <property name="verticalSpacing">
+             <number>2</number>
+            </property>
+            <item row="10" column="4">
+             <widget class="QCheckBox" name="use_ast_radial_velocity">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>15</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Fit the systemic radial velocity with Cartesian astrometry. Prepared for the upcoming ExTRA interface.</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="10" column="5">
+             <widget class="OptimizerDoubleSpinBox" name="ast_radial_velocity">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>100</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>100</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Systemic stellar radial velocity in km/s. This Cartesian-only GUI parameter is not connected to ExTRA yet.</string>
+              </property>
+              <property name="suffix">
+               <string/>
+              </property>
+              <property name="decimals">
+               <number>8</number>
+              </property>
+              <property name="minimum">
+               <double>-1000000.000000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>1000000.000000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>0.100000000000000</double>
+              </property>
+              <property name="value">
+               <double>0.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="10" column="6">
+             <widget class="QLabel" name="err_ast_radial_velocity">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>100</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>+/- 0.000</string>
+              </property>
+              <property name="textInteractionFlags">
+               <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+              </property>
+             </widget>
+            </item>
             <item row="1" column="1">
              <widget class="QLabel" name="ast_std_label_alpha">
               <property name="minimumSize">
@@ -19112,6 +19271,9 @@
             </item>
             <item row="2" column="6">
              <widget class="QLabel" name="err_ast_delta">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
               <property name="maximumSize">
                <size>
                 <width>100</width>
@@ -19200,7 +19362,7 @@
                </size>
               </property>
               <property name="text">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#916; &amp;#956;&amp;#948; [mas/yr]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#956;&amp;#948; [mas/yr]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
              </widget>
             </item>
@@ -19244,6 +19406,40 @@
             </item>
             <item row="6" column="5">
              <widget class="DoubleSpinBox" name="ast_mu_alpha_dot">
+              <property name="maximumSize">
+               <size>
+                <width>100</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+                <italic>false</italic>
+                <bold>false</bold>
+                <stylestrategy>PreferDefault</stylestrategy>
+                <kerning>true</kerning>
+               </font>
+              </property>
+              <property name="decimals">
+               <number>8</number>
+              </property>
+              <property name="minimum">
+               <double>-100000.000000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>100000.000000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>1.000000000000000</double>
+              </property>
+              <property name="value">
+               <double>0.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="8" column="5">
+             <widget class="DoubleSpinBox" name="ast_mu_alpha_ddot">
               <property name="maximumSize">
                <size>
                 <width>100</width>
@@ -19325,6 +19521,9 @@
             </item>
             <item row="2" column="5">
              <widget class="DoubleSpinBox" name="ast_delta">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
               <property name="maximumSize">
                <size>
                 <width>100</width>
@@ -19465,6 +19664,31 @@
               </property>
              </widget>
             </item>
+            <item row="9" column="4">
+             <widget class="QCheckBox" name="use_ast_mu_delta_ddot">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>15</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
             <item row="0" column="2" rowspan="12">
              <widget class="Line" name="line_21">
               <property name="orientation">
@@ -19474,6 +19698,9 @@
             </item>
             <item row="1" column="3">
              <widget class="QLabel" name="label_308">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>120</width>
@@ -19487,7 +19714,7 @@
                </size>
               </property>
               <property name="text">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#916; &amp;#945; cos(&amp;#948;) [mas]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#945; [mas]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
              </widget>
             </item>
@@ -19500,6 +19727,9 @@
             </item>
             <item row="1" column="6">
              <widget class="QLabel" name="err_ast_alpha">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
               <property name="maximumSize">
                <size>
                 <width>100</width>
@@ -19538,7 +19768,7 @@
                </size>
               </property>
               <property name="text">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#916; &amp;#956;&amp;#945; cos(&amp;#948;) [mas/yr]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#956;&amp;#945; cos(&amp;#948;) [mas/yr]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
              </widget>
             </item>
@@ -19598,7 +19828,7 @@
             <item row="0" column="3" colspan="4">
              <widget class="QLabel" name="label_759">
               <property name="text">
-               <string>Corrections to std. solution</string>
+               <string>Astrometric parameters</string>
               </property>
              </widget>
             </item>
@@ -19617,12 +19847,37 @@
                </size>
               </property>
               <property name="text">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#916; &amp;#960; [mas]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#960; [mas]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
              </widget>
             </item>
             <item row="6" column="6">
              <widget class="QLabel" name="err_ast_mu_alpha_dot">
+              <property name="maximumSize">
+               <size>
+                <width>100</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+                <italic>false</italic>
+                <bold>false</bold>
+                <stylestrategy>PreferDefault</stylestrategy>
+                <kerning>true</kerning>
+               </font>
+              </property>
+              <property name="text">
+               <string>+/- 0.000</string>
+              </property>
+              <property name="textInteractionFlags">
+               <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+              </property>
+             </widget>
+            </item>
+            <item row="8" column="6">
+             <widget class="QLabel" name="err_ast_mu_alpha_ddot">
               <property name="maximumSize">
                <size>
                 <width>100</width>
@@ -19715,6 +19970,40 @@
               </property>
              </widget>
             </item>
+            <item row="9" column="5">
+             <widget class="DoubleSpinBox" name="ast_mu_delta_ddot">
+              <property name="maximumSize">
+               <size>
+                <width>100</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+                <italic>false</italic>
+                <bold>false</bold>
+                <stylestrategy>PreferDefault</stylestrategy>
+                <kerning>true</kerning>
+               </font>
+              </property>
+              <property name="decimals">
+               <number>8</number>
+              </property>
+              <property name="minimum">
+               <double>-100000.000000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>100000.000000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>1.000000000000000</double>
+              </property>
+              <property name="value">
+               <double>0.000000000000000</double>
+              </property>
+             </widget>
+            </item>
             <item row="11" column="1">
              <widget class="QComboBox" name="comboBox_samp_corr_3">
               <property name="enabled">
@@ -19756,7 +20045,26 @@
                </size>
               </property>
               <property name="text">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#916; &amp;#956;&amp;#948;&amp;prime; [mas/yr]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#956;&amp;#948;&amp;prime; [mas/yr]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+             </widget>
+            </item>
+            <item row="9" column="3">
+             <widget class="QLabel" name="label_813_second_derivative">
+              <property name="minimumSize">
+               <size>
+                <width>120</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#956;&amp;#948;&amp;Prime; [mas/yr³]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
              </widget>
             </item>
@@ -19883,12 +20191,56 @@
                </size>
               </property>
               <property name="text">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#916; &amp;#956;&amp;#945; cos(&amp;#948;)&amp;prime; [mas/yr]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#956;&amp;#945; cos(&amp;#948;)&amp;prime; [mas/yr]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+             </widget>
+            </item>
+            <item row="8" column="3">
+             <widget class="QLabel" name="label_812_second_derivative">
+              <property name="minimumSize">
+               <size>
+                <width>120</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#956;&amp;#945; cos(&amp;#948;)&amp;Prime; [mas/yr³]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
              </widget>
             </item>
             <item row="6" column="4">
              <widget class="QCheckBox" name="use_ast_mu_alpha_dot">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>15</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="8" column="4">
+             <widget class="QCheckBox" name="use_ast_mu_alpha_ddot">
               <property name="enabled">
                <bool>true</bool>
               </property>
@@ -19944,8 +20296,36 @@
               </property>
              </widget>
             </item>
+            <item row="9" column="6">
+             <widget class="QLabel" name="err_ast_mu_delta_ddot">
+              <property name="maximumSize">
+               <size>
+                <width>100</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+                <italic>false</italic>
+                <bold>false</bold>
+                <stylestrategy>PreferDefault</stylestrategy>
+                <kerning>true</kerning>
+               </font>
+              </property>
+              <property name="text">
+               <string>+/- 0.000</string>
+              </property>
+              <property name="textInteractionFlags">
+               <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+              </property>
+             </widget>
+            </item>
             <item row="2" column="3">
              <widget class="QLabel" name="label_307">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>120</width>
@@ -19959,7 +20339,7 @@
                </size>
               </property>
               <property name="text">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#916; &amp;#948; [mas]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#948; [mas]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
              </widget>
             </item>
@@ -19997,6 +20377,9 @@
             </item>
             <item row="1" column="5">
              <widget class="DoubleSpinBox" name="ast_alpha">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
               <property name="maximumSize">
                <size>
                 <width>100</width>
@@ -20029,29 +20412,48 @@
               </property>
              </widget>
             </item>
-            <item row="9" column="0">
+            <item row="9" column="0" colspan="2">
              <widget class="Line" name="line_27">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
              </widget>
             </item>
+            <item row="10" column="3">
+             <widget class="QLabel" name="ast_radial_velocity_label">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>150</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>Systemic stellar radial velocity in km/s; used only with Cartesian astrometry.</string>
+              </property>
+              <property name="text">
+               <string>Abs. Radial Velocity [km/s]</string>
+              </property>
+             </widget>
+            </item>
+            <item row="11" column="3">
+             <widget class="QLabel" name="label_566">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
            </layout>
           </item>
-          <item row="0" column="1">
-           <spacer name="horizontalSpacer_203">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>241</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="1" column="0">
+          <item row="2" column="0">
            <spacer name="verticalSpacer_187">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
@@ -48078,8 +48480,14 @@
                  <layout class="QGridLayout" name="gridLayout_433">
                   <item row="0" column="0">
                    <layout class="QGridLayout" name="gridLayout_196">
+                    <property name="verticalSpacing">
+                     <number>0</number>
+                    </property>
                     <item row="2" column="3">
                      <widget class="DoubleSpinBox" name="ast_delta_max">
+                      <property name="enabled">
+                       <bool>true</bool>
+                      </property>
                       <property name="maximumSize">
                        <size>
                         <width>16777215</width>
@@ -48115,12 +48523,15 @@
                     <item row="4" column="0">
                      <widget class="QLabel" name="label_385">
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#916; &amp;#956;&amp;#945; cos(&amp;#948;) [mas/yr]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#956;&amp;#945; cos(&amp;#948;) [mas/yr]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
                     <item row="1" column="2">
                      <widget class="DoubleSpinBox" name="ast_alpha_min">
+                      <property name="enabled">
+                       <bool>true</bool>
+                      </property>
                       <property name="maximumSize">
                        <size>
                         <width>16777215</width>
@@ -48187,6 +48598,40 @@
                       </property>
                      </widget>
                     </item>
+                    <item row="8" column="3">
+                     <widget class="DoubleSpinBox" name="ast_mu_alpha_ddot_max">
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                        <stylestrategy>PreferDefault</stylestrategy>
+                        <kerning>true</kerning>
+                       </font>
+                      </property>
+                      <property name="decimals">
+                       <number>6</number>
+                      </property>
+                      <property name="minimum">
+                       <double>-10000.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>10000.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>1.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="3" column="1">
                      <widget class="QCheckBox" name="use_ast_pi_bounds">
                       <property name="enabled">
@@ -48209,7 +48654,7 @@
                     <item row="1" column="1">
                      <widget class="QCheckBox" name="use_ast_alpha_bounds">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="maximumSize">
                        <size>
@@ -48296,7 +48741,7 @@
                     <item row="3" column="0">
                      <widget class="QLabel" name="label_384">
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#916; &amp;#960; [mas]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#960; [mas]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -48334,8 +48779,45 @@
                       </property>
                      </widget>
                     </item>
+                    <item row="9" column="3">
+                     <widget class="DoubleSpinBox" name="ast_mu_delta_ddot_max">
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                        <stylestrategy>PreferDefault</stylestrategy>
+                        <kerning>true</kerning>
+                       </font>
+                      </property>
+                      <property name="decimals">
+                       <number>6</number>
+                      </property>
+                      <property name="minimum">
+                       <double>-10000.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>10000.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>1.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="2" column="2">
                      <widget class="DoubleSpinBox" name="ast_delta_min">
+                      <property name="enabled">
+                       <bool>true</bool>
+                      </property>
                       <property name="maximumSize">
                        <size>
                         <width>16777215</width>
@@ -48426,6 +48908,9 @@
                     </item>
                     <item row="1" column="3">
                      <widget class="DoubleSpinBox" name="ast_alpha_max">
+                      <property name="enabled">
+                       <bool>true</bool>
+                      </property>
                       <property name="maximumSize">
                        <size>
                         <width>16777215</width>
@@ -48451,6 +48936,40 @@
                     </item>
                     <item row="7" column="2">
                      <widget class="DoubleSpinBox" name="ast_mu_delta_dot_min">
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                        <stylestrategy>PreferDefault</stylestrategy>
+                        <kerning>true</kerning>
+                       </font>
+                      </property>
+                      <property name="decimals">
+                       <number>6</number>
+                      </property>
+                      <property name="minimum">
+                       <double>-10000.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>10000.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>1.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>-1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="9" column="2">
+                     <widget class="DoubleSpinBox" name="ast_mu_delta_ddot_min">
                       <property name="maximumSize">
                        <size>
                         <width>16777215</width>
@@ -48536,8 +49055,45 @@
                       </property>
                      </widget>
                     </item>
+                    <item row="8" column="2">
+                     <widget class="DoubleSpinBox" name="ast_mu_alpha_ddot_min">
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                        <stylestrategy>PreferDefault</stylestrategy>
+                        <kerning>true</kerning>
+                       </font>
+                      </property>
+                      <property name="decimals">
+                       <number>6</number>
+                      </property>
+                      <property name="minimum">
+                       <double>-10000.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>10000.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>1.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>-1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="1" column="0">
                      <widget class="QLabel" name="label_lin_trend_7">
+                      <property name="enabled">
+                       <bool>true</bool>
+                      </property>
                       <property name="maximumSize">
                        <size>
                         <width>16777215</width>
@@ -48554,7 +49110,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#916; &amp;#945; cos(&amp;#948;) [mas]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#945; [mas]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                       <property name="textInteractionFlags">
                        <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
@@ -48616,6 +49172,9 @@
                     </item>
                     <item row="2" column="0">
                      <widget class="QLabel" name="label_383">
+                      <property name="enabled">
+                       <bool>true</bool>
+                      </property>
                       <property name="maximumSize">
                        <size>
                         <width>16777215</width>
@@ -48632,7 +49191,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#916; &amp;#948; [mas]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#948; [mas]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -48695,14 +49254,14 @@
                     <item row="5" column="0">
                      <widget class="QLabel" name="label_386">
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#916; &amp;#956;&amp;#948; [mas/yr]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#956;&amp;#948; [mas/yr]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
                     <item row="2" column="1">
                      <widget class="QCheckBox" name="use_ast_delta_bounds">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="maximumSize">
                        <size>
@@ -48755,19 +49314,52 @@
                     <item row="6" column="0">
                      <widget class="QLabel" name="label_816">
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#916; &amp;#956;&amp;#945;  cos(&amp;#948;)&amp;prime; [mas/yr]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#956;&amp;#945;  cos(&amp;#948;)&amp;prime; [mas/yr]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="8" column="0">
+                     <widget class="QLabel" name="label_816_second_derivative">
+                      <property name="text">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#956;&amp;#945;  cos(&amp;#948;)&amp;Prime; [mas/yr³]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
                     <item row="7" column="0">
                      <widget class="QLabel" name="label_817">
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#916; &amp;#956;&amp;#948;&amp;prime; [mas/yr]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#956;&amp;#948;&amp;prime; [mas/yr]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="9" column="0">
+                     <widget class="QLabel" name="label_817_second_derivative">
+                      <property name="text">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#956;&amp;#948;&amp;Prime; [mas/yr³]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
                     <item row="6" column="1">
                      <widget class="QCheckBox" name="use_ast_mu_alpha_dot_bounds">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="checked">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="8" column="1">
+                     <widget class="QCheckBox" name="use_ast_mu_alpha_ddot_bounds">
                       <property name="enabled">
                        <bool>false</bool>
                       </property>
@@ -48804,6 +49396,149 @@
                       </property>
                      </widget>
                     </item>
+                    <item row="9" column="1">
+                     <widget class="QCheckBox" name="use_ast_mu_delta_ddot_bounds">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="checked">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="10" column="2">
+                     <widget class="OptimizerDoubleSpinBox" name="ast_radial_velocity_min">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                        <stylestrategy>PreferDefault</stylestrategy>
+                        <kerning>true</kerning>
+                       </font>
+                      </property>
+                      <property name="toolTip">
+                       <string>Radial Velocity [km/s]: Cartesian astrometry only. GUI settings are prepared for the upcoming ExTRA interface.</string>
+                      </property>
+                      <property name="decimals">
+                       <number>6</number>
+                      </property>
+                      <property name="minimum">
+                       <double>-1000000.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.100000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>-1000.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="10" column="1">
+                     <widget class="QCheckBox" name="use_ast_radial_velocity_bounds">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Radial Velocity [km/s]: Cartesian astrometry only. GUI settings are prepared for the upcoming ExTRA interface.</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="checked">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="10" column="3">
+                     <widget class="OptimizerDoubleSpinBox" name="ast_radial_velocity_max">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Radial Velocity [km/s]: Cartesian astrometry only. GUI settings are prepared for the upcoming ExTRA interface.</string>
+                      </property>
+                      <property name="decimals">
+                       <number>6</number>
+                      </property>
+                      <property name="minimum">
+                       <double>-1000000.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.100000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>1000.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="10" column="0">
+                     <widget class="QLabel" name="ast_radial_velocity_bounds_label">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                        <stylestrategy>PreferDefault</stylestrategy>
+                        <kerning>true</kerning>
+                       </font>
+                      </property>
+                      <property name="toolTip">
+                       <string>Radial Velocity [km/s]: Cartesian astrometry only. GUI settings are prepared for the upcoming ExTRA interface.</string>
+                      </property>
+                      <property name="text">
+                       <string>Radial Velocity [km/s]</string>
+                      </property>
+                      <property name="textInteractionFlags">
+                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                      </property>
+                     </widget>
+                    </item>
                    </layout>
                   </item>
                   <item row="0" column="1">
@@ -48819,19 +49554,6 @@
                     </property>
                    </spacer>
                   </item>
-                  <item row="1" column="0">
-                   <spacer name="verticalSpacer_34">
-                    <property name="orientation">
-                     <enum>Qt::Vertical</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>20</width>
-                      <height>90</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
                  </layout>
                 </widget>
                 <widget class="QWidget" name="tab_195">
@@ -48839,8 +49561,24 @@
                   <string>Gaussian</string>
                  </attribute>
                  <layout class="QGridLayout" name="gridLayout_440">
+                  <item row="0" column="1">
+                   <spacer name="horizontalSpacer_175">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>195</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
                   <item row="0" column="0">
                    <layout class="QGridLayout" name="gridLayout_439">
+                    <property name="verticalSpacing">
+                     <number>0</number>
+                    </property>
                     <item row="5" column="1">
                      <widget class="QCheckBox" name="use_ast_mu_delta_nr_pr">
                       <property name="enabled">
@@ -49021,6 +49759,40 @@
                       </property>
                      </widget>
                     </item>
+                    <item row="8" column="2">
+                     <widget class="DoubleSpinBox" name="ast_mu_alpha_ddot_mean">
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                        <stylestrategy>PreferDefault</stylestrategy>
+                        <kerning>true</kerning>
+                       </font>
+                      </property>
+                      <property name="decimals">
+                       <number>6</number>
+                      </property>
+                      <property name="minimum">
+                       <double>-10000.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>10000.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>1.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>-1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="3" column="2">
                      <widget class="DoubleSpinBox" name="ast_pi_mean">
                       <property name="maximumSize">
@@ -49058,19 +49830,22 @@
                     <item row="4" column="0">
                      <widget class="QLabel" name="label_387">
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#916; &amp;#956;&amp;#945; cos(&amp;#948;) [mas/yr]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#956;&amp;#945; cos(&amp;#948;) [mas/yr]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
                     <item row="5" column="0">
                      <widget class="QLabel" name="label_388">
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#916; &amp;#956;&amp;#948; [mas/yr]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#956;&amp;#948; [mas/yr]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
                     <item row="2" column="2">
                      <widget class="DoubleSpinBox" name="ast_delta_mean">
+                      <property name="enabled">
+                       <bool>true</bool>
+                      </property>
                       <property name="maximumSize">
                        <size>
                         <width>16777215</width>
@@ -49105,6 +49880,9 @@
                     </item>
                     <item row="1" column="2">
                      <widget class="DoubleSpinBox" name="ast_alpha_mean">
+                      <property name="enabled">
+                       <bool>true</bool>
+                      </property>
                       <property name="maximumSize">
                        <size>
                         <width>16777215</width>
@@ -49173,6 +49951,9 @@
                     </item>
                     <item row="2" column="3">
                      <widget class="DoubleSpinBox" name="ast_delta_sigma">
+                      <property name="enabled">
+                       <bool>true</bool>
+                      </property>
                       <property name="maximumSize">
                        <size>
                         <width>16777215</width>
@@ -49208,7 +49989,7 @@
                     <item row="3" column="0">
                      <widget class="QLabel" name="label_389">
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#916; &amp;#960; [mas]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#960; [mas]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -49314,6 +50095,9 @@
                     </item>
                     <item row="2" column="0">
                      <widget class="QLabel" name="label_390">
+                      <property name="enabled">
+                       <bool>true</bool>
+                      </property>
                       <property name="maximumSize">
                        <size>
                         <width>16777215</width>
@@ -49330,7 +50114,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#916; &amp;#948; [mas]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#948; [mas]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -49380,6 +50164,9 @@
                     </item>
                     <item row="1" column="3">
                      <widget class="DoubleSpinBox" name="ast_alpha_sigma">
+                      <property name="enabled">
+                       <bool>true</bool>
+                      </property>
                       <property name="maximumSize">
                        <size>
                         <width>16777215</width>
@@ -49405,6 +50192,9 @@
                     </item>
                     <item row="1" column="0">
                      <widget class="QLabel" name="label_lin_trend_8">
+                      <property name="enabled">
+                       <bool>true</bool>
+                      </property>
                       <property name="maximumSize">
                        <size>
                         <width>16777215</width>
@@ -49421,7 +50211,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#916; &amp;#945; cos(&amp;#948;) [mas]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#945; [mas]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                       <property name="textInteractionFlags">
                        <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
@@ -49430,6 +50220,40 @@
                     </item>
                     <item row="7" column="2">
                      <widget class="DoubleSpinBox" name="ast_mu_delta_dot_mean">
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                        <stylestrategy>PreferDefault</stylestrategy>
+                        <kerning>true</kerning>
+                       </font>
+                      </property>
+                      <property name="decimals">
+                       <number>6</number>
+                      </property>
+                      <property name="minimum">
+                       <double>-10000.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>10000.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>1.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>-1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="9" column="2">
+                     <widget class="DoubleSpinBox" name="ast_mu_delta_ddot_mean">
                       <property name="maximumSize">
                        <size>
                         <width>16777215</width>
@@ -49496,8 +50320,76 @@
                       </property>
                      </widget>
                     </item>
+                    <item row="8" column="3">
+                     <widget class="DoubleSpinBox" name="ast_mu_alpha_ddot_sigma">
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                        <stylestrategy>PreferDefault</stylestrategy>
+                        <kerning>true</kerning>
+                       </font>
+                      </property>
+                      <property name="decimals">
+                       <number>6</number>
+                      </property>
+                      <property name="minimum">
+                       <double>-10000.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>10000.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>1.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="7" column="3">
                      <widget class="DoubleSpinBox" name="ast_mu_delta_dot_sigma">
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                        <stylestrategy>PreferDefault</stylestrategy>
+                        <kerning>true</kerning>
+                       </font>
+                      </property>
+                      <property name="decimals">
+                       <number>6</number>
+                      </property>
+                      <property name="minimum">
+                       <double>-10000.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>10000.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>1.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="9" column="3">
+                     <widget class="DoubleSpinBox" name="ast_mu_delta_ddot_sigma">
                       <property name="maximumSize">
                        <size>
                         <width>16777215</width>
@@ -49552,8 +50444,52 @@
                       </property>
                      </widget>
                     </item>
+                    <item row="8" column="1">
+                     <widget class="QCheckBox" name="use_ast_mu_alpha_ddot_nr_pr">
+                      <property name="enabled">
+                       <bool>true</bool>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="checkable">
+                       <bool>true</bool>
+                      </property>
+                      <property name="checked">
+                       <bool>false</bool>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="7" column="1">
                      <widget class="QCheckBox" name="use_ast_mu_delta_dot_nr_pr">
+                      <property name="enabled">
+                       <bool>true</bool>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="checkable">
+                       <bool>true</bool>
+                      </property>
+                      <property name="checked">
+                       <bool>false</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="9" column="1">
+                     <widget class="QCheckBox" name="use_ast_mu_delta_ddot_nr_pr">
                       <property name="enabled">
                        <bool>true</bool>
                       </property>
@@ -49577,44 +50513,159 @@
                     <item row="6" column="0">
                      <widget class="QLabel" name="label_818">
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#916; &amp;#956;&amp;#945;  cos(&amp;#948;)&amp;prime; [mas/yr]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#956;&amp;#945;  cos(&amp;#948;)&amp;prime; [mas/yr]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="8" column="0">
+                     <widget class="QLabel" name="label_818_second_derivative">
+                      <property name="text">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#956;&amp;#945;  cos(&amp;#948;)&amp;Prime; [mas/yr³]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
                     <item row="7" column="0">
                      <widget class="QLabel" name="label_819">
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#916; &amp;#956;&amp;#948;&amp;prime; [mas/yr]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#956;&amp;#948;&amp;prime; [mas/yr]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="9" column="0">
+                     <widget class="QLabel" name="label_819_second_derivative">
+                      <property name="text">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#956;&amp;#948;&amp;Prime; [mas/yr³]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="10" column="2">
+                     <widget class="OptimizerDoubleSpinBox" name="ast_radial_velocity_mean">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                        <stylestrategy>PreferDefault</stylestrategy>
+                        <kerning>true</kerning>
+                       </font>
+                      </property>
+                      <property name="toolTip">
+                       <string>Radial Velocity [km/s]: Cartesian astrometry only. GUI settings are prepared for the upcoming ExTRA interface.</string>
+                      </property>
+                      <property name="decimals">
+                       <number>6</number>
+                      </property>
+                      <property name="minimum">
+                       <double>-1000000.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.100000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>0.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="10" column="1">
+                     <widget class="QCheckBox" name="use_ast_radial_velocity_nr_pr">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Radial Velocity [km/s]: Cartesian astrometry only. GUI settings are prepared for the upcoming ExTRA interface.</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="checkable">
+                       <bool>true</bool>
+                      </property>
+                      <property name="checked">
+                       <bool>false</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="10" column="3">
+                     <widget class="OptimizerDoubleSpinBox" name="ast_radial_velocity_sigma">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Radial Velocity [km/s]: Cartesian astrometry only. GUI settings are prepared for the upcoming ExTRA interface.</string>
+                      </property>
+                      <property name="decimals">
+                       <number>6</number>
+                      </property>
+                      <property name="minimum">
+                       <double>0.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>1000000.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.100000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>10.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="10" column="0">
+                     <widget class="QLabel" name="ast_radial_velocity_nr_pr_label">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                        <stylestrategy>PreferDefault</stylestrategy>
+                        <kerning>true</kerning>
+                       </font>
+                      </property>
+                      <property name="toolTip">
+                       <string>Radial Velocity [km/s]: Cartesian astrometry only. GUI settings are prepared for the upcoming ExTRA interface.</string>
+                      </property>
+                      <property name="text">
+                       <string>Radial Velocity [km/s]</string>
+                      </property>
+                      <property name="textInteractionFlags">
+                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
                       </property>
                      </widget>
                     </item>
                    </layout>
-                  </item>
-                  <item row="0" column="1">
-                   <spacer name="horizontalSpacer_175">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>195</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                  <item row="1" column="0">
-                   <spacer name="verticalSpacer_147">
-                    <property name="orientation">
-                     <enum>Qt::Vertical</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>20</width>
-                      <height>90</height>
-                     </size>
-                    </property>
-                   </spacer>
                   </item>
                  </layout>
                 </widget>
@@ -49625,6 +50676,9 @@
                  <layout class="QGridLayout" name="gridLayout_442">
                   <item row="0" column="0">
                    <layout class="QGridLayout" name="gridLayout_441">
+                    <property name="verticalSpacing">
+                     <number>0</number>
+                    </property>
                     <item row="3" column="3">
                      <widget class="DoubleSpinBox" name="ast_pi_beta">
                       <property name="maximumSize">
@@ -49661,6 +50715,9 @@
                     </item>
                     <item row="1" column="3">
                      <widget class="DoubleSpinBox" name="ast_alpha_beta">
+                      <property name="enabled">
+                       <bool>true</bool>
+                      </property>
                       <property name="maximumSize">
                        <size>
                         <width>16777215</width>
@@ -49709,7 +50766,7 @@
                     <item row="5" column="0">
                      <widget class="QLabel" name="label_393">
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#916; &amp;#956;&amp;#948; [mas/yr]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#956;&amp;#948; [mas/yr]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -49771,6 +50828,9 @@
                     </item>
                     <item row="2" column="3">
                      <widget class="DoubleSpinBox" name="ast_delta_beta">
+                      <property name="enabled">
+                       <bool>true</bool>
+                      </property>
                       <property name="maximumSize">
                        <size>
                         <width>16777215</width>
@@ -49895,6 +50955,9 @@
                     </item>
                     <item row="1" column="0">
                      <widget class="QLabel" name="label_lin_trend_9">
+                      <property name="enabled">
+                       <bool>true</bool>
+                      </property>
                       <property name="maximumSize">
                        <size>
                         <width>16777215</width>
@@ -49911,7 +50974,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#916; &amp;#945; cos(&amp;#948;) [mas]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#945; [mas]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                       <property name="textInteractionFlags">
                        <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
@@ -50020,6 +51083,9 @@
                     </item>
                     <item row="2" column="0">
                      <widget class="QLabel" name="label_755">
+                      <property name="enabled">
+                       <bool>true</bool>
+                      </property>
                       <property name="maximumSize">
                        <size>
                         <width>16777215</width>
@@ -50036,14 +51102,14 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#916; &amp;#948; [mas]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#948; [mas]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
                     <item row="4" column="0">
                      <widget class="QLabel" name="label_391">
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#916; &amp;#956;&amp;#945; cos(&amp;#948;) [mas/yr]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#956;&amp;#945; cos(&amp;#948;) [mas/yr]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
@@ -50083,6 +51149,9 @@
                     </item>
                     <item row="2" column="2">
                      <widget class="DoubleSpinBox" name="ast_delta_alpha">
+                      <property name="enabled">
+                       <bool>true</bool>
+                      </property>
                       <property name="maximumSize">
                        <size>
                         <width>16777215</width>
@@ -50171,8 +51240,45 @@
                       </property>
                      </widget>
                     </item>
+                    <item row="8" column="2">
+                     <widget class="DoubleSpinBox" name="ast_mu_alpha_ddot_alpha">
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                        <stylestrategy>PreferDefault</stylestrategy>
+                        <kerning>true</kerning>
+                       </font>
+                      </property>
+                      <property name="decimals">
+                       <number>6</number>
+                      </property>
+                      <property name="minimum">
+                       <double>-10000.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>10000.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>1.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>-1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="1" column="2">
                      <widget class="DoubleSpinBox" name="ast_alpha_alpha">
+                      <property name="enabled">
+                       <bool>true</bool>
+                      </property>
                       <property name="maximumSize">
                        <size>
                         <width>16777215</width>
@@ -50208,12 +51314,46 @@
                     <item row="3" column="0">
                      <widget class="QLabel" name="label_439">
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#916; &amp;#960; [mas]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#960; [mas]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
                     <item row="7" column="2">
                      <widget class="DoubleSpinBox" name="ast_mu_delta_dot_alpha">
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                        <stylestrategy>PreferDefault</stylestrategy>
+                        <kerning>true</kerning>
+                       </font>
+                      </property>
+                      <property name="decimals">
+                       <number>6</number>
+                      </property>
+                      <property name="minimum">
+                       <double>-10000.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>10000.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>1.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>-1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="9" column="2">
+                     <widget class="DoubleSpinBox" name="ast_mu_delta_ddot_alpha">
                       <property name="maximumSize">
                        <size>
                         <width>16777215</width>
@@ -50280,8 +51420,76 @@
                       </property>
                      </widget>
                     </item>
+                    <item row="8" column="3">
+                     <widget class="DoubleSpinBox" name="ast_mu_alpha_ddot_beta">
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                        <stylestrategy>PreferDefault</stylestrategy>
+                        <kerning>true</kerning>
+                       </font>
+                      </property>
+                      <property name="decimals">
+                       <number>6</number>
+                      </property>
+                      <property name="minimum">
+                       <double>-10000.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>10000.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>1.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="7" column="3">
                      <widget class="DoubleSpinBox" name="ast_mu_delta_dot_beta">
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                        <stylestrategy>PreferDefault</stylestrategy>
+                        <kerning>true</kerning>
+                       </font>
+                      </property>
+                      <property name="decimals">
+                       <number>6</number>
+                      </property>
+                      <property name="minimum">
+                       <double>-10000.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>10000.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>1.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>1.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="9" column="3">
+                     <widget class="DoubleSpinBox" name="ast_mu_delta_ddot_beta">
                       <property name="maximumSize">
                        <size>
                         <width>16777215</width>
@@ -50336,8 +51544,52 @@
                       </property>
                      </widget>
                     </item>
+                    <item row="8" column="1">
+                     <widget class="QCheckBox" name="use_ast_mu_alpha_ddot_jeff_pr">
+                      <property name="enabled">
+                       <bool>true</bool>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="checkable">
+                       <bool>true</bool>
+                      </property>
+                      <property name="checked">
+                       <bool>false</bool>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="7" column="1">
                      <widget class="QCheckBox" name="use_ast_mu_delta_dot_jeff_pr">
+                      <property name="enabled">
+                       <bool>true</bool>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="checkable">
+                       <bool>true</bool>
+                      </property>
+                      <property name="checked">
+                       <bool>false</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="9" column="1">
+                     <widget class="QCheckBox" name="use_ast_mu_delta_ddot_jeff_pr">
                       <property name="enabled">
                        <bool>true</bool>
                       </property>
@@ -50361,14 +51613,155 @@
                     <item row="6" column="0">
                      <widget class="QLabel" name="label_820">
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#916; &amp;#956;&amp;#945;  cos(&amp;#948;)&amp;prime; [mas/yr]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#956;&amp;#945;  cos(&amp;#948;)&amp;prime; [mas/yr]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="8" column="0">
+                     <widget class="QLabel" name="label_820_second_derivative">
+                      <property name="text">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#956;&amp;#945;  cos(&amp;#948;)&amp;Prime; [mas/yr³]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                      </widget>
                     </item>
                     <item row="7" column="0">
                      <widget class="QLabel" name="label_821">
                       <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#916; &amp;#956;&amp;#948;&amp;prime; [mas/yr]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#956;&amp;#948;&amp;prime; [mas/yr]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="9" column="0">
+                     <widget class="QLabel" name="label_821_second_derivative">
+                      <property name="text">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;#956;&amp;#948;&amp;Prime; [mas/yr³]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="10" column="3">
+                     <widget class="OptimizerDoubleSpinBox" name="ast_radial_velocity_beta">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Radial Velocity [km/s]: Cartesian astrometry only. GUI settings are prepared for the upcoming ExTRA interface.</string>
+                      </property>
+                      <property name="decimals">
+                       <number>6</number>
+                      </property>
+                      <property name="minimum">
+                       <double>-100000.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>100000.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.100000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>1000.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="10" column="0">
+                     <widget class="QLabel" name="ast_radial_velocity_jeff_pr_label">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                        <stylestrategy>PreferDefault</stylestrategy>
+                        <kerning>true</kerning>
+                       </font>
+                      </property>
+                      <property name="toolTip">
+                       <string>Radial Velocity [km/s]: Cartesian astrometry only. GUI settings are prepared for the upcoming ExTRA interface.</string>
+                      </property>
+                      <property name="text">
+                       <string>Radial Velocity [km/s]</string>
+                      </property>
+                      <property name="textInteractionFlags">
+                       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="10" column="1">
+                     <widget class="QCheckBox" name="use_ast_radial_velocity_jeff_pr">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>Radial Velocity [km/s]: Cartesian astrometry only. GUI settings are prepared for the upcoming ExTRA interface.</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="checkable">
+                       <bool>true</bool>
+                      </property>
+                      <property name="checked">
+                       <bool>false</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="10" column="2">
+                     <widget class="OptimizerDoubleSpinBox" name="ast_radial_velocity_alpha">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>9</pointsize>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                        <stylestrategy>PreferDefault</stylestrategy>
+                        <kerning>true</kerning>
+                       </font>
+                      </property>
+                      <property name="toolTip">
+                       <string>Radial Velocity [km/s]: Cartesian astrometry only. GUI settings are prepared for the upcoming ExTRA interface.</string>
+                      </property>
+                      <property name="decimals">
+                       <number>6</number>
+                      </property>
+                      <property name="minimum">
+                       <double>-100000.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>100000.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.100000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>-1000.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -50383,19 +51776,6 @@
                      <size>
                       <width>195</width>
                       <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                  <item row="1" column="0">
-                   <spacer name="verticalSpacer_149">
-                    <property name="orientation">
-                     <enum>Qt::Vertical</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>20</width>
-                      <height>90</height>
                      </size>
                     </property>
                    </spacer>
@@ -62973,7 +64353,7 @@
                             <rect>
                              <x>0</x>
                              <y>0</y>
-                             <width>679</width>
+                             <width>592</width>
                              <height>134</height>
                             </rect>
                            </property>
@@ -63382,7 +64762,7 @@
                             <rect>
                              <x>0</x>
                              <y>0</y>
-                             <width>679</width>
+                             <width>592</width>
                              <height>134</height>
                             </rect>
                            </property>
@@ -91522,7 +92902,7 @@
                    <x>0</x>
                    <y>0</y>
                    <width>536</width>
-                   <height>444</height>
+                   <height>438</height>
                   </rect>
                  </property>
                  <layout class="QGridLayout" name="gridLayout_311">
@@ -92334,22 +93714,6 @@
                        <string>data 17</string>
                       </property>
                      </widget>
-                    </item>
-                    <item row="0" column="1">
-                     <spacer name="verticalSpacer_108">
-                      <property name="orientation">
-                       <enum>Qt::Vertical</enum>
-                      </property>
-                      <property name="sizeType">
-                       <enum>QSizePolicy::Fixed</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>20</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                     </spacer>
                     </item>
                     <item row="7" column="1">
                      <widget class="QLabel" name="label_797">
@@ -122880,9 +124244,6 @@
                     <height>20</height>
                    </size>
                   </property>
-                  <property name="visible">
-                   <bool>false</bool>
-                  </property>
                   <property name="toolTip">
                    <string>Include Gaia observations in the likelihood. Select Hipparcos, Gaia, or both; all fitted planets contribute to the stellar motion.</string>
                   </property>
@@ -122944,9 +124305,6 @@
                     <width>16777215</width>
                     <height>20</height>
                    </size>
-                  </property>
-                  <property name="visible">
-                   <bool>false</bool>
                   </property>
                   <property name="toolTip">
                    <string>Include Hipparcos observations in the likelihood. Select Hipparcos, Gaia, or both; all fitted planets contribute to the stellar motion.</string>
@@ -131574,7 +132932,7 @@
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>405</width>
+                       <width>514</width>
                        <height>440</height>
                       </rect>
                      </property>
@@ -132160,22 +133518,6 @@
                            <double>10.000000000000000</double>
                           </property>
                          </widget>
-                        </item>
-                        <item row="0" column="7">
-                         <spacer name="horizontalSpacer_124">
-                          <property name="orientation">
-                           <enum>Qt::Horizontal</enum>
-                          </property>
-                          <property name="sizeType">
-                           <enum>QSizePolicy::Fixed</enum>
-                          </property>
-                          <property name="sizeHint" stdset="0">
-                           <size>
-                            <width>13</width>
-                            <height>20</height>
-                           </size>
-                          </property>
-                         </spacer>
                         </item>
                         <item row="3" column="7">
                          <widget class="QCheckBox" name="use_rvjitt_nr_3">
@@ -132970,22 +134312,6 @@
                            <double>0.000000000000000</double>
                           </property>
                          </widget>
-                        </item>
-                        <item row="0" column="3">
-                         <spacer name="horizontalSpacer_122">
-                          <property name="orientation">
-                           <enum>Qt::Horizontal</enum>
-                          </property>
-                          <property name="sizeType">
-                           <enum>QSizePolicy::Fixed</enum>
-                          </property>
-                          <property name="sizeHint" stdset="0">
-                           <size>
-                            <width>13</width>
-                            <height>20</height>
-                           </size>
-                          </property>
-                         </spacer>
                         </item>
                         <item row="1" column="7">
                          <widget class="QCheckBox" name="use_rvjitt_nr_1">
@@ -134974,7 +136300,7 @@
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>393</width>
+                       <width>514</width>
                        <height>440</height>
                       </rect>
                      </property>
@@ -138883,22 +140209,6 @@
                           </property>
                          </widget>
                         </item>
-                        <item row="0" column="3">
-                         <spacer name="horizontalSpacer_126">
-                          <property name="orientation">
-                           <enum>Qt::Horizontal</enum>
-                          </property>
-                          <property name="sizeType">
-                           <enum>QSizePolicy::Fixed</enum>
-                          </property>
-                          <property name="sizeHint" stdset="0">
-                           <size>
-                            <width>13</width>
-                            <height>20</height>
-                           </size>
-                          </property>
-                         </spacer>
-                        </item>
                        </layout>
                       </item>
                      </layout>
@@ -139877,7 +141187,7 @@
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>432</width>
+                       <width>514</width>
                        <height>433</height>
                       </rect>
                      </property>
@@ -144287,7 +145597,7 @@
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>467</width>
+                       <width>514</width>
                        <height>433</height>
                       </rect>
                      </property>
@@ -148523,7 +149833,7 @@
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>456</width>
+                       <width>514</width>
                        <height>433</height>
                       </rect>
                      </property>
@@ -152836,8 +154146,8 @@
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>459</width>
-                       <height>440</height>
+                       <width>514</width>
+                       <height>433</height>
                       </rect>
                      </property>
                      <layout class="QGridLayout" name="gridLayout_399">
@@ -157280,38 +158590,6 @@
                           </property>
                          </widget>
                         </item>
-                        <item row="0" column="2">
-                         <spacer name="horizontalSpacer_168">
-                          <property name="orientation">
-                           <enum>Qt::Horizontal</enum>
-                          </property>
-                          <property name="sizeType">
-                           <enum>QSizePolicy::Fixed</enum>
-                          </property>
-                          <property name="sizeHint" stdset="0">
-                           <size>
-                            <width>5</width>
-                            <height>20</height>
-                           </size>
-                          </property>
-                         </spacer>
-                        </item>
-                        <item row="0" column="5">
-                         <spacer name="horizontalSpacer_169">
-                          <property name="orientation">
-                           <enum>Qt::Horizontal</enum>
-                          </property>
-                          <property name="sizeType">
-                           <enum>QSizePolicy::Fixed</enum>
-                          </property>
-                          <property name="sizeHint" stdset="0">
-                           <size>
-                            <width>5</width>
-                            <height>20</height>
-                           </size>
-                          </property>
-                         </spacer>
-                        </item>
                        </layout>
                       </item>
                      </layout>
@@ -157338,8 +158616,8 @@
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>411</width>
-                       <height>440</height>
+                       <width>514</width>
+                       <height>433</height>
                       </rect>
                      </property>
                      <layout class="QGridLayout" name="gridLayout_401">
@@ -161602,38 +162880,6 @@
                           </property>
                          </widget>
                         </item>
-                        <item row="0" column="2">
-                         <spacer name="horizontalSpacer_170">
-                          <property name="orientation">
-                           <enum>Qt::Horizontal</enum>
-                          </property>
-                          <property name="sizeType">
-                           <enum>QSizePolicy::Fixed</enum>
-                          </property>
-                          <property name="sizeHint" stdset="0">
-                           <size>
-                            <width>5</width>
-                            <height>20</height>
-                           </size>
-                          </property>
-                         </spacer>
-                        </item>
-                        <item row="0" column="5">
-                         <spacer name="horizontalSpacer_171">
-                          <property name="orientation">
-                           <enum>Qt::Horizontal</enum>
-                          </property>
-                          <property name="sizeType">
-                           <enum>QSizePolicy::Fixed</enum>
-                          </property>
-                          <property name="sizeHint" stdset="0">
-                           <size>
-                            <width>5</width>
-                            <height>20</height>
-                           </size>
-                          </property>
-                         </spacer>
-                        </item>
                        </layout>
                       </item>
                      </layout>
@@ -161660,8 +162906,8 @@
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>411</width>
-                       <height>440</height>
+                       <width>514</width>
+                       <height>433</height>
                       </rect>
                      </property>
                      <layout class="QGridLayout" name="gridLayout_402">
@@ -165984,22 +167230,6 @@
                           </property>
                          </widget>
                         </item>
-                        <item row="0" column="2">
-                         <spacer name="horizontalSpacer_87">
-                          <property name="orientation">
-                           <enum>Qt::Horizontal</enum>
-                          </property>
-                          <property name="sizeType">
-                           <enum>QSizePolicy::Fixed</enum>
-                          </property>
-                          <property name="sizeHint" stdset="0">
-                           <size>
-                            <width>5</width>
-                            <height>20</height>
-                           </size>
-                          </property>
-                         </spacer>
-                        </item>
                        </layout>
                       </item>
                      </layout>
@@ -166052,7 +167282,7 @@
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>487</width>
+                       <width>514</width>
                        <height>391</height>
                       </rect>
                      </property>
@@ -174339,7 +175569,7 @@
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>487</width>
+                       <width>514</width>
                        <height>391</height>
                       </rect>
                      </property>
@@ -182626,7 +183856,7 @@
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>487</width>
+                       <width>514</width>
                        <height>391</height>
                       </rect>
                      </property>
@@ -190933,7 +192163,7 @@
                       <rect>
                        <x>0</x>
                        <y>0</y>
-                       <width>249</width>
+                       <width>514</width>
                        <height>440</height>
                       </rect>
                      </property>
@@ -197568,166 +198798,424 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>radioButton_astrometry_cartesian</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ast_radial_velocity_label</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>40</x>
+     <y>40</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_astrometry_cartesian</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>use_ast_radial_velocity</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>40</x>
+     <y>40</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_astrometry_cartesian</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ast_radial_velocity</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>40</x>
+     <y>40</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_astrometry_cartesian</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>err_ast_radial_velocity</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>40</x>
+     <y>40</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_astrometry_cartesian</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ast_radial_velocity_min</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>40</x>
+     <y>40</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_astrometry_cartesian</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>use_ast_radial_velocity_bounds</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>40</x>
+     <y>40</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_astrometry_cartesian</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ast_radial_velocity_max</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>40</x>
+     <y>40</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_astrometry_cartesian</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ast_radial_velocity_bounds_label</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>40</x>
+     <y>40</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_astrometry_cartesian</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ast_radial_velocity_mean</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>40</x>
+     <y>40</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_astrometry_cartesian</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>use_ast_radial_velocity_nr_pr</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>40</x>
+     <y>40</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_astrometry_cartesian</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ast_radial_velocity_sigma</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>40</x>
+     <y>40</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_astrometry_cartesian</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ast_radial_velocity_nr_pr_label</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>40</x>
+     <y>40</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_astrometry_cartesian</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ast_radial_velocity_beta</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>40</x>
+     <y>40</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_astrometry_cartesian</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ast_radial_velocity_jeff_pr_label</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>40</x>
+     <y>40</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_astrometry_cartesian</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>use_ast_radial_velocity_jeff_pr</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>40</x>
+     <y>40</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_astrometry_cartesian</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ast_radial_velocity_alpha</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>40</x>
+     <y>40</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup_remove_activity_data"/>
-  <buttongroup name="buttonGroup_TTV_plot_Ntra_BJD"/>
-  <buttongroup name="buttonGroup_use_tra_reg_3"/>
-  <buttongroup name="buttonGroup_use_ast_data_to_planet">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_use_ld_18"/>
-  <buttongroup name="buttonGroup_symbol_picker_tra"/>
-  <buttongroup name="buttonGroup_kep_or_dyn"/>
-  <buttongroup name="buttonGroup_ei_eo_sincos"/>
-  <buttongroup name="buttonGroup_mixed_fitting">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_use_tra_reg_5"/>
-  <buttongroup name="buttonGroup_use_ld_4"/>
-  <buttongroup name="buttonGroup_energy"/>
-  <buttongroup name="buttonGroup_apply_act_data_options"/>
-  <buttongroup name="buttonGroup_remove_ast_data_3"/>
-  <buttongroup name="buttonGroup_adopt_nest_as_par"/>
-  <buttongroup name="buttonGroup_f77_or_scipy"/>
-  <buttongroup name="buttonGroup_use_ld_1"/>
-  <buttongroup name="buttonGroup_use_tra_reg_17"/>
-  <buttongroup name="buttonGroup_dom_fold"/>
-  <buttongroup name="buttonGroup_use">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_options_rvs"/>
-  <buttongroup name="buttonGroup_ast_data_3"/>
-  <buttongroup name="buttonGroup_use_tra_reg_13"/>
-  <buttongroup name="buttonGroup_use_tra_reg_2"/>
-  <buttongroup name="buttonGroup_use_ld_6"/>
-  <buttongroup name="buttonGroup_detrend_tra"/>
-  <buttongroup name="buttonGroup_AMD_stab_mcmc"/>
-  <buttongroup name="buttonGroup_color_picker"/>
-  <buttongroup name="buttonGroup_options_act"/>
-  <buttongroup name="buttonGroup_use_tra_GP_kernel"/>
-  <buttongroup name="buttonGroup_use_GP">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_ttv_data"/>
-  <buttongroup name="buttonGroup_omega_dot_opt"/>
-  <buttongroup name="buttonGroup_adopt_nest_as_err"/>
-  <buttongroup name="buttonGroup_use_planets">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_AMD_stab_opt"/>
-  <buttongroup name="buttonGroup_use_tra_reg_19"/>
-  <buttongroup name="buttonGroup_use_ld_11"/>
-  <buttongroup name="buttonGroup_use_tra_reg_6"/>
-  <buttongroup name="buttonGroup_activity_data"/>
-  <buttongroup name="buttonGroup_use_tra_reg_9"/>
-  <buttongroup name="buttonGroup_use_tra_data_GP">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_use_tra_reg_15"/>
-  <buttongroup name="buttonGroup_use_tra_reg_18"/>
-  <buttongroup name="buttonGroup_use_ld_10"/>
-  <buttongroup name="buttonGroup_AMD_satb_NS"/>
-  <buttongroup name="buttonGroup_use_tra_reg_7"/>
-  <buttongroup name="buttonGroup_add_RV_data"/>
-  <buttongroup name="buttonGroup_remove_ttv_data"/>
-  <buttongroup name="buttonGroup_color_picker_tra"/>
-  <buttongroup name="buttonGroup_link_tra_GP_to_RV_GP">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_use_ld_14"/>
-  <buttongroup name="buttonGroup_use_ast_plot_RA_Dec"/>
-  <buttongroup name="buttonGroup_use_tra_reg_14"/>
-  <buttongroup name="buttonGroup_use_ast_data_to_planet_3">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_use_tra_reg_11"/>
-  <buttongroup name="buttonGroup_use_ld_9"/>
-  <buttongroup name="buttonGroup_use_ld_15"/>
-  <buttongroup name="buttonGroup_use_tra_reg_10"/>
-  <buttongroup name="buttonGroup_use_ld_13"/>
-  <buttongroup name="buttonGroup_adopt_mcmc_as_par"/>
-  <buttongroup name="buttonGroup_apply_tra_data_options"/>
-  <buttongroup name="buttonGroup_use_ast_data_to_planet_2">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_plot_i_Omega"/>
-  <buttongroup name="buttonGroup_use_tra_reg_8"/>
-  <buttongroup name="buttonGroup_apply_rvs_data_options"/>
-  <buttongroup name="buttonGroup_use_img_hipp_ast">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="buttonGroup_use_ld_5"/>
-  <buttongroup name="buttonGroup_symbol_picker"/>
+  <buttongroup name="buttonGroup_test_arb_conf_kp_ma"/>
   <buttongroup name="buttonGroup_use_RV_GP_kernel">
    <property name="exclusive">
     <bool>true</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_use_ld_20"/>
-  <buttongroup name="buttonGroup_simplex_or_lm"/>
-  <buttongroup name="buttonGroup_Rebound_integrators"/>
-  <buttongroup name="buttonGroup_use_tra_reg_12"/>
-  <buttongroup name="buttonGroup_theta_fold"/>
-  <buttongroup name="buttonGroup_symbol_picker_ttv"/>
-  <buttongroup name="buttonGroup_use_ld_12"/>
-  <buttongroup name="buttonGroup_color_picker_ast"/>
-  <buttongroup name="buttonGroup_use_tra_reg_1"/>
-  <buttongroup name="buttonGroup_remove_transit_data"/>
-  <buttongroup name="buttonGroup_remove_ast_data_2"/>
+  <buttongroup name="buttonGroup_apply_rvs_data_options"/>
   <buttongroup name="buttonGroup_samp_corr"/>
-  <buttongroup name="buttonGroup_color_picker_ttv"/>
   <buttongroup name="buttonGroup_use_ld_16"/>
-  <buttongroup name="buttonGroup_remove_ast_data"/>
-  <buttongroup name="buttonGroup_use_tra_reg_20"/>
-  <buttongroup name="buttonGroup_nest_stat_dyn"/>
-  <buttongroup name="buttonGroup_ast_data"/>
-  <buttongroup name="buttonGroup_use_plmass"/>
-  <buttongroup name="buttonGroup_ewm_hkl"/>
-  <buttongroup name="buttonGroup_use_rho_aR"/>
-  <buttongroup name="buttonGroup_transit_data"/>
-  <buttongroup name="buttonGroup_use_ld_19"/>
-  <buttongroup name="buttonGroup_use_ld_2"/>
-  <buttongroup name="buttonGroup_color_picker_act"/>
-  <buttongroup name="buttonGroup_type_fit"/>
-  <buttongroup name="buttonGroup_use_ld_7"/>
-  <buttongroup name="buttonGroup_Swift_integrators"/>
-  <buttongroup name="buttonGroup_test_arb_conf_kp_ma"/>
+  <buttongroup name="buttonGroup_use_ast_data_to_planet_2">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_ei_eo_sincos"/>
+  <buttongroup name="buttonGroup_use_tra_reg_11"/>
+  <buttongroup name="buttonGroup_symbol_picker_ast"/>
+  <buttongroup name="buttonGroup_apply_tra_data_options"/>
   <buttongroup name="buttonGroup_use_ld_8"/>
+  <buttongroup name="buttonGroup_use_tra_reg_8"/>
+  <buttongroup name="buttonGroup_remove_ast_data_2"/>
+  <buttongroup name="buttonGroup_link_tra_GP_to_RV_GP">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_Swift_integrators"/>
+  <buttongroup name="buttonGroup_energy"/>
+  <buttongroup name="buttonGroup_use_tra_reg_15"/>
+  <buttongroup name="buttonGroup_use_ast_data_to_planet_3">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_use_tra_reg_9"/>
+  <buttongroup name="buttonGroup_simplex_or_lm"/>
+  <buttongroup name="buttonGroup_use_nbody_pack"/>
+  <buttongroup name="buttonGroup_use_ld_9"/>
+  <buttongroup name="buttonGroup_kep_or_dyn"/>
+  <buttongroup name="buttonGroup_remove_ast_data_3"/>
+  <buttongroup name="buttonGroup_use_tra_reg_7"/>
+  <buttongroup name="buttonGroup_apply_act_data_options"/>
+  <buttongroup name="buttonGroup_use_ld_13"/>
+  <buttongroup name="buttonGroup_AMD_stab_mcmc"/>
+  <buttongroup name="buttonGroup_color_picker"/>
   <buttongroup name="buttonGroup_use_tra_reg_4"/>
+  <buttongroup name="buttonGroup_symbol_picker_act"/>
+  <buttongroup name="buttonGroup_use_tra_reg_19"/>
+  <buttongroup name="buttonGroup_TTV_plot_Ntra_BJD"/>
+  <buttongroup name="buttonGroup_ewm_hkl"/>
+  <buttongroup name="buttonGroup_use_ld_1"/>
+  <buttongroup name="buttonGroup_use_tra_reg_2"/>
+  <buttongroup name="buttonGroup_adopt_nest_as_par"/>
+  <buttongroup name="buttonGroup_mixed_fitting">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_use">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_detrend_tra"/>
+  <buttongroup name="buttonGroup_omega_dot_opt"/>
+  <buttongroup name="buttonGroup_use_tra_reg_18"/>
+  <buttongroup name="buttonGroup_use_ast_plot_RA_Dec"/>
+  <buttongroup name="buttonGroup_add_RV_data"/>
+  <buttongroup name="buttonGroup_use_tra_reg_5"/>
+  <buttongroup name="buttonGroup_use_ld_5"/>
+  <buttongroup name="buttonGroup_symbol_picker_ttv"/>
+  <buttongroup name="buttonGroup_color_picker_ttv"/>
+  <buttongroup name="buttonGroup_Rebound_integrators"/>
+  <buttongroup name="buttonGroup_use_ld_11"/>
+  <buttongroup name="buttonGroup_use_tra_data_GP">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_use_tra_GP_kernel"/>
   <buttongroup name="buttonGroup_remove_RV_data"/>
-  <buttongroup name="buttonGroup_use_ld_3"/>
+  <buttongroup name="buttonGroup_remove_ast_data"/>
   <buttongroup name="buttonGroup_use_ttv_data_to_planet">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="buttonGroup_symbol_picker_ast"/>
   <buttongroup name="buttonGroup_use_tra_reg_16"/>
-  <buttongroup name="buttonGroup_use_nbody_pack"/>
+  <buttongroup name="buttonGroup_astrometric_parametrisation"/>
+  <buttongroup name="buttonGroup_use_ld_7"/>
+  <buttongroup name="buttonGroup_use_ld_18"/>
+  <buttongroup name="buttonGroup_remove_activity_data"/>
+  <buttongroup name="buttonGroup_f77_or_scipy"/>
+  <buttongroup name="buttonGroup_ttv_data"/>
+  <buttongroup name="buttonGroup_symbol_picker_tra"/>
+  <buttongroup name="buttonGroup_color_picker_tra"/>
+  <buttongroup name="buttonGroup_use_plmass"/>
+  <buttongroup name="buttonGroup_use_ld_19"/>
+  <buttongroup name="buttonGroup_ast_data"/>
+  <buttongroup name="buttonGroup_use_tra_reg_17"/>
+  <buttongroup name="buttonGroup_ast_data_3"/>
+  <buttongroup name="buttonGroup_use_GP">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_plot_i_Omega"/>
+  <buttongroup name="buttonGroup_transit_data"/>
+  <buttongroup name="buttonGroup_use_rho_aR"/>
+  <buttongroup name="buttonGroup_use_tra_reg_6"/>
+  <buttongroup name="buttonGroup_color_picker_act"/>
+  <buttongroup name="buttonGroup_activity_data"/>
+  <buttongroup name="buttonGroup_symbol_picker"/>
+  <buttongroup name="buttonGroup_use_ld_20"/>
   <buttongroup name="buttonGroup_adopt_mcmc_as_err"/>
-  <buttongroup name="buttonGroup_ast_data_2"/>
-  <buttongroup name="buttonGroup_symbol_picker_act"/>
+  <buttongroup name="buttonGroup_type_fit"/>
+  <buttongroup name="buttonGroup_AMD_stab_opt"/>
+  <buttongroup name="buttonGroup_use_tra_reg_20"/>
+  <buttongroup name="buttonGroup_use_ld_15"/>
+  <buttongroup name="buttonGroup_use_ld_10"/>
+  <buttongroup name="buttonGroup_nest_stat_dyn"/>
+  <buttongroup name="buttonGroup_use_tra_reg_14"/>
+  <buttongroup name="buttonGroup_use_ld_3"/>
+  <buttongroup name="buttonGroup_use_tra_reg_10"/>
+  <buttongroup name="buttonGroup_use_ast_data_to_planet">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_dom_fold"/>
+  <buttongroup name="buttonGroup_use_tra_reg_13"/>
+  <buttongroup name="buttonGroup_use_tra_reg_1"/>
+  <buttongroup name="buttonGroup_remove_transit_data"/>
+  <buttongroup name="buttonGroup_use_ld_6"/>
   <buttongroup name="buttonGroup_use_ld_17"/>
+  <buttongroup name="buttonGroup_use_img_hipp_ast">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_adopt_mcmc_as_par"/>
+  <buttongroup name="buttonGroup_use_tra_reg_3"/>
+  <buttongroup name="buttonGroup_options_act"/>
+  <buttongroup name="buttonGroup_options_rvs"/>
+  <buttongroup name="buttonGroup_use_ld_14"/>
+  <buttongroup name="buttonGroup_use_planets">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="buttonGroup_ast_data_2"/>
+  <buttongroup name="buttonGroup_use_tra_reg_12"/>
+  <buttongroup name="buttonGroup_use_ld_4"/>
+  <buttongroup name="buttonGroup_use_ld_12"/>
+  <buttongroup name="buttonGroup_color_picker_ast"/>
+  <buttongroup name="buttonGroup_use_ld_2"/>
+  <buttongroup name="buttonGroup_adopt_nest_as_err"/>
+  <buttongroup name="buttonGroup_AMD_satb_NS"/>
+  <buttongroup name="buttonGroup_remove_ttv_data"/>
+  <buttongroup name="buttonGroup_theta_fold"/>
  </buttongroups>
 </ui>
