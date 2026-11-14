@@ -24,6 +24,8 @@ _DISPLAY_FIELDS = (
     'tra_colors',
     'ttv_colors',
     'act_colors',
+    'activity_jitter_color',
+    'planet_radius_stellar_source',
     'pyqt_color_alpha_act',
     'pyqt_symbols_act',
     'pyqt_symbols_size_act',

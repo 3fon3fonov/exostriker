@@ -309,7 +309,7 @@ def prepare(
             link(
                 10 * j + k,
                 start + k,
-                scale=[max(abs(s.K[slot]) * .02, 1.), s.P[slot] * .002, .01, .5, .5, .2, .5][k],
+                scale=[max(abs(initial[start]) * .02, .001 if getattr(s, 'mass_parameterization', False) else 1.), s.P[slot] * .002, .01, .5, .5, .2, .5][k],
             )
         for k in range(3):
             link(
@@ -320,6 +320,10 @@ def prepare(
     off = 10 * n
     pv[off:off + 4] = [s.params.stellar_mass, s.stellar_radius, s.rv_lintr, s.rv_quadtr]
     link(off, nf - 1, scale=max(s.params.stellar_mass * .02, 1e-3))
+    from stellar_parameters import radius_mode
+    if radius_mode(s):
+        link(off + 1, s.stellar_radius_parameter_index, scale=max(s.stellar_radius * .02, 1e-3))
+
     for k in range(2):
         link(off + 2 + k, 2 * nd + 7 * n + k)
     for (j, d) in enumerate(ds):
@@ -473,6 +477,8 @@ def prepare(
     if not any((kind <= 2 or selected_components[kind - 3] for kind in meta[:, 0])):
         raise ValueError('Select at least one fitted timing, duration, depth, RV, or transit component.')
     settings = np.array([epoch, s.time_step_model, s.dyn_model_accuracy * 1e-13, s.ttv_times[0], s.ttv_times[2], 0., 1e-7, 0.])
+    settings[5] = float(getattr(s, 'mass_parameterization', False))
+    settings[7] = float(radius_mode(s))
     if settings[1] <= 0 or not 1e-15 <= settings[2] <= 0.001:
         raise ValueError('Invalid native integrator settings.')
     if free_indices is None:
@@ -503,7 +509,7 @@ def prepare(
             inactive.add(2 * nd + 7 * j + 4)
         else:
             inactive.add(2 * nd + 7 * n + 2 + 3 * j)
-        if dyn and (not s.rho):
+        if (dyn and not s.rho) or radius_mode(s):
             inactive.add(2 * nd + 7 * n + 3 + 3 * j)
         if s.rho and j > 0:
             inactive.add(2 * nd + 7 * n + 3 + 3 * j)
@@ -520,6 +526,8 @@ def prepare(
     if n == 0:
         # A flat physical model cannot constrain stellar mass or limb darkening.
         inactive.add(nf - 1)
+        if radius_mode(s):
+            inactive.add(s.stellar_radius_parameter_index)
         for d in loaded:
             inactive.update(mapping[off + 124 + 9 * d + 2:off + 124 + 9 * d + 6] - 1)
             if not s.tra_lintr_use[d] and (not s.tra_quadtr_use[d]) and (s.tra_lintr[d] == 0) and (s.tra_quadtr[d] == 0):
@@ -618,6 +626,8 @@ def timing_results(s, problem, result):
     if s.type_fit.get('Transit'):
         if s.rho:
             scaled = (6.67408e-11 * s.pl_a[slots[0]] * (rows[:, 1] * 86400) ** 2 / (3 * np.pi)) ** (1 / 3)
+        elif getattr(s, 'stellar_mass_radius', False):
+            scaled = axes * 1.49597892e11 / (rs * 6.957e8)
         else:
             scaled = np.array([s.pl_a[i] for i in slots])
         input_axes = scaled * rs
@@ -748,6 +758,8 @@ def likelihood_from_joint(session, result):
             session_jacobi_convention(session),
         )
         axis = axes * 1.49597892e11 / (radius * 6.957e8)
+    elif slots and getattr(session, 'stellar_mass_radius', False):
+        axis = axes * 1.49597892e11 / (radius * 6.957e8)
     elif slots and session.rho:
         axis = (6.67408e-11 * session.pl_a[slots[0]] * (rows[:, 1] * 86400) ** 2 / (3 * np.pi)) ** (1 / 3)
     else:
@@ -781,6 +793,20 @@ def publish_results(s, par, opt, tr_model, errors, flags):
         s._transit_default_epoch = float(problem.settings[0])
     s.epoch = problem.settings[0]
     publish_photometry(s, par, opt, tr_model, errors, flags)
+    from stellar_parameters import publish_stellar
+    from native_transit_model import jacobi_axis_factor
+    publish_stellar(s, par, errors, result.covariance, flags)
+    if getattr(s, 'stellar_mass_radius', False) and s.type_fit.get('Transit'):
+        from native_transit_model import _mass_axes
+        slots = list(s.mcmc_planet_slots)
+        rows = np.array([[getattr(s, name)[slot] for name in
+                         ('K', 'P', 'e', 'w', 'M0', 'i', 'Node')] for slot in slots]).reshape(-1, 7)
+        masses, axes = _mass_axes(rows, s.params.stellar_mass)
+        if s.mod_dynamical:
+            axes *= jacobi_axis_factor(rows, masses, s.params.stellar_mass, session_jacobi_convention(s))
+        for slot, axis in zip(slots, axes):
+            s.pl_a[slot] = axis * 1.49597892e11 / (s.stellar_radius * 6.957e8)
+
     s.native_joint_phase_used = opt['native_joint_phase']
     if s.type_fit.get('TTV'):
         s.ttv_results = timing_results(s, problem, result)
@@ -916,15 +942,16 @@ def run(s, method=None, *, maxiter=None, tolerance=1e-7, free_indices=None, boun
     for (j, slot) in enumerate(s.mcmc_dataset_slots):
         label_map[j] = s.rvoff_str[slot]
         label_map[nd + j] = s.jitt_str[slot]
+    from mass_parameterization import amplitude_root
     names = (
-        'K',
+        amplitude_root(s),
         'P',
         'e_sinw',
         'e_cosw',
         'lamb',
         'i',
         'Node',
-    ) if s.hkl else ('K', 'P', 'e', 'w', 'M0', 'i', 'Node')
+    ) if s.hkl else (amplitude_root(s), 'P', 'e', 'w', 'M0', 'i', 'Node')
     for (j, slot) in enumerate(s.mcmc_planet_slots):
         for (k, name) in enumerate(names):
             label_map[2 * nd + 7 * j + k] = getattr(s, name + '_str')[slot]

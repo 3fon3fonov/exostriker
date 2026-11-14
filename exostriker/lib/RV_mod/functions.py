@@ -1486,6 +1486,27 @@ def _corner_stellar_draws(value, uncertainty, count):
     return np.random.normal(loc=float(center.reshape(-1)[0]), scale=sigma, size=count)
 
 
+def _corner_radius_draws(obj, samples, labels, sampler):
+    """Select external stellar measurements or correlated model-radius draws."""
+    source = getattr(obj, 'planet_radius_stellar_source', 'auto')
+    if source not in ('auto', 'external', 'model'):
+        raise ValueError('Unknown stellar-radius source for planet-radius propagation.')
+    external_error = np.asarray(getattr(obj, 'st_radius_err', 0.), float)
+    external_available = external_error.size > 0 and np.all(np.isfinite(external_error))
+    external_available = external_available and np.any(np.abs(external_error) > 0.)
+    if source == 'external' or (source == 'auto' and external_available):
+        return _corner_stellar_draws(obj.st_radius, obj.st_radius_err, len(samples))
+
+    label = getattr(obj, 'stellar_radius_str', 'Stellar radius')
+    if label in labels:
+        return np.asarray(samples[:, list(labels).index(label)], float)
+    stellar_samples = getattr(sampler, 'stellar_samples', {})
+    density_label = getattr(obj, 'stellar_rho_str', '')
+    if getattr(obj, 'rho', False) and density_label in labels and 'stellar_radius' in stellar_samples:
+        return np.asarray(stellar_samples['stellar_radius'], float)
+    return _corner_stellar_draws(obj.stellar_radius, obj.stellar_radius_err, len(samples))
+
+
 def _corner_lambda_samples(obj, samples, labels, slot):
     """Use sampled angles when present, otherwise the fixed orbital element."""
     letter = 'bcdefghij'[slot]
@@ -1515,6 +1536,8 @@ def _corner_mass_axes(obj, samples, labels, stellar_masses):
         return samples[:, labels.index(label)] if label in labels else np.full(len(samples), getattr(obj, root)[slot])
     for packed, slot in enumerate(slots):
         roots = ('K','P','e_sinw','e_cosw','lamb','i','Node') if obj.hkl else ('K','P','e','w','M0','i','Node')
+        if getattr(obj, 'mass_parameterization', False):
+            roots = ('mp',) + roots[1:]
         elements[:,packed,:] = np.column_stack([values(root,slot) for root in roots])
     if obj.hkl:
         h,k,longitude = (elements[:,:,j].copy() for j in (2,3,4))
@@ -1528,10 +1551,28 @@ def _corner_mass_axes(obj, samples, labels, stellar_masses):
     axes = masses.copy()
     for row, (orbit, stellar_mass) in enumerate(zip(elements, stellar_masses)):
         try:
+            if getattr(obj, 'mass_parameterization', False):
+                from mass_parameterization import masses_to_k
+                orbit = orbit.copy()
+                orbit[:, 0] = masses_to_k(orbit, orbit[:, 0].copy(), stellar_mass, obj.mod_dynamical)
             masses[row], axes[row] = mass_a_from_jacobi_el(orbit,len(slots),stellar_mass)
         except ValueError:
             continue
     return slots,masses,axes
+
+
+def _corner_nested_logl(sampler, samples):
+    """Read retained likelihoods without pairing raw NS rows with resampled rows."""
+    for name in ('logl', 'lnL'):
+        values = getattr(sampler, name, None)
+        if values is None:
+            continue
+        values = np.asarray(values, dtype=float).reshape(-1)
+        if len(values) == len(samples):
+            return values.copy()
+
+    # Older sessions may retain posterior draws without their likelihoods.
+    return np.full(len(samples), np.nan)
 
 
 def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
@@ -1578,13 +1619,17 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
     elif type_plot == 'nest':
 
         #### load the samples, labels and lnL values
-        #ln      = dill.copy(obj.ns_sampler.results.logl)
-       # samples = dill.copy(np.array(obj.ns_sampler.results.samples))
-        ln      = dill.copy(obj.ns_sampler.logl)
         samples = dill.copy(np.array(obj.ns_sampler.samples))
+        ln = _corner_nested_logl(obj.ns_sampler, samples)
         #labels  = dill.copy(obj.e_for_mcmc)
         labels  = dill.copy(obj.ns_sampler.lbf["OrigLabels"])
         mod_labels  = dill.copy(obj.ns_sampler.lbf)
+
+        if not np.isfinite(ln).any() and mod_labels['best_samp'] and not statistics_only:
+            raise ValueError(
+                'This session has no likelihoods aligned with its NS samples. '
+                'Select a mean, median, or GUI reference for the corner plot.'
+            )
 
         if mod_labels['mean'] ==True:
             best_fit_par = obj.nest_stat["mean"]
@@ -1691,11 +1736,15 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
             elif mod_labels['best_gui']:
                 samp_best_fit_par.append(float(obj.lamb[i]) if obj.hkl else (obj.M0[i]+obj.w[i]) % 360.)
             else:
-                samp_best_fit_par.append(lambda_[np.argmax(ln)])
+                value = lambda_[np.nanargmax(ln)] if np.isfinite(ln).any() else np.nanmedian(lambda_)
+                samp_best_fit_par.append(value)
 
 
     if mod_labels['mass'] or mod_labels['semimajor']:
-        m_s = _corner_stellar_draws(obj.stellar_mass, obj.stellar_mass_err, len(samples))
+        if getattr(obj, 'stellar_mass_str', 'Stellar mass') in labels:
+            m_s = samples[:, list(labels).index(obj.stellar_mass_str)]
+        else:
+            m_s = _corner_stellar_draws(obj.stellar_mass, obj.stellar_mass_err, len(samples))
         slots, masses, semimajor = _corner_mass_axes(obj, samples, labels, m_s)
         M_fact, mass_lab = (317.82838, r'[M$_\oplus$]') if mod_labels['use_Me'] else ((1./1047.5654817267318, r'[M$_\odot$]') if mod_labels['use_Ms'] else (1., r'[M$_{\rm Jup.}$]'))
         for option, values, factor, symbol, unit in [
@@ -1717,7 +1766,8 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
 
 
     if mod_labels['radius']:
-        r_s = _corner_stellar_draws(obj.stellar_radius, obj.stellar_radius_err, len(samples))
+        sampler = obj.mcmc_sampler if type_plot == 'mcmc' else obj.ns_sampler
+        r_s = _corner_radius_draws(obj, samples, labels, sampler)
 
         for i in range(9):
             if not bool(obj.use_planet[i]):
@@ -1738,16 +1788,20 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
                 rad_lab = r'[R$_\odot$]'
 
             rad = np.hstack(samples[:,[ii for ii, j in enumerate(labels) if j == 'R/$R_\star$ $%s$'%let]]) * R_fact
-            samp.append(np.array(rad*r_s))
+            physical_radius = np.array(rad * r_s)
+            samp.append(physical_radius)
             samp_labels.append(r'R$_%s$ %s'%(let,rad_lab))
 
 
             if mod_labels['mean']:
-                samp_best_fit_par.append(np.mean(rad)*np.mean(r_s))
+                samp_best_fit_par.append(np.mean(physical_radius))
             elif mod_labels['median']:
-                samp_best_fit_par.append(np.median(rad)*np.median(r_s))
+                samp_best_fit_par.append(np.median(physical_radius))
+            elif mod_labels['best_gui']:
+                samp_best_fit_par.append(obj.pl_rad[i] * R_fact * obj.stellar_radius)
             else:
-                samp_best_fit_par.append(rad[np.argmax(ln)]*obj.stellar_radius)
+                value = physical_radius[np.nanargmax(ln)] if np.isfinite(ln).any() else np.nanmedian(physical_radius)
+                samp_best_fit_par.append(value)
 
 
 #    if mod_labels['gravity']:
@@ -3692,7 +3746,10 @@ def _latex_table_parameters(obj):
         rows.append((name, label, slots, scalar, bounds or name + '_bound'))
 
     if orbital:
-        add('K', r'$K$ [m\,s$^{-1}$]')
+        if getattr(obj, 'mass_parameterization', False):
+            add('mp', r'$m$ [M$_J$]' if obj.mod_dynamical else r'$m_{\min}$ [M$_J$]')
+        else:
+            add('K', r'$K$ [m\,s$^{-1}$]')
     add('P', r'$P$ [day]')
     if getattr(obj, 'hkl', False):
         add('e_sinw', r'$e\sin\omega$')
@@ -3740,6 +3797,11 @@ def _latex_table_parameters(obj):
                 for i in range(len(values)):
                     label = labels[i] if i < len(labels) else base + ' %s' % (i + 1)
                     add(base + '_params', label, [i], bounds=base + '_bounds')
+    stellar_fit = getattr(obj, 'stellar_mass_use', False) or getattr(obj, 'stellar_mass_radius', False)
+    if stellar_fit:
+        add('stellar_mass', r'$M_\star$ [M$_\odot$]', [0], True, 'stellar_mass_bounds')
+        if getattr(obj, 'stellar_mass_radius', False):
+            add('stellar_radius', r'$R_\star$ [R$_\odot$]', [0], True, 'stellar_radius_bounds')
     return planets, rows
 
 
@@ -3881,6 +3943,10 @@ def latex_prior_table(obj, width=10, precision=2, file_name='prior_table.tex',
             continue
         base = name[:-7] if name.endswith('_params') else name
         normal, jeff = getattr(obj, base + '_norm_pr', None), getattr(obj, base + '_jeff_pr', None)
+        if name in ('stellar_mass', 'stellar_radius'):
+            bounds = [bounds]
+            normal = [normal] if normal is not None else None
+            jeff = [jeff] if jeff is not None else None
         if bounds_name == 'stellar_rho_bounds':
             bounds = {slot: obj.stellar_rho_bounds for slot in slots}
             normal = {slot: obj.stellar_rho_norm_pr for slot in slots}

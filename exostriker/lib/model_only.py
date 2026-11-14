@@ -280,6 +280,7 @@ class ModelResult(_Fields):
     TTV: dict
     Astrometry: object = None
     settings: object = None
+    GaiaDR4: object = None
 
 
 def _planet_parameters(planets, options):
@@ -393,6 +394,12 @@ def _transit_tables(planets, names, prediction, epoch, mode, options, profile,
     # Keep caller order even when the integrator sorts planets by period.
     return {name: output[name] for name in names}
 
+
+
+def GetGaiaDR4(*args, **kwargs):
+    """Create synthetic absolute Gaia DR4 astrometry; see gaia_synthetic."""
+    from gaia_synthetic import GetGaiaDR4 as simulate_gaia
+    return simulate_gaia(*args, **kwargs)
 
 
 def GetModelDefaults():
@@ -589,7 +596,7 @@ def GetModel(planets, times=None, *, BJD=None, models=None, seed=None,
              start=None, end=None, points=1000, before=0., after=0., epoch=0.,
              model='keplerian', transit_events=None, event_dataset=0,
              samples_per_orbit=512, max_samples=2000000, max_events=10000,
-             astrometry=None, **options):
+             astrometry=None, gaia_dr4=None, inclinations=None, Omega=None, **options):
     """Predict selected observables and optional Gaussian synthetic measurements.
 
     planets is a named dictionary of K, P, e, omega, M0, inclination, node and
@@ -607,7 +614,35 @@ def GetModel(planets, times=None, *, BJD=None, models=None, seed=None,
     TTV.data simulates measured mid-transit BJD; Astrometry.data simulates
     along-scan offsets. Disabled sampled structures are None; disabled TTV is
     {}. Supplied astrometry parameters do not enable its switch automatically.
+
+    gaia_dr4={source_id, output, sigma_al, ...} selects nominal Gaia DR4
+    synthesis instead of the sampled observables. planets may then be a fit
+    object, with optional inclinations/Omega overrides in degrees. The result
+    is returned in GaiaDR4 and an optional output .d file is directly importable.
     """
+    if gaia_dr4 is not None:
+        if not isinstance(gaia_dr4, Mapping):
+            raise ValueError('gaia_dr4 must be a dictionary of GetGaiaDR4 options.')
+        if (times is not None or BJD is not None or models is not None
+                or start is not None or end is not None or astrometry is not None
+                or transit_events is not None or model != 'keplerian'
+                or before != 0. or after != 0.):
+            raise ValueError('gaia_dr4 selects its own scans; call other GetModel observables separately.')
+        unknown = options.keys() - {'stellar_mass'}
+        if unknown:
+            raise ValueError('Unsupported Gaia DR4 options: ' + ', '.join(sorted(unknown)))
+        config = dict(gaia_dr4)
+        for key, value in dict(seed=seed, inclinations=inclinations, Omega=Omega,
+                               epoch=epoch if epoch != 0. else None,
+                               stellar_mass=options.get('stellar_mass')).items():
+            if value is not None:
+                if key in config:
+                    raise ValueError(f'Supply {key} at the top level or in gaia_dr4, not both.')
+                config[key] = value
+        simulation = GetGaiaDR4(planets, **config)
+        return ModelResult(None, None, {}, settings={'GaiaDR4': dict(gaia_dr4)}, GaiaDR4=simulation)
+    if inclinations is not None or Omega is not None:
+        raise ValueError('inclinations/Omega overrides require gaia_dr4.')
     if BJD is not None and times is not None:
         raise ValueError('Supply BJD or times, not both.')
     if (BJD is not None or times is not None) and (start is not None or end is not None):

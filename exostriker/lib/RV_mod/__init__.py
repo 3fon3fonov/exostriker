@@ -1590,6 +1590,17 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
     for j in range(len(flags)):
         par[flags[j]] = p[j]
 
+    # Optimizers may probe a zero-period bound. Reject nonphysical orbital
+    # trials before phase conversion or a native model can raise an exception.
+    for i in range(npl):
+        start = 2 * len(vel_files) + 7 * i
+        period = par[start + 1]
+        eccentricity = np.hypot(par[start + 2], par[start + 3]) if hkl else par[start + 2]
+        if not np.isfinite(period) or period <= 0.0:
+            return -np.inf
+        if not np.isfinite(eccentricity) or not 0.0 <= eccentricity < 1.0:
+            return -np.inf
+
     if rtg[2]:
         for slot, index in opt.get('dilution_indices', {}).items():
             lo, hi = opt['dilution_bounds'][slot]
@@ -1624,6 +1635,16 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
         from native_inference import evaluate_loglik
         try:
             return evaluate_loglik(par, npl, len(vel_files), tr_model, opt)
+        except (ValueError, FloatingPointError, OverflowError):
+            return -np.inf
+
+    stmass = float(par[-1])
+    if not np.isfinite(stmass) or stmass <= 0:
+        return -np.inf
+    if opt.get('mass_parameterization', False):
+        from mass_parameterization import vector_to_k
+        try:
+            par = vector_to_k(par, npl, len(vel_files), opt)
         except (ValueError, FloatingPointError, OverflowError):
             return -np.inf
 
@@ -2203,6 +2224,8 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
         flags = []
 
     from native_inference import configure as configure_native_inference
+    from mass_parameterization import configure_mass_options
+    configure_mass_options(obj, opt)
     configure_native_inference(obj, opt)
 
     gps = []
@@ -2456,7 +2479,8 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
     for i, slot in enumerate(planet_slots):
 
-        obj.K[slot]  = par[len(vel_files)*2 + 7*i]
+        from mass_parameterization import amplitude_root
+        getattr(obj, amplitude_root(obj))[slot] = par[len(vel_files)*2 + 7*i]
         obj.P[slot]  = par[len(vel_files)*2 + 7*i+1]
         obj.i[slot]  = par[len(vel_files)*2 + 7*i+5]
         obj.Node[slot] = par[len(vel_files)*2 + 7*i+6]
@@ -2640,6 +2664,21 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 #            
 #                #obj.tra_ttv[i][z] = 
 #                print(par[len(vel_files)*2 +7*npl + 2 + rv_gp_npar + 3*npl + N_transit_files*4 + tra_gp_npar +  npl + z] )
+
+    from mass_parameterization import sync_amplitudes
+    stmass = float(par[-1])
+    obj.params.stellar_mass = stmass
+    obj.stellar_mass = stmass
+    obj.stellar_mass_err = np.asarray(e_par[-1], dtype=float)
+    from stellar_parameters import publish_stellar
+    native_result = opt.get('native_joint_result')
+    covariance = native_result.covariance if native_result is not None else None
+    publish_stellar(obj, par, e_par, covariance, flags)
+
+    sync_amplitudes(obj)
+    if getattr(obj, 'mass_parameterization', False) and opt.get('native_context') is None and opt.get('native_joint_result') is None:
+        from mass_parameterization import vector_to_k
+        par = vector_to_k(par, npl, len(vel_files), opt)
 
 #################### Get the models for plotting ############################
  
@@ -2842,7 +2881,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
     for i, slot in enumerate(planet_slots):
 
 
-        obj.K_err[slot] = e_par[len(vel_files)*2 + 7*i]
+        getattr(obj, amplitude_root(obj) + '_err')[slot] = e_par[len(vel_files)*2 + 7*i]
         obj.P_err[slot] = e_par[len(vel_files)*2 + 7*i+1]
         obj.i_err[slot] = e_par[len(vel_files)*2 + 7*i+5]
         obj.Node_err[slot] = e_par[len(vel_files)*2 + 7*i+6]
@@ -2948,6 +2987,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
             obj.stellar_rho=float(obj.pl_a[slot])
             obj.stellar_rho_err=dill.copy(obj.pl_a_err[slot])
 
+    sync_amplitudes(obj)
     return obj
 
 
@@ -3154,6 +3194,8 @@ def run_nestsamp(obj, **kwargs):
 #            "re":re}
 
     from native_inference import configure as configure_native_inference
+    from mass_parameterization import configure_mass_options
+    configure_mass_options(obj, opt)
     configure_native_inference(obj, opt)
 
     gps = []
@@ -3441,6 +3483,12 @@ def run_nestsamp(obj, **kwargs):
     obj.ns_sampler.logl       = dill.copy(ln)
     obj.ns_sampler.logl_ns    = dill.copy(ln_ns)
     obj.ns_sampler.samples_ns = dill.copy(np.asarray(sampler.results.samples, dtype=float))
+    from stellar_parameters import stellar_posterior
+    obj.ns_sampler.stellar_samples = stellar_posterior(
+        obj, obj.ns_sampler.samples, flags, par)
+    obj.ns_sampler.stellar_samples_ns = stellar_posterior(
+        obj, obj.ns_sampler.samples_ns, flags, par)
+
 
 
     if obj.ns_fileoutput == True:
@@ -3518,6 +3566,9 @@ def run_nestsamp(obj, **kwargs):
     #obj.fitting(minimize_loglik=True, amoeba_starts=0, npoints=obj.model_npoints, outputfiles=[1,1,1]) # this will help update some things
 
     obj = return_results(obj, pp, ee, par, flags, npl,vel_files, tr_files,  tr_model, tr_params, epoch, stmass, bb, priors, gps, tra_gps, rtg, mix_fit, new_par_errors,mod,opt)
+    from stellar_parameters import publish_stellar_posterior
+    publish_stellar_posterior(obj, obj.ns_sampler.stellar_samples, level, obj.nest_mad)
+
 
 #    obj.update_with_mcmc_errors(new_par_errors)
 
@@ -3715,6 +3766,8 @@ def run_mcmc(obj, **kwargs):
 #            "re":re}
 
     from native_inference import configure as configure_native_inference
+    from mass_parameterization import configure_mass_options
+    configure_mass_options(obj, opt)
     configure_native_inference(obj, opt)
 
     gps = []
@@ -3804,6 +3857,9 @@ def run_mcmc(obj, **kwargs):
     ln = np.hstack(sampler.lnprobability)
    # sampler.save_samples(obj.f_for_mcmc,obj.ndset,obj.npl)
     sampler.save_samples(obj.f_for_mcmc,obj.ndset,obj.npl,obj.hkl)
+    from stellar_parameters import stellar_posterior
+    sampler.stellar_samples = stellar_posterior(obj, sampler.samples, flags, par)
+
 
     pool.close()
     pool.join()
@@ -3888,6 +3944,9 @@ def run_mcmc(obj, **kwargs):
 #            obj.i[i] = incl_c
 
     obj = return_results(obj, pp, ee, par, flags, npl,vel_files, tr_files, tr_model, tr_params, epoch, stmass, bb, priors, gps,tra_gps, rtg, mix_fit, new_par_errors,mod,opt)
+    from stellar_parameters import publish_stellar_posterior
+    publish_stellar_posterior(obj, sampler.stellar_samples, level, obj.mcmc_mad)
+
 
  
     if opt.get("native_context") is None and not opt.get('activity_gp') and not opt.get('magnetic_cycle') and (obj.mcmc_save_means or obj.mcmc_save_maxlnL):
@@ -4078,6 +4137,7 @@ class signal_fit(object):
 
 
         self.gr_flag = False
+        self.mass_parameterization = False
         self.hkl = False
         self.rho = False 
         self.tdv = False      
@@ -4171,6 +4231,7 @@ class signal_fit(object):
 
         self.colors = ['#0066ff',  '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#808080']
 
+        self.activity_jitter_color = '#000000'
         self.act_colors = ['#0066ff',  '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#0066ff', '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#000000']
         self.tra_colors = ['#0066ff',  '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#0066ff', '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#000000','#0066ff',  '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#0066ff', '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#000000','#0066ff',  '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#0066ff', '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#000000']
         self.rvs_colors = ['#0066ff',  '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#666699', '#ff0000','#00aa00','#00ffff','#cc33ff','#ff9900','#cccc00','#3399ff','#990033','#339933','#000000']
@@ -4200,6 +4261,8 @@ class signal_fit(object):
 
 
         self.new_mp = False
+        from mass_parameterization import ensure_mass_settings
+        ensure_mass_settings(self)
 
 #######################################
  
@@ -4488,6 +4551,8 @@ class signal_fit(object):
 
     def init_stellar_radius(self) :
 
+        self.stellar_mass_radius = False
+        self.stellar_radius_parameter_index = None
         self.stellar_radius      = 1.0
         self.stellar_radius_err  = [0.0,0.0]
         self.stellar_radius_use  = False
@@ -5709,6 +5774,16 @@ class signal_fit(object):
         self.use_planet[ind] = 1
 
         self.npl = sum(bool(active) for active in self.use_planet)
+        if getattr(self, 'mass_parameterization', False):
+            from mass_parameterization import ensure_mass_settings, session_rows
+            ensure_mass_settings(self)
+            slots = list(np.flatnonzero(self.use_planet))
+            rows = session_rows(self, slots)
+            if not self.mod_dynamical:
+                rows[:, 5] = 90.
+            masses, _ = mass_a_from_jacobi_el(rows, len(slots), self.params.stellar_mass)
+            self.mp[ind] = masses[slots.index(ind)]
+            self.mp_use[ind] = useK
         return
 
 
@@ -6052,7 +6127,12 @@ class signal_fit(object):
         migrate_ttv_datasets(self)
         self.prepare_for_mcmc()
         vel_files = [0]*sum(bool(len(data)) for data in self.rv_data_sets.values())
-        result = ttvs_loglik(self.parameters, vel_files, self.ttv_data_sets,
+        model_parameters = self.parameters
+        if getattr(self, 'mass_parameterization', False):
+            from mass_parameterization import vector_to_k
+            model_parameters = vector_to_k(self.parameters, self.npl, len(vel_files),
+                dict(hkl=self.hkl, copl_incl=self.copl_incl, mass_dynamical=self.mod_dynamical))
+        result = ttvs_loglik(model_parameters, vel_files, self.ttv_data_sets,
                             self.npl, self.params.stellar_mass, self.ttv_times,
                             self.hkl, fit_results=self.fit_results if self.rtg[0] else False,
                             return_model=True,components=getattr(self,"ttv_fit_components",None))
@@ -6172,7 +6252,7 @@ class signal_fit(object):
 
         # Explicit planet fields: never permute a dataset/GP array merely
         # because it happens to have nine entries. Default labels stay positional.
-        roots = ('K', 'P', 'e', 'w', 'M0', 'i', 'Node', 'w_dot', 'omega_dot',
+        roots = ('mp', 'K', 'P', 'e', 'w', 'M0', 'i', 'Node', 'w_dot', 'omega_dot',
                  'e_sinw', 'e_cosw', 'lamb', 't0', 'pl_a', 'pl_rad')
         suffixes = ('', '_err', '_use', '_bound', '_bounds', '_norm_pr', '_jeff_pr')
         updates = {}
@@ -6419,6 +6499,9 @@ class signal_fit(object):
                 #self.t_peri[i] = (float(self.epoch) - (np.radians(self.M0[i])/(2*np.pi))*self.P[i] ) # epoch  - ((ma/TWOPI)*a[1])
                 self.t_peri[i] = transit_tperi(self.P[i],self.e[i], self.w[i], self.M0[i] ,self.epoch)[0]
 
+        from mass_parameterization import sync_amplitudes
+        sync_amplitudes(self)
+
         return
 
 
@@ -6444,7 +6527,7 @@ class signal_fit(object):
         # Collect the parameter families that have fitted uncertainties.
         planets = list(np.flatnonzero(self.use_planet))
         fields = [(name, name + '_bound', planets, False) for name in
-                  ('K', 'P', 'e', 'w', 'M0', 'i', 'Node', 'e_sinw', 'e_cosw', 'lamb')]
+                  ('mp' if getattr(self, 'mass_parameterization', False) else 'K', 'P', 'e', 'w', 'M0', 'i', 'Node', 'e_sinw', 'e_cosw', 'lamb')]
         fields.append(('omega_dot', 'omega_dot_bounds', planets, False))
         fields.extend(((name, name + '_bound', planets, False) for name in ('t0', 'pl_a', 'pl_rad')))
         transit_data = getattr(self, 'tra_data_sets', {})
@@ -6505,7 +6588,7 @@ class signal_fit(object):
                 # an eccentricity at one or a period at zero. Use limits that
                 # remain representable at the requested GUI precision.
                 margin = 10. ** (-max(1, round_digits)) if round_digits is not None else 1e-8
-                if name in ('P', 'K'):
+                if name in ('P', 'K', 'mp'):
                     bounds[0] = max(bounds[0], margin)
                 elif name in ('jitt','tra_jitt','pl_a','pl_rad','tra_dil'):
                     bounds[0] = max(bounds[0], 0.)
@@ -6584,6 +6667,19 @@ class signal_fit(object):
             raise ValueError('Fortran minimizer stages require RV fitting without a GP')
         if not options.get('outputfiles', [1, 1, 1])[1]:
             raise ValueError('Fortran minimizer stages require fitted parameter output')
+        from stellar_parameters import fitted_stellar
+        if fitted_stellar(self):
+            self.fit_native()
+            self.flag = 1
+            return 1 if return_flag else None
+        if getattr(self, 'mass_parameterization', False):
+            from native_joint_fit import unsupported_reason
+            if unsupported_reason(self) is None:
+                self.fit_native()
+                self.flag = 1
+                return 1 if return_flag else None
+            return self.fitting(minimize_fortran=False, return_flag=return_flag, **{k: v for k, v in options.items() if k != 'minimize_fortran'})
+
         from native_joint_fit import has_enabled_priors
         if has_enabled_priors(self):
             self.fit_native()
@@ -6621,6 +6717,21 @@ class signal_fit(object):
          eps, dt - accuracy and step for the integration in dynamical case, in keplerian case ignored, just given for input consistency
          which value to minimize (used for calling an appropriate fortran program)
         '''
+
+        from mass_parameterization import sync_amplitudes
+        sync_amplitudes(self)
+        from stellar_parameters import fitted_stellar
+        if minimize_fortran and fitted_stellar(self):
+            self.fit_native('evaluate' if amoeba_starts == 0 else ('Simplex' if minimize_loglik else 'LM'))
+            self.flag = 1
+            return 1 if return_flag else None
+        if minimize_fortran and getattr(self, 'mass_parameterization', False) and amoeba_starts > 0:
+            from native_joint_fit import unsupported_reason
+            if unsupported_reason(self) is None:
+                self.fit_native('Simplex' if minimize_loglik else 'LM')
+                self.flag = 1
+                return 1 if return_flag else None
+            minimize_fortran = False
 
         from magnetic_cycle import active as cycle_active
         if cycle_active(self) and not getattr(self, '_magnetic_cycle_orbital_refresh', False):
@@ -6951,10 +7062,12 @@ class signal_fit(object):
 
 
        # for i  in range(self.npl):
+        from mass_parameterization import ensure_mass_settings, amplitude_root
+        ensure_mass_settings(self)
+        amplitude = amplitude_root(self)
         for i in self.mcmc_planet_slots:
 
- 
-            par.append(self.K[i]) #
+            par.append(getattr(self, amplitude)[i]) #
             par.append(self.P[i]) #
 
             if self.hkl == True:
@@ -6969,12 +7082,12 @@ class signal_fit(object):
             par.append(self.i[i]) #
             par.append(self.Node[i]) #
 
-            if rtg == [False,False,True,True]:
+            if rtg == [False,False,True,True] and not (getattr(self, 'mass_parameterization', False) and self.mod_dynamical):
                 flag.append(False) #
-            elif rtg == [False,False,True,False]:
+            elif rtg == [False,False,True,False] and not (getattr(self, 'mass_parameterization', False) and self.mod_dynamical):
                 flag.append(False) #
             else:
-                flag.append(self.K_use[i])                
+                flag.append(getattr(self, amplitude + '_use')[i])                
 
             flag.append(self.P_use[i]) #
 
@@ -6985,9 +7098,9 @@ class signal_fit(object):
                 flag.append(self.e_use[i]) #
                 flag.append(self.w_use[i]) #
 
-            if rtg == [False,False,True,True]:
+            if rtg == [False,False,True,True] and not (getattr(self, 'mass_parameterization', False) and self.mod_dynamical):
                 flag.append(False) #
-            elif rtg == [False,False,True,False]:
+            elif rtg == [False,False,True,False] and not (getattr(self, 'mass_parameterization', False) and self.mod_dynamical):
                 flag.append(False) #
             else:
                 if self.hkl == True:
@@ -6997,23 +7110,23 @@ class signal_fit(object):
 
             flag.append(self.i_use[i])
 
-            if rtg == [False,False,True,True]:
+            if rtg == [False,False,True,True] and not (getattr(self, 'mass_parameterization', False) and self.mod_dynamical):
                 flag.append(False) #
-            elif rtg == [False,False,True,False]:
+            elif rtg == [False,False,True,False] and not (getattr(self, 'mass_parameterization', False) and self.mod_dynamical):
                 flag.append(False) #
             else:
                 flag.append(self.Node_use[i])
 
-            par_str.append(self.K_str[i])
+            par_str.append(getattr(self, amplitude + '_str')[i])
             par_str.append(self.P_str[i])
 
-            bounds.append(self.K_bound[i])
+            bounds.append(getattr(self, amplitude + '_bound')[i])
             bounds.append(self.P_bound[i])
 
-            prior_nr.append(self.K_norm_pr[i])
+            prior_nr.append(getattr(self, amplitude + '_norm_pr')[i])
             prior_nr.append(self.P_norm_pr[i])
 
-            prior_jeff.append(self.K_jeff_pr[i])
+            prior_jeff.append(getattr(self, amplitude + '_jeff_pr')[i])
             prior_jeff.append(self.P_jeff_pr[i])
 
 
@@ -7171,7 +7284,7 @@ class signal_fit(object):
                 flag.append(False)
             else:
                 flag.append(self.t0_use[i])
-                flag.append(self.pl_a_use[i] and (not self.rho or i == self.mcmc_planet_slots[0]))
+                flag.append(self.pl_a_use[i] and not getattr(self, 'stellar_mass_radius', False) and (not self.rho or i == self.mcmc_planet_slots[0]))
                 flag.append(self.pl_rad_use[i])
 
 
@@ -7408,6 +7521,18 @@ class signal_fit(object):
         from magnetic_cycle import pack as pack_cycle
         pack_cycle(self, par, flag, par_str, bounds, prior_nr, prior_jeff)
 
+        from stellar_parameters import ensure_stellar_settings, radius_mode, validate_stellar_prior
+        ensure_stellar_settings(self)
+        self.stellar_radius_parameter_index = None
+        if radius_mode(self):
+            self.stellar_radius_parameter_index = len(par)
+            par.append(self.stellar_radius)
+            flag.append(self.stellar_radius_use)
+            par_str.append(self.stellar_radius_str)
+            bounds.append(validate_stellar_prior(self, 'stellar_radius'))
+            prior_nr.append(self.stellar_radius_norm_pr)
+            prior_jeff.append(self.stellar_radius_jeff_pr)
+
        #### Astr. & Stellar parameters #####
        
 
@@ -7459,11 +7584,11 @@ class signal_fit(object):
          
                 
         par.append(self.params.stellar_mass)
-        flag.append(self.use.use_stellar_mass)
+        flag.append(self.stellar_mass_use or self.use.use_stellar_mass)
         par_str.append(self.stellar_mass_str)
-        bounds.append(self.stellar_mass_bounds[0])
-        prior_nr.append(self.stellar_mass_norm_pr[0])
-        prior_jeff.append(self.stellar_mass_jeff_pr[0])
+        bounds.append(validate_stellar_prior(self, 'stellar_mass'))
+        prior_nr.append(self.stellar_mass_norm_pr)
+        prior_jeff.append(self.stellar_mass_jeff_pr)
         
 #        print(par)
 #        print(flag)

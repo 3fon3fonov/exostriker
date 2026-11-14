@@ -1,5 +1,5 @@
 <!-- **T**ransit and **R**adial velocity **I**nteractive **F**itting tool for **O**rbital analysis and **N**-body simulations: -->
-**The Exo-Striker — version 0.97.2**
+**The Exo-Striker — version 0.97.4**
 
 <p align="center">
   <img width="400" src="./exostriker/source/png/33_striker.png">

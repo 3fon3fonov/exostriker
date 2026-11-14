@@ -56,6 +56,7 @@ if not sys.warnoptions:
     warnings.simplefilter("ignore")
 
 import RV_mod as rv
+from mass_parameterization import amplitude_root, ensure_mass_settings, sync_amplitudes, model_vector
 
 import pyqtgraph as pg
 import pyqtgraph.console as pg_console
@@ -383,7 +384,9 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             self.radioButton_ewm.setChecked(True)
             
-        if fit.rho == True:
+        if getattr(fit, 'stellar_mass_radius', False):
+            self.radioButton_stellar_mass_radius.setChecked(True)
+        elif fit.rho == True:
             self.radioButton_rho.setChecked(True)
         else:
             self.radioButton_aR.setChecked(True)            
@@ -393,6 +396,9 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def update_gui_params(self, include_inactive=False):
         global fit
+        ensure_mass_settings(fit)
+        sync_amplitudes(fit)
+        self.sync_mass_controls()
         self.activity_gp_controls.refresh()
         self.magnetic_cycle_controls.refresh()
 
@@ -508,11 +514,15 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def update_params(self):
         global fit
+        ensure_mass_settings(fit)
  
         for i in range(9):
 
             fit.P[i] = self.param_gui_P[i].value()
-            fit.K[i] = self.param_gui_K[i].value()
+            if fit.mass_parameterization:
+                fit.mp[i] = getattr(self, 'mp' + str(i+1)).value()
+            else:
+                fit.K[i] = self.param_gui_K[i].value()
             fit.i[i] = self.param_gui_incl[i].value()
             fit.Node[i] = self.param_gui_Omega[i].value()
 
@@ -625,6 +635,10 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         self.Epoch_ast_end.setValue(fit.epoch_ast_end)
 
 
+        sync_amplitudes(fit)
+        if hasattr(self, 'mass_controls'):
+            self.mass_controls.sync_values()
+
     def read_tra_GP(self):
         global fit  
 
@@ -684,6 +698,39 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         fit.ast_mu_delta_dot[0] = self.param_gui_ast[6].value()
         fit.ast_mu_delta_ddot[0] = self.param_gui_ast[8].value()
             
+
+    def sync_mass_controls(self):
+        """Synchronize the separate Designer K and mass controls."""
+        global fit
+        ensure_mass_settings(fit)
+        if hasattr(self, 'mass_controls'):
+            self.mass_controls.sync()
+
+    def set_mass_parameterization(self, enabled):
+        """Switch the existing amplitude editor, preserving orbit and prior settings."""
+        global fit
+        from mass_parameterization import set_mass_mode
+        self.update_use()
+        self.update_params()
+        self.check_bounds()
+        self.check_priors_nr()
+        self.check_priors_jeff()
+        try:
+            set_mass_mode(fit, enabled)
+        except ValueError as exc:
+            self.sync_mass_controls()
+            self.statusBar().showMessage(str(exc), 10000)
+            return
+        blockers = [QtCore.QSignalBlocker(widget) for widget in self.findChildren(QtWidgets.QWidget)]
+        try:
+            self.sync_mass_controls()
+            self.update_gui_params(include_inactive=True)
+            self.update_use_from_session()
+            self.update_bounds()
+            self.update_nr_prior()
+            self.update_jeff_prior()
+        finally:
+            del blockers
 
     def set_hkl(self):
         global fit  
@@ -750,7 +797,12 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         global fit
         from stellar_density import set_density_mode
         self.update_params()
-        set_density_mode(fit, self.radioButton_rho.isChecked())
+        from stellar_parameters import set_radius_mode
+        if self.radioButton_stellar_mass_radius.isChecked():
+            set_radius_mode(fit, True)
+        else:
+            set_radius_mode(fit, False)
+            set_density_mode(fit, self.radioButton_rho.isChecked())
         self.update_gui_params()
         self.mute_boxes()
         self.update_use_from_session()
@@ -868,6 +920,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
     def update_errors(self):
         global fit
+        ensure_mass_settings(fit)
         for label in getattr(self, '_scipy_unavailable_error_labels', ()):
             label.setToolTip('')
         self._scipy_unavailable_error_labels = []
@@ -877,7 +930,14 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                 continue
 
             self.param_errors_gui_P[i].setText("+/- %.3f"%max(np.abs(fit.P_err[i])))
-            self.param_errors_gui_K[i].setText("+/- %.3f"%max(np.abs(fit.K_err[i])))
+            if fit.mass_parameterization:
+                self.param_errors_gui_K[i].setText('+/- 0.000')
+                getattr(self, 'err_mp' + str(i+1)).setText(
+                    '+/- %.3f' % max(np.abs(fit.mp_err[i])))
+            else:
+                self.param_errors_gui_K[i].setText(
+                    '+/- %.3f' % max(np.abs(fit.K_err[i])))
+                getattr(self, 'err_mp' + str(i+1)).setText('+/- 0.000')
 
             if fit.hkl == True:
                 self.param_errors_gui_e[i].setText("+/- %.3f"%max(np.abs(fit.e_sinw_err[i])))
@@ -969,27 +1029,25 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
     def update_a_mass(self):
         global fit
+        if hasattr(self, 'mass_controls'):
+            sync_amplitudes(fit)
+            self.mass_controls.sync_values()
         if not any(fit.type_fit.get(kind, False) for kind in ('RV', 'AST', 'TTV')):
             return
         try:
             if fit.mod_dynamical:
-                masses, axes = fit.fit_results.mass, fit.fit_results.a
+                axes = fit.fit_results.a
             else:
-                masses, axes = rv.update_jacobi_masses(fit)
+                _, axes = rv.update_jacobi_masses(fit)
         except ValueError as exc:
             for i, active in enumerate(fit.use_planet):
                 self.param_a_gui[i].setText('undefined' if active else '0.00000')
-                self.param_mass_gui[i].setText('undefined' if active else '0.00000')
                 self.param_mass_gui[i].setToolTip(str(exc))
                 self.param_a_gui[i].setToolTip(str(exc))
             return
         for i in range(9):
             self.param_a_gui[i].setText("%.5f" % axes[i])
-            self.param_mass_gui[i].setText("%.5f" % masses[i])
             self.param_t_peri_gui[i].setText("%.4f" % fit.t_peri[i])
-            self.param_mass_gui[i].setToolTip(
-                'Planet mass [Mjup] at the fitted/assumed inclination. '
-                'At i=90 degrees this is the RV minimum mass.')
             self.param_a_gui[i].setToolTip(
                 'Jacobi semi-major axis [AU], relative to the centre of mass '
                 'of the star and shorter-period planets, using their physical masses.')
@@ -1000,11 +1058,15 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
     def update_use_from_session(self):
         global fit
+        ensure_mass_settings(fit)
+        if hasattr(self, 'mass_controls'):
+            self.mass_controls.sync_values()
  
         
         for i in range(9):
             #self.use_param_gui[i].setChecked(bool(fit.use.use_planet_params[i]))
             self.use_param_gui_K[i].setChecked(bool(fit.K_use[i]))
+            getattr(self, 'use_mp' + str(i+1)).setChecked(bool(fit.mp_use[i]))
             self.use_param_gui_P[i].setChecked(bool(fit.P_use[i]))
             self.use_param_gui_incl[i].setChecked(bool(fit.i_use[i]))
             self.use_param_gui_Omega[i].setChecked(bool(fit.Node_use[i]))
@@ -1130,6 +1192,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
     def update_use(self):
         global fit
+        ensure_mass_settings(fit)
         
 
         for i in range(9):  
@@ -1151,6 +1214,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
             fit.P_use[i] = int(self.use_param_gui_P[i].isChecked())
             fit.K_use[i] = int(self.use_param_gui_K[i].isChecked())
+            fit.mp_use[i] = int(getattr(self, 'use_mp' + str(i+1)).isChecked())
             fit.i_use[i] = int(self.use_param_gui_incl[i].isChecked())
             fit.Node_use[i] = int(self.use_param_gui_Omega[i].isChecked()) 
 
@@ -1304,7 +1368,8 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         if fit_object is not fit:
             return
         planet_columns = dict(K=0, P=1, e=2, w=3, M0=4, i=5, Node=6,t0=7,pl_rad=8,pl_a=9)
-        extra = dict(omega_dot=('om_dot_bounds_gui', 'om_dot_norm_pr_gui', 'om_dot_jeff_pr_gui'),
+        extra = dict(mp=('mp_bounds_gui', 'mp_norm_pr_gui', 'mp_jeff_pr_gui'),
+                     omega_dot=('om_dot_bounds_gui', 'om_dot_norm_pr_gui', 'om_dot_jeff_pr_gui'),
                      e_sinw=('h_bounds_gui', 'h_norm_pr_gui', 'h_jeff_pr_gui'),
                      e_cosw=('k_bounds_gui', 'k_norm_pr_gui', 'k_jeff_pr_gui'),
                      lamb=('lambda_bounds_gui', 'lambda_norm_pr_gui', 'lambda_jeff_pr_gui'),
@@ -1363,6 +1428,8 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
     def update_bounds(self):
         global fit
+        if hasattr(self, 'mass_controls'):
+            self.mass_controls.sync_priors()
         if hasattr(self, "stellar_density_controls"):
             self.stellar_density_controls.sync()
        
@@ -1499,6 +1566,8 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
     def update_nr_prior(self):
         global fit
+        if hasattr(self, 'mass_controls'):
+            self.mass_controls.sync_priors()
 
 
         for i in range(9):
@@ -1643,6 +1712,8 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
     def update_jeff_prior(self):
         global fit
+        if hasattr(self, 'mass_controls'):
+            self.mass_controls.sync_priors()
 
         for i in range(9):
             for z in range(2):
@@ -1798,6 +1869,8 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
     def check_bounds(self):
         global fit
+        if hasattr(self, 'mass_controls'):
+            self.mass_controls.read_priors()
         self.check_dilution()
 
         for i in range(9):
@@ -2176,6 +2249,8 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
     def check_priors_nr(self):
         global fit
+        if hasattr(self, 'mass_controls'):
+            self.mass_controls.read_priors()
 
         for i in range(9):
             for z in range(2):
@@ -2312,6 +2387,8 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             
     def check_priors_jeff(self):
         global fit
+        if hasattr(self, 'mass_controls'):
+            self.mass_controls.read_priors()
 
         for i in range(9):
             for z in range(2):
@@ -5742,6 +5819,18 @@ Polyfit coefficients:
             )
 
 
+    def get_activity_jitter_color(self):
+        """Choose the separate activity jitter error-bar color."""
+
+        global fit
+        current = getattr(fit, 'activity_jitter_color', '#000000')
+        color = choose_color(self, current, 'Activity jitter color')
+        if not color.isValid():
+            return
+        fit.activity_jitter_color = color.name()
+        self.update_activity_data_plots(self.comboBox_act_data.currentIndex())
+
+
     def update_activity_data_plots(self,ind):
         """Draw activity data, optional model, residuals and display overlays."""
 
@@ -5755,6 +5844,11 @@ Polyfit coefficients:
             self.cross_hair(p5, log=False)
         if ind not in fit.act_data_sets or not len(fit.act_data_sets[ind]):
             return
+        jitter_color = getattr(fit, 'activity_jitter_color', '#000000')
+        self.act_jitter_color_button.setStyleSheet('color: %s;' % jitter_color)
+        self.act_split_jitter.setEnabled(self.act_jitter_to_plots.isChecked())
+        self.act_jitter_color_button.setEnabled(
+            self.act_jitter_to_plots.isChecked() and self.act_split_jitter.isChecked())
         residual = self.act_plot_o_c.isChecked()
         t, y, err, model = self.get_activity_plot_data(ind, residual)
         color = dill.copy(fit.act_colors[ind]) + '%02x' % int(fit.pyqt_color_alpha_act[ind])
@@ -5764,7 +5858,21 @@ Polyfit coefficients:
                 symbolSize=dill.copy(fit.pyqt_symbols_size_act[ind]),
                 enableAutoRange=True, viewRect=True, symbolBrush=color,
                 name=str(fit.act_data_sets[ind][-1]))
-        err1 = pg.ErrorBarItem(x=t, y=y, top=err, bottom=err, beam=0.0, pen=color)
+        display_error = err
+        if self.act_jitter_to_plots.isChecked():
+            settings = getattr(fit, 'activity_gp', {}).get(ind, {})
+            jitter = settings.get('jitter', {}).get('value', 0.0)
+            total_error = np.hypot(err, jitter)
+            if self.act_split_jitter.isChecked():
+                jitter_bars = pg.ErrorBarItem(
+                    x=t, y=y, top=total_error, bottom=total_error,
+                    beam=0.0, pen=jitter_color)
+                jitter_bars.setZValue(-10)
+                p5.addItem(jitter_bars)
+            else:
+                display_error = total_error
+        err1 = pg.ErrorBarItem(
+            x=t, y=y, top=display_error, bottom=display_error, beam=0.0, pen=color)
         p5.addItem(err1)
         p5.addItem(pg.InfiniteLine(pos=0., angle=0, pen=pg.mkPen('#ff9933', width=0.8)), ignoreBounds=True)
         if model is not None and not residual:
@@ -6177,11 +6285,11 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             if fit.npl > 0:
                 
                 if fit.rtg[0] == False:
-                    ast_loglik = rv.ast_loglik(fit.parameters,vel_files, ast_files,fit.npl,fit.params.stellar_mass,times,fit.hkl,fit_results = False, return_model = True)
+                    ast_loglik = rv.ast_loglik(model_vector(fit),vel_files, ast_files,fit.npl,fit.params.stellar_mass,times,fit.hkl,fit_results = False, return_model = True)
                 else:
-                    ast_loglik = rv.ast_loglik(fit.parameters,vel_files, ast_files,fit.npl,fit.params.stellar_mass,times,fit.hkl,fit_results =fit.fit_results, return_model = True)
+                    ast_loglik = rv.ast_loglik(model_vector(fit),vel_files, ast_files,fit.npl,fit.params.stellar_mass,times,fit.hkl,fit_results =fit.fit_results, return_model = True)
 
-               # print("TEst", rv.ast_loglik(fit.parameters,vel_files, ast_files,fit.npl,fit.params.stellar_mass,times,fit.hkl,fit_results = False, return_model = False))   
+               # print("TEst", rv.ast_loglik(model_vector(fit),vel_files, ast_files,fit.npl,fit.params.stellar_mass,times,fit.hkl,fit_results = False, return_model = False))   
 
                 if ast_loglik == None:
                     print("Something went wrong when calculating astr. lnL....")
@@ -6309,7 +6417,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         # Absolute astrometry belongs to the star/system, including npl=0.
         # Legacy planet-selector fields in the dataset do not select its orbit.
         ast_loglik = rv.ast_loglik_gaia(
-            fit.parameters, vel_files, ast_files, fit.npl, fit.params.stellar_mass,
+            model_vector(fit), vel_files, ast_files, fit.npl, fit.params.stellar_mass,
             times, fit.hkl, fit_results=fit.fit_results if fit.rtg[0] else False,
             return_model=True, model_max=self.ast_model_max_range.value(),
             model_samp=self.ast_points_to_draw_model.value())
@@ -6551,7 +6659,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         # Absolute astrometry belongs to the star/system, including npl=0.
         # Legacy planet-selector fields in the dataset do not select its orbit.
         ast_loglik = rv.ast_loglik_hipp(
-            fit.parameters, vel_files, ast_files, fit.npl, fit.params.stellar_mass,
+            model_vector(fit), vel_files, ast_files, fit.npl, fit.params.stellar_mass,
             times, fit.hkl, fit_results=fit.fit_results if fit.rtg[0] else False,
             return_model=True, model_max=self.ast_model_max_range.value(),
             model_samp=self.ast_points_to_draw_model.value())
@@ -10353,14 +10461,20 @@ Transit duration: %s d
             self.use_data_jitter_gui[i].setEnabled(enabled)
 
     def update_dyn_kep_flag(self):
+        """Preserve the current orbit when changing the mass convention."""
         global fit
-
-        if self.radioButton_Dynamical.isChecked():
-            fit.mod_dynamical = True
+        from mass_parameterization import set_mass_mode
+        dynamic = self.radioButton_Dynamical.isChecked()
+        mass_mode = getattr(fit, 'mass_parameterization', False)
+        if mass_mode and dynamic != fit.mod_dynamical:
+            self.update_params()
+            set_mass_mode(fit, False)
+            fit.mod_dynamical = dynamic
+            set_mass_mode(fit, True)
+            self.update_gui_params()
         else:
-            fit.mod_dynamical = False
-            
-          
+            fit.mod_dynamical = dynamic
+
     def optimize_fit(self,ff=20,m_ln=True, doGP=False, gp_kernel_id=-1, auto_fit = False, minimize_fortran=True, discovery=False):
         global fit
         from magnetic_cycle import active as cycle_active
@@ -10818,7 +10932,7 @@ will be highly appreciated!
  
                     if qso_mode==True:
                         fit.P_use[i] = True
-                        fit.K_use[i] = True
+                        getattr(fit, amplitude_root(fit) + '_use')[i] = True
                         fit.e_use[i] = False
                         fit.w_use[i] = False
                         fit.M0_use[i] = True
@@ -10826,7 +10940,7 @@ will be highly appreciated!
                         fit.Node_use[i] = False      
                     else:
                         fit.P_use[i] = True
-                        fit.K_use[i] = True
+                        getattr(fit, amplitude_root(fit) + '_use')[i] = True
                         fit.e_use[i] = True
                         fit.w_use[i] = True
                         fit.M0_use[i] = True
@@ -10850,7 +10964,7 @@ will be highly appreciated!
 
                 if qso_mode==True:
                     fit.P_use[i] = True
-                    fit.K_use[i] = True
+                    getattr(fit, amplitude_root(fit) + '_use')[i] = True
                     fit.e_use[i] = False
                     fit.w_use[i] = False
                     fit.M0_use[i] = True
@@ -10858,7 +10972,7 @@ will be highly appreciated!
                     fit.Node_use[i] = False  
                 else:
                     fit.P_use[i] = True
-                    fit.K_use[i] = True
+                    getattr(fit, amplitude_root(fit) + '_use')[i] = True
                     fit.e_use[i] = True
                     fit.w_use[i] = True
                     fit.M0_use[i] = True
@@ -12628,6 +12742,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
 
     def mute_boxes(self):
         global fit
+        ensure_mass_settings(fit)
 
 #        self.get_jupyter_vars()
         
@@ -12789,9 +12904,14 @@ Please install via 'pip install ttvfast'.
                 if not self.radioButton_omega_dot_GR.isChecked(): 
                     om_flag = True
  
+        if getattr(fit, 'mass_parameterization', False) and fit.mod_dynamical:
+            K_flag = True
+
         for i in range(9):
-            self.param_gui_K[i].setEnabled(K_flag)
-            self.use_param_gui_K[i].setEnabled(K_flag)
+            self.param_gui_K[i].setEnabled(K_flag and not fit.mass_parameterization)
+            self.use_param_gui_K[i].setEnabled(K_flag and not fit.mass_parameterization)
+            getattr(self, 'mp' + str(i+1)).setEnabled(K_flag and fit.mass_parameterization)
+            getattr(self, 'use_mp' + str(i+1)).setEnabled(K_flag and fit.mass_parameterization)
             self.param_gui_ma[i].setEnabled(ma_flag)
             self.use_param_gui_ma[i].setEnabled(ma_flag)
 
@@ -12843,6 +12963,9 @@ Please install via 'pip install ttvfast'.
             print("Use only RV jitter boolean for data 1, and mute the rest!")
         
 
+
+        if hasattr(self, 'stellar_density_controls'):
+            self.stellar_density_controls.sync()
 
     ### NOT used anymore 
     def mute_boxes_dyn(self):
@@ -13516,6 +13639,9 @@ Please install via 'pip install ttvfast'.
 
     def update_GUI_St_params(self):
         global fit
+
+        if hasattr(self, 'stellar_density_controls'):
+            self.stellar_density_controls.sync()
 
         self.Stellar_mass_input.setValue(fit.stellar_mass)
         self.Stellar_radius_input.setValue(fit.stellar_radius)       
@@ -15162,6 +15288,8 @@ Please install via 'pip install ttvfast'.
         self.SciPy_estimate_errors_checkBox.toggled.connect(self.check_scipy_min)
         from stellar_density_controls import StellarDensityControls
         self.stellar_density_controls = StellarDensityControls(self, lambda: fit)
+        from mass_parameter_controls import MassParameterControls
+        self.mass_controls = MassParameterControls(self, lambda: fit)
         from fortran_optimizer_controls import FortranOptimizerControls
         self.fortran_optimizer_controls = FortranOptimizerControls(self, lambda: fit)
         self.init_fortran_combo()
@@ -15239,6 +15367,9 @@ Please install via 'pip install ttvfast'.
         self.act_plot_legend.toggled.connect(lambda: self.update_activity_data_plots(self.comboBox_act_data.currentIndex()))
         self.act_plot_o_c.toggled.connect(lambda: self.update_activity_data_plots(self.comboBox_act_data.currentIndex()))
         self.gls_act_o_c.toggled.connect(lambda: self.update_activity_gls_plots(self.comboBox_act_data_gls.currentIndex()))
+        self.act_jitter_to_plots.toggled.connect(lambda: self.update_activity_data_plots(self.comboBox_act_data.currentIndex()))
+        self.act_split_jitter.toggled.connect(lambda: self.update_activity_data_plots(self.comboBox_act_data.currentIndex()))
+        self.act_jitter_color_button.clicked.connect(self.get_activity_jitter_color)
         self.act_model_width.valueChanged.connect(lambda: self.update_activity_data_plots(self.comboBox_act_data.currentIndex()))
         for i in range(20):
             getattr(self, 'act_data_size_%s' % (i+1)).valueChanged.connect(self.check_act_symbol_sizes)
@@ -15325,10 +15456,12 @@ Please install via 'pip install ttvfast'.
         self.button_ns_posterior_statistics.clicked.connect(lambda: self.show_posterior_statistics('nest'))
 
 
-        self.radioButton_rho.toggled.connect(self.set_aR)
+        self.buttonGroup_use_rho_aR.buttonToggled.connect(
+            lambda button, checked: self.set_aR() if checked else None)
         self.radioButton_ewm.toggled.connect(self.set_hkl)
 #        self.radioButton_hkl.toggled.connect(self.set_hkl)
         self.radioButton_KP.toggled.connect(self.set_kp_ma)
+        self.radioButton_plmass.toggled.connect(self.set_mass_parameterization)
  
  
         self.radioButton_gaia_std_sol.toggled.connect(self.check_std_ast_solution)

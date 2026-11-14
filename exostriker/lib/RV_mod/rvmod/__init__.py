@@ -944,6 +944,11 @@ def GetModelDefaults():
     from model_only import GetModelDefaults as get_defaults
     return get_defaults()
 
+def GetGaiaDR4(*args, **kwargs):
+    """Create synthetic absolute Gaia DR4 astrometry and optionally a .d file."""
+    from gaia_synthetic import GetGaiaDR4 as simulate_gaia
+    return simulate_gaia(*args, **kwargs)
+
 def GetModelFromSession(*args, **kwargs):
     """Predict models from a session's planet parameters or a posterior row."""
     from model_posterior import GetModelFromSession as evaluate_session

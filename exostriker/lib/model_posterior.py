@@ -42,7 +42,7 @@ class SessionModelAdapter:
         if session.get_TTVs[0]:
             raise ValueError('Independent fitted per-event time shifts require a custom posterior evaluator.')
         self.orbits = np.array([[getattr(session, name)[slot] for name in
-                                ('K', 'P', 'e', 'w', 'M0', 'i', 'Node')]
+                                ('mp' if getattr(session, 'mass_parameterization', False) else 'K', 'P', 'e', 'w', 'M0', 'i', 'Node')]
                                for slot in self.slots], float).reshape(-1, 7)
         if session.hkl:
             for j, slot in enumerate(self.slots):
@@ -159,6 +159,9 @@ class SessionModelAdapter:
             orbits[:, 3] = omega
         if self.mode == 'nbody' and session.copl_incl and len(orbits):
             orbits[:, 5] = orbits[0, 5]
+        if getattr(session, 'mass_parameterization', False):
+            from mass_parameterization import masses_to_k
+            orbits[:, 0] = masses_to_k(orbits, orbits[:, 0].copy(), mass, self.mode == 'nbody')
         planets = {}
         fields = ('K', 'P', 'e', 'omega', 'M0', 'inclination', 'node')
         for j, slot in enumerate(self.slots):

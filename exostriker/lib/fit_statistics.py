@@ -103,10 +103,13 @@ def component_parameter_counts(prepared):
     block(len(getattr(prepared, 'tra_dil_parameter_indices', {})), ('Transit',))
     block(len(getattr(prepared, 'activity_gp_indices', {})), ('RV',))
     block(len(getattr(prepared, 'magnetic_cycle_indices', {})), ('RV',))
+    if getattr(prepared, 'stellar_mass_radius', False):
+        block(1, ('Transit', 'TTV'))  # physical stellar radius
     block(5, ('Astrometry',))  # catalogue position, parallax and proper-motion corrections
     stellar = block(1)
-    if dynamical:
+    if dynamical or getattr(prepared, 'mass_parameterization', False):
         roles['RV'].update(stellar)
+    if dynamical or getattr(prepared, 'stellar_mass_radius', False):
         roles['Transit'].update(stellar)
     roles['TTV'].update(stellar)
     if not prepared.use_ast_hipp_gaia:

@@ -21,7 +21,8 @@ def configure(session, opt):
     if backend not in ('auto', 'native', 'legacy'):
         raise ValueError('transit_likelihood_backend must be auto, native or legacy.')
     reason = None
-    if not (session.type_fit.get('Transit') or session.type_fit.get('TTV')):
+    from stellar_parameters import fitted_stellar, radius_mode
+    if not (session.type_fit.get('Transit') or session.type_fit.get('TTV') or fitted_stellar(session)):
         reason = 'transit/timing likelihood is not selected'
     elif cycle_active(session):
         reason = 'deterministic magnetic cycle (Python likelihood)'
@@ -52,6 +53,8 @@ def configure(session, opt):
     opt['native_context'] = None
     opt['native_joint_problem'] = None
     if not enabled:
+        if radius_mode(session):
+            raise ValueError('Stellar mass/radius geometry requires the native joint likelihood: ' + session.likelihood_backend_reason)
         return
     names = (
         'type_fit',
@@ -95,6 +98,11 @@ def configure(session, opt):
         'get_TTVs',
     )
     values = {name: copy.deepcopy(getattr(session, name)) for name in names}
+    from mass_parameterization import ensure_mass_settings
+    ensure_mass_settings(session)
+    values.update(mass_parameterization=session.mass_parameterization, mp=copy.deepcopy(session.mp),
+                  stellar_mass_radius=radius_mode(session),
+                  stellar_radius_parameter_index=getattr(session, 'stellar_radius_parameter_index', None))
     values.update(rv_data_sets=session.rv_data_sets, tra_data_sets=session.tra_data_sets,
                   native_jacobi_convention=getattr(session, 'native_jacobi_convention', 'auto'),
                   params=SimpleNamespace(stellar_mass=session.params.stellar_mass),
@@ -114,20 +122,21 @@ def trial_session(par, npl, ndset, tr_model, opt):
     slots = opt['planet_slots']
     datasets = opt['dataset_slots']
     # Never mutate the context shared by sampler calls or the GUI session.
-    for name in ('K','P','e','w','M0','i','Node','e_sinw','e_cosw','lamb','t0','pl_a','pl_rad',
+    for name in ('mp','K','P','e','w','M0','i','Node','e_sinw','e_cosw','lamb','t0','pl_a','pl_rad',
                  'rvoff','jitt','tra_off','tra_jitt','tra_lintr','tra_quadtr','tra_dil',
                  'ld_u_lin','ld_u_quad','ld_u_nonlin'):
         setattr(s, name, copy.deepcopy(getattr(s, name)))
     rows = np.asarray(par[2 * ndset:2 * ndset + 7 * npl]).reshape(npl, 7)
+    from mass_parameterization import amplitude_root
     names = (
-        'K',
+        amplitude_root(s),
         'P',
         'e_sinw',
         'e_cosw',
         'lamb',
         'i',
         'Node',
-    ) if s.hkl else ('K', 'P', 'e', 'w', 'M0', 'i', 'Node')
+    ) if s.hkl else (amplitude_root(s), 'P', 'e', 'w', 'M0', 'i', 'Node')
     for (j, slot) in enumerate(slots):
         for (k, name) in enumerate(names):
             getattr(s, name)[slot] = rows[j, k]
@@ -161,9 +170,15 @@ def trial_session(par, npl, ndset, tr_model, opt):
         s.tra_dil[d] = par[index]
     # The stellar mass is the final entry of the established parameter vector.
     s.params = SimpleNamespace(stellar_mass=float(par[-1]))
+    if getattr(s, 'stellar_mass_radius', False):
+        s.stellar_radius = float(par[s.stellar_radius_parameter_index])
+    from stellar_parameters import sync_stellar
+    sync_stellar(s)
     if s.mod_dynamical and s.copl_incl and len(slots):
         for slot in slots:
             s.i[slot] = s.i[slots[0]]
+    from mass_parameterization import sync_amplitudes
+    sync_amplitudes(s)
     return s
 
 
@@ -398,6 +413,8 @@ def publish_results(obj, par, opt, tr_model, errors, free_indices):
         values = np.zeros((9, 2))
         for (j, i) in enumerate(slots):
             values[i] = [getattr(s, name)[i], max(errors[2 * ndset + 7 * j + k])]
+            if name == 'K' and getattr(s, 'mass_parameterization', False):
+                values[i, 1] = np.nan
         setattr(r, field, values)
     rows = np.array([[s.K[i], s.P[i], s.e[i], s.w[i], s.M0[i], s.i[i], s.Node[i]] for i in slots]).reshape(
         -1,

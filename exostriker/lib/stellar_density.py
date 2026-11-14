@@ -33,6 +33,8 @@ def density_limits(session):
 def set_density_mode(session, enabled):
     """Keep density and a/Rstar values distinct when switching GUI coordinates."""
     enabled = bool(enabled)
+    if enabled:
+        session.stellar_mass_radius = False
     if enabled == session.rho:
         return
     slots = list(np.flatnonzero(session.use_planet))

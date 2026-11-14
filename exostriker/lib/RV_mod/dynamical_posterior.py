@@ -97,6 +97,8 @@ def orbital_draw(fit, sample, labels, *, validate_mapping_only=False):
     if set(slots) != set(active_slots) or not slots:
         raise ValueError('Active planets changed since sampling')
     roots = ['K', 'P', 'e_sinw', 'e_cosw', 'lamb', 'i', 'Node'] if fit.hkl else ['K', 'P', 'e', 'w', 'M0', 'i', 'Node']
+    if getattr(fit, 'mass_parameterization', False):
+        roots[0] = 'mp'
     elements = np.array([[getattr(fit, r)[s] for r in roots] for s in slots], dtype=float)
     stellar_mass = float(fit.stellar_mass)
     for col, index in enumerate(flags):
@@ -120,6 +122,9 @@ def orbital_draw(fit, sample, labels, *, validate_mapping_only=False):
     elements = elements[order]
     if getattr(fit, 'copl_incl', False):
         elements[:, 5] = elements[0, 5]
+    if getattr(fit, 'mass_parameterization', False):
+        from mass_parameterization import masses_to_k
+        elements[:, 0] = masses_to_k(elements, elements[:, 0].copy(), stellar_mass, fit.mod_dynamical)
     masses, axes = mass_a_from_jacobi_el(elements, len(elements), stellar_mass)
     planets = np.column_stack((masses / 1047.5654817267318, axes,
                                elements[:, 2], elements[:, 5], elements[:, 3],

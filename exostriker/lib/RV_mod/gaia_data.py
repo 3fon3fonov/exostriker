@@ -21,10 +21,12 @@ def prepare_gaia_dataset(dataset):
     """
     data, header = dataset[0], dataset[3]
     solution = tuple(float(header[key]) for key in _STANDARD_KEYS)
+    reference_epoch = float(header.get('RefEpoch', 2017.5))
     metadata = header.get(_METADATA_KEY)
-    if metadata is not None and metadata['solution'] == solution:
+    if (metadata is not None and metadata['solution'] == solution
+            and metadata.get('reference_epoch', 2017.5) == reference_epoch):
         return data
-    if not np.all(np.isfinite(solution)):
+    if not np.all(np.isfinite((*solution, reference_epoch))):
         raise ValueError('Gaia catalogue position, parallax and proper motion must be finite')
 
     data = np.asarray(data, dtype=float)
@@ -40,10 +42,16 @@ def prepare_gaia_dataset(dataset):
     residual = raw_al.copy()
     for row, parameter in zip(data[2:5], solution[2:]):
         residual -= row * parameter
+    # gaia_init uses J2017.5 internally. A catalogue at another epoch needs
+    # the corresponding constant proper-motion displacement removed as well.
+    epoch_shift = 2017.5 - reference_epoch
+    if epoch_shift != 0.:
+        residual -= epoch_shift * (data[0] * solution[3] + data[1] * solution[4])
     prepared = data.copy()
     prepared[-2] = residual
     prepared_header = header.copy()
-    prepared_header[_METADATA_KEY] = {'solution': solution, 'raw_al': raw_al}
+    prepared_header[_METADATA_KEY] = {
+        'solution': solution, 'raw_al': raw_al, 'reference_epoch': reference_epoch}
     # Publish only after validation and calculation, keeping a failed import
     # or header edit from leaving a partially prepared record.
     dataset[0], dataset[3] = prepared, prepared_header

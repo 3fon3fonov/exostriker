@@ -114,7 +114,8 @@ contains
 end subroutine joint_timing_likelihood
 
 ! Native bounded Gaussian-likelihood optimization. No interpreter callbacks.
-! Packed inputs: 10 orbital entries per planet (K,P,e,w,M,i,node,t0,aR,RpR),
+! Packed inputs: 10 orbital entries per planet (K/mp,P,e,w,M,i,node,t0,aR,RpR),
+! settings(6)=1 selects Jupiter-mass coordinates; zero retains the default K.
 ! stellar mass/radius, RV trends, RV offset/jitter pairs, LC offset/jitter/LD4/
 ! linear/quadratic/dilution, and ten TTV rho/RpR pairs. Indices are one-based.
 subroutine native_joint_fit(initial,free_index,lower,upper,scale,packed,map, &
@@ -601,30 +602,48 @@ contains
             enddo
             permutation(jp+1)=kk
         enddo
-        masses=0.d0;inner=sm
+        ! Convert mass coordinates once, retaining direct physical N-body masses.
+        masses=0.d0
+        inner=sm
+        if(settings(6)==1.d0) then
+            do ip=1,npl
+                kk=permutation(ip)
+                masses(ip)=planets(kk,1)/1047.5654817267318d0
+                coeff=(2.d0*pi*1.32712440018d20/(planets(kk,2)*86400.d0))**(1.d0/3.d0)
+                kbar=coeff*masses(ip)/(inner+masses(ip))**(2.d0/3.d0)
+                if(config(1)==1) then
+                    kbar=kbar*abs(sin(planets(kk,6)*pi/180.d0))
+                endif
+                planets(kk,1)=kbar/sqrt(1.d0-planets(kk,3)**2)
+                inner=inner+masses(ip)
+            enddo
+        endif
+        inner=sm
         do ip=1,npl
             kk=permutation(ip);inverse(kk)=ip
-            kbar=planets(kk,1)*sqrt(1.d0-planets(kk,3)**2)/abs(sin(planets(kk,6)*pi/180.d0))
-            coeff=(2.d0*pi*1.32712440018d20/(planets(kk,2)*86400.d0))**(1.d0/3.d0)
-            ml=0.d0;mh=max(2.d0*kbar*inner**(2.d0/3.d0)/coeff,1.d-12)
-            do tt=1,100
-                if(coeff*mh/(inner+mh)**(2.d0/3.d0)>=kbar) exit
-                mh=mh*2.d0
-            enddo
-            do tt=1,80
-                mid=(ml+mh)*0.5d0
-                if(coeff*mid/(inner+mid)**(2.d0/3.d0)>kbar) then
-                    mh=mid
-                else
-                    ml=mid
-                endif
-            enddo
-            masses(ip)=(ml+mh)*0.5d0
-            if(kbar==0.d0) masses(ip)=0.d0
+            if(settings(6)/=1.d0 .or. config(1)==0) then
+                kbar=planets(kk,1)*sqrt(1.d0-planets(kk,3)**2)/abs(sin(planets(kk,6)*pi/180.d0))
+                coeff=(2.d0*pi*1.32712440018d20/(planets(kk,2)*86400.d0))**(1.d0/3.d0)
+                ml=0.d0;mh=max(2.d0*kbar*inner**(2.d0/3.d0)/coeff,1.d-12)
+                do tt=1,100
+                    if(coeff*mh/(inner+mh)**(2.d0/3.d0)>=kbar) exit
+                    mh=mh*2.d0
+                enddo
+                do tt=1,80
+                    mid=(ml+mh)*0.5d0
+                    if(coeff*mid/(inner+mid)**(2.d0/3.d0)>kbar) then
+                        mh=mid
+                    else
+                        ml=mid
+                    endif
+                enddo
+                masses(ip)=(ml+mh)*0.5d0
+                if(kbar==0.d0) masses(ip)=0.d0
+            endif
             inner=inner+masses(ip)
         enddo
         sorted=planets(permutation,:);tzero=0.d0;tzero(1:npl)=raw(permutation,8)
-        if(.not.any(meta(:,1)==2) .and. config(6)==0) then
+        if((.not.any(meta(:,1)==2) .or. settings(8)==1.d0) .and. config(6)==0) then
             inner=sm
             do ip=1,npl
                 sorted(ip,8)=(1.32712440018d20*(inner+masses(ip))* &

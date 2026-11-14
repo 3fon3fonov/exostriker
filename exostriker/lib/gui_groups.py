@@ -2842,9 +2842,9 @@ def param_a_gui(self):
 def param_mass_gui(self):
 
     param_mass_gui = [
-            self.label_mass1, self.label_mass2, self.label_mass3, 
-            self.label_mass4, self.label_mass5, self.label_mass6, 
-            self.label_mass7, self.label_mass8, self.label_mass9
+            self.mp1, self.mp2, self.mp3, 
+            self.mp4, self.mp5, self.mp6, 
+            self.mp7, self.mp8, self.mp9
             ]
 
     return param_mass_gui

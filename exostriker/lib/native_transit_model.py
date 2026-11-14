@@ -346,6 +346,8 @@ def from_session(session, times=None, *, dataset=0, radius_mode=None, model=None
         if not len(data):
             raise ValueError('The selected transit dataset is empty.')
         times = data[0]
+    from mass_parameterization import mass_model_session
+    session = mass_model_session(session)
     if session.gr_flag:
         raise ValueError('GR is not supported by this Newtonian transit evaluator.')
     slots = list(np.flatnonzero(session.use_planet))
@@ -358,7 +360,7 @@ def from_session(session, times=None, *, dataset=0, radius_mode=None, model=None
         if bool(np.asarray(mixed[0]).item()):
             raise ValueError('Mixed dynamical subsets are not supported by this transit evaluator.')
     if radius_mode is None:
-        radius_mode = 'density' if getattr(session, 'rho', False) or options.get('rho_star') is not None else ('stellar' if model == 'nbody' else 'scaled')
+        radius_mode = 'density' if getattr(session, 'rho', False) or options.get('rho_star') is not None else ('stellar' if model == 'nbody' or getattr(session, 'stellar_mass_radius', False) else 'scaled')
     if any(session.omega_dot[i] != 0 for i in slots):
         raise ValueError('Precession is not supported by this transit evaluator.')
     rows = np.array([[getattr(session, name)[i] for name in

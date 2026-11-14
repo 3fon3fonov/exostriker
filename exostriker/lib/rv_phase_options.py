@@ -1,7 +1,7 @@
 """Display-only RV refolding from cached, absolute-time model samples."""
 import numpy as np
 from collections.abc import Mapping
-from PyQt6 import QtWidgets
+from PyQt6 import QtCore, QtWidgets
 
 
 def raw_signal(fit, slot):
@@ -55,6 +55,8 @@ class RVPhaseOptions(QtWidgets.QDialog):
         ui.setupUi(self)
         self.info, self.mean, self.delta = (ui.info, ui.mean, ui.delta)
         self.points, self.status = (ui.points, ui.status)
+        self.delta_slider = ui.delta_slider
+        self.delta_slider.valueChanged.connect(self.slider_changed)
         gui.extra_plot_RVphase_norm.hide()
         gui.extra_plot_RVphase_norm = ui.normalize
         ui.reset.clicked.connect(self.reset)
@@ -70,7 +72,6 @@ class RVPhaseOptions(QtWidgets.QDialog):
     def configure(self, slot):
         """Load one planet and reset choices when the fitted model changes."""
 
-        from PyQt6 import QtCore
         fit = self.session()
         signature = (id(fit), id(fit.fit_results), tuple(fit.P.items()))
         if signature != self.signature:
@@ -87,6 +88,7 @@ class RVPhaseOptions(QtWidgets.QDialog):
         self.delta.setValue(delta)
         self.points.setChecked(points)
         del blockers
+        self.sync_slider()
         estimate = f'{self.estimate:.9g} days' if self.estimate is not None else 'unavailable'
         self.info.setText(f'Planet {slot + 1}: fitted period {self.nominal:.9g} days.\nMean osculating period: {estimate}.\n{integration_info}\nDisplay only; uses cached model times and leaves the fit unchanged.')
         self.period()
@@ -98,9 +100,27 @@ class RVPhaseOptions(QtWidgets.QDialog):
         self.status.setText(f'Folding period: {value:.9g} days' if value > 0 else 'Period must be positive; showing fitted period.')
         return value if value > 0 else self.nominal
 
+    def sync_slider(self):
+        """Use a fixed ten-percent window around the fitted planetary period."""
+        if self.slot is None:
+            return
+        step = self.delta.singleStep()
+        half_span = max(1, int(np.ceil(0.1 * self.nominal / step)))
+        position = int(round(self.delta.value() / step))
+        blocker = QtCore.QSignalBlocker(self.delta_slider)
+        self.delta_slider.setRange(-half_span, half_span)
+        # Finer or larger offsets entered in the spin box remain unchanged.
+        self.delta_slider.setValue(position)
+        del blocker
+
+    def slider_changed(self, position):
+        """Apply one slider tick as one 0.1-day spin-box step."""
+        self.delta.setValue(position * self.delta.singleStep())
+
     def changed(self, *args):
         """Save the display settings and redraw the selected phase plot."""
 
+        self.sync_slider()
         if self.slot is None:
             return
         self.settings[self.slot] = (self.mean.isChecked(), self.delta.value(), self.points.isChecked())

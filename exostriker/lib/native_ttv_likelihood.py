@@ -131,7 +131,9 @@ def from_session_ttv_likelihood(session, *, store=True, publish=False, **options
     try:
         slots=list(np.flatnonzero(session.use_planet))
         if not slots:raise ValueError('No active planets for native TTV evaluation.')
-        rows=np.array([[getattr(session,name)[i] for name in ('K','P','e','w','M0','i','Node')] for i in slots])
+        from mass_parameterization import mass_model_session
+        model_session = mass_model_session(session)
+        rows=np.array([[getattr(model_session,name)[i] for name in ('K','P','e','w','M0','i','Node')] for i in slots])
         if getattr(session,'hkl',False):
             h=np.array([session.e_sinw[i] for i in slots]);k=np.array([session.e_cosw[i] for i in slots])
             rows[:,2]=np.hypot(h,k);rows[:,3]=np.degrees(np.arctan2(h,k))

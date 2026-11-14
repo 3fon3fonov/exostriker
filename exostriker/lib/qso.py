@@ -799,10 +799,10 @@ def qso_mode(self):
     self.label_a2.setVisible(False)
     self.label_a3.setVisible(False)
 
-    self.label_mp.setVisible(False)
-    self.label_mass1.setVisible(False)
-    self.label_mass2.setVisible(False)
-    self.label_mass3.setVisible(False)
+    self.label_mp_input.setVisible(False)
+    for index in range(1, 4):
+        for prefix in ('mp', 'use_mp', 'err_mp'):
+            getattr(self, prefix + str(index)).setVisible(False)
 
     self.label_tw.setVisible(False)
     self.label_t_peri1.setVisible(False)
