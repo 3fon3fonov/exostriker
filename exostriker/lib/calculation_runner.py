@@ -31,7 +31,10 @@ def main():
         # Keep technical details in Stdout/Stderr, while the GUI dialog shows
         # only the actionable problem rather than internal paths and frames.
         traceback.print_exc()
-        result = ('error', str(exc).strip() or type(exc).__name__)
+        message = str(exc).strip()
+        if isinstance(exc, KeyError):
+            message = f'Missing entry {message}. See Stdout/Stderr for the full traceback.'
+        result = ('error', f'{type(exc).__name__}: {message}' if message else type(exc).__name__)
     temporary = response.with_suffix('.tmp')
     with temporary.open('wb') as stream:
         job_serialization.dump(result, stream)

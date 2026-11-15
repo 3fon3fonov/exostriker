@@ -1,3 +1,4 @@
+from file_dialogs import open_data_file, save_data_file
 from application_paths import package_resource
 from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
@@ -336,7 +337,7 @@ class MainWindow(QMainWindow):
         dlg.show()
 
     def file_open(self):
-        path, _ = QFileDialog.getOpenFileName(self, "Open file", "", "HTML documents (*.html);Text documents (*.txt);All files (*.*)")
+        path, _ = open_data_file(self, "Open file", "", "HTML documents (*.html);Text documents (*.txt);All files (*.*)")
 
         try:
             with open(path, 'r') as f:
@@ -370,7 +371,7 @@ class MainWindow(QMainWindow):
             self.dialog_critical(str(e))
 
     def file_saveas(self):
-        path, _ = QFileDialog.getSaveFileName(self, "Save file", "", "HTML documents (*.html);Text documents (*.txt);All files (*.*)")
+        path, _ = save_data_file(self, "Save file", "", "HTML documents (*.html);Text documents (*.txt);All files (*.*)")
 
         if not path:
             # If dialog is cancelled, will return ''

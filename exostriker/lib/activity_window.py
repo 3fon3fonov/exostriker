@@ -1,3 +1,4 @@
+from file_dialogs import save_data_file
 from application_paths import package_resource
 # -*- coding: utf-8 -*-
 import pyqtgraph as pg
@@ -546,7 +547,7 @@ class ActivityWindow(QtWidgets.QWidget, Ui_ActivityWindow):
 
     def save_data_product(self):
 
-        output_file = QtWidgets.QFileDialog.getSaveFileName(self, 'Save modified data file', 'act_%s'%self.data_file_name, 'All (*.*);;Data (*.tran)', options=QtWidgets.QFileDialog.DontUseNativeDialog)
+        output_file = save_data_file(self, 'Save modified data file', 'act_%s'%self.data_file_name, 'All (*.*);;Data (*.tran)')
         
         if str(output_file[0]) != '':
             f = open(output_file[0], 'w')

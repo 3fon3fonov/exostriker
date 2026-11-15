@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>FileOpenDialog</class>
+ <widget class="QFileDialog" name="FileOpenDialog">
+  <property name="geometry">
+   <rect><x>0</x><y>0</y><width>1200</width><height>760</height></rect>
+  </property>
+  <property name="options">
+   <set>QFileDialog::Option::DontUseNativeDialog</set>
+  </property>
+  <property name="viewMode">
+   <enum>QFileDialog::ViewMode::Detail</enum>
+  </property>
+  <property name="fileMode">
+   <enum>QFileDialog::FileMode::ExistingFile</enum>
+  </property>
+  <property name="acceptMode">
+   <enum>QFileDialog::AcceptMode::AcceptOpen</enum>
+  </property>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

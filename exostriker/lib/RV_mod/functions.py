@@ -91,6 +91,28 @@ def migrate_ttv_datasets(fit):
         datasets[slot] = np.array(values, dtype=object)
 
 
+def extend_legacy_dataset_slots(session, defaults):
+    """Fill missing per-dataset slots without changing saved values.
+
+    Older sessions stored 20 slots; current controllers and model evaluators
+    use 60. Use a fresh session for defaults so loaded observations/settings
+    cannot be borrowed from the session that happened to be open before it.
+    """
+    slots = set(range(60))
+    for name, default_values in defaults.__dict__.items():
+        saved_values = getattr(session, name, None)
+        if isinstance(default_values, list) and len(default_values) == 60:
+            if isinstance(saved_values, list) and len(saved_values) < 60:
+                saved_values.extend(dill.copy(default_values[len(saved_values):]))
+            continue
+        if not isinstance(default_values, dict) or set(default_values) != slots:
+            continue
+        if not isinstance(saved_values, dict):
+            continue
+        for slot in slots - saved_values.keys():
+            saved_values[slot] = dill.copy(default_values[slot])
+
+
 def check_for_missing_instances(fit,fit_new):
     # Old sessions must not inherit joint-activity selections from the open session.
     from activity_gp import ensure as ensure_activity_gp
@@ -173,6 +195,8 @@ def check_for_missing_instances(fit,fit_new):
 
     for name, values in dilution_state.items():
         setattr(fit_new, name, values)
+    from . import signal_fit
+    extend_legacy_dataset_slots(fit_new, signal_fit())
     migrate_ttv_datasets(fit_new)
     fit_new.cwd = dill.copy(fit.cwd)
 

@@ -56,6 +56,7 @@ if not sys.warnoptions:
     warnings.simplefilter("ignore")
 
 import RV_mod as rv
+from file_dialogs import open_data_file, save_data_file
 from mass_parameterization import amplitude_root, ensure_mass_settings, sync_amplitudes, model_vector
 
 import pyqtgraph as pg
@@ -3161,6 +3162,8 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             values[name] = widget.currentIndex() if name in ('tick_direction', 'minor_levels') else widget.value()
         values = normalize_options(values)
         panels = [globals().get(name) for name in ['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7', 'p8', 'p9', 'p10', 'p11', 'p12', 'p13', 'p14', 'p15', 'p16', 'p17', 'p18', 'p19', 'p20', 'pe', 'pdi', 'pcor', 'p_mlp', 'p_ttv', 'p_ttv_oc', 'p_per_ev', 'p00', 'p01', 'p30', 'p31', 'pe2', 'pe0', 'pe1', 'p_ttv_00', 'p_ttv_01', 'p_ast', 'p_ast_oc', 'p_ast_00', 'p_ast_01', 'p_ast_hipp']]
+        for top, bottom, legend in getattr(self, 'transit_variation_panels', {}).values():
+            panels.extend((top, bottom))
         for panel in panels:
             if panel is not None:
                 apply_axis_options(panel, values)
@@ -3178,6 +3181,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                   pe,pdi,pcor,p_mlp,p_ttv,p_ttv_oc,p_per_ev,pe2,p_ast,p_ast_oc,p_ast_hipp]
         upper = [p00,p30,pe0,p_ttv_00,p_ast_00]
         lower = [p01,p31,pe1,p_ttv_01,p_ast_01]
+        for top, bottom, legend in getattr(self, 'transit_variation_panels', {}).values():
+            upper.append(top)
+            lower.append(bottom)
         transit_phase = getattr(self, 'transit_phase_view', None)
         if transit_phase is not None:
             upper.append(transit_phase.top)
@@ -3241,7 +3247,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         pcor = self.graphicsView_corner
         p_mlp = self.graphicsView_peridogram_RV_mlp
         
-        p_ttv = self.graphicsView_timeseries_ttv
+        p_ttv = self.graphicsView_timeseries_depth
         p_ttv_oc = self.graphicsView_timeseries_ttv_o_c
         p_ast = self.graphicsView_timeseries_ast
         p_ast_oc = self.graphicsView_timeseries_ast_o_c
@@ -3323,6 +3329,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.initialize_RV_subplots()
         self.initialize_tra_subplots()
         self.initialize_TTV_subplots()
+        self.initialize_transit_variation_subplots()
         self.initialize_ast_subplots()
         self.initialize_RV_phase_subplots()               
 
@@ -3378,6 +3385,12 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             getter = lambda key=key: globals().get(key)
             bottom = (lambda key=fallback: globals().get(key)) if fallback else None
             sources[key] = (label, getter, bottom)
+        if not qso_mode:
+            for name, title in (('depth', 'Transit Depths'), ('duration', 'Transit Durations')):
+                top = lambda name=name: self.transit_variation_panels[name][0]
+                bottom = lambda name=name: self.transit_variation_panels[name][1]
+                sources[name] = (title, top, bottom)
+                sources[name + '_residuals'] = (title + ' residuals', bottom, None)
         self.extra_plot_mirror = ExtraPlotMirror(self, sources)
 
     def initialize_RV_phase_subplots(self):
@@ -5887,18 +5900,92 @@ Polyfit coefficients:
 
 #### TTV plots ################
  
-    def update_ttv_pl_index(self, o_c = False):
-
-        if o_c == True:
-            pl_ind = self.ttv_o_c_comboBox_pl.currentIndex()
-            self.ttv_comboBox_pl.setCurrentIndex(pl_ind)
-        else:
-            pl_ind = self.ttv_comboBox_pl.currentIndex()
-            #print(pl_ind)
-            self.ttv_o_c_comboBox_pl.setCurrentIndex(pl_ind)
-
+    def update_ttv_pl_index(self, source):
+        """Redraw the plots while preserving each tab's own planet selection."""
         self.update_ttv_plots()
 
+    def initialize_transit_variation_subplots(self):
+        """Create model and residual plots in the Designer-owned variation tabs."""
+        self.transit_variation_panels = {}
+        for name in ('depth', 'duration'):
+            widget = getattr(self, 'graphicsView_timeseries_' + name)
+            layout = pg.GraphicsLayout()
+            widget.setCentralItem(layout)
+            top = layout.addPlot(0, 0)
+            bottom = layout.addPlot(1, 0)
+            bottom.setXLink(top)
+            layout.layout.setRowMinimumHeight(0, 220)
+            layout.layout.setRowMinimumHeight(1, 30)
+            layout.layout.setRowMaximumHeight(1, 150)
+            legend = top.addLegend()
+            for panel in (top, bottom):
+                panel.setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
+                panel.showAxis('top')
+                panel.showAxis('right')
+                panel.getAxis('right').setWidth(12)
+                panel.getAxis('top').setHeight(0)
+                for side in ('left', 'bottom', 'top', 'right'):
+                    panel.getAxis(side).setStyle(tickTextOffset=12, tickFont=self.plot_font)
+                    panel.getAxis(side).enableAutoSIPrefix(enable=False)
+            # Install the custom axis before hiding it; replacing a hidden
+            # axis creates a visible one and puts labels between the panels.
+            top.hideAxis('bottom')
+            top.getAxis('bottom').setStyle(showValues=False)
+            for panel in (top, bottom):
+                panel.getAxis('left').setWidth(
+                    np.rint(60.0 * float(self.plot_font.pointSize()) / 11.0))
+            bottom.getAxis('bottom').setHeight(
+                np.rint(50.0 * float(self.plot_font.pointSize()) / 11.0))
+            layout.layout.setSpacing(0.)
+            layout.setContentsMargins(0., 0., 0., 0.)
+            self.transit_variation_panels[name] = (top, bottom, legend)
+
+    def plot_transit_variation(self, name, dataset, result, times, model_times, index):
+        """Plot depth or duration measurements and residuals on consistent time axes."""
+        global fit
+        top, bottom, legend = self.transit_variation_panels[name]
+        data_column, model_column, label = {
+            'depth': (6, 4, 'Depth [rel. flux]'),
+            'duration': (8, 5, 'Duration [d]'),
+        }[name]
+        model = np.asarray(result[4][index][model_column], dtype=float)
+        if model.size == 0 or model.size != len(model_times):
+            return
+        curve_times = np.asarray(model_times, dtype=float)
+        curve_model = model
+        if self.ttv_model_interpolate.isChecked() and len(model) > 1:
+            kind = ttv_interpol_opt[self.comboBox_ttv_model_interpolate.currentIndex()]
+            interpolate = interp1d(curve_times, model, kind=kind)
+            curve_times = np.linspace(
+                min(curve_times), max(curve_times),
+                num=int(self.ttv_model_interpolate_points.value()))
+            curve_model = interpolate(curve_times)
+        top.setLabel('left', label, units='', **self.plot_font_style())
+        bottom.setLabel('left', 'o-c [rel. flux]' if name == 'depth' else 'o-c [d]', units='', **self.plot_font_style())
+        axis_label = 'N transit' if self.ttv_show_Ntransit.isChecked() else 'BJD [days]'
+        bottom.setLabel('bottom', axis_label, units='', **self.plot_font_style())
+        curve = top.plot(curve_times, curve_model, pen={
+            'color': fit.ttv_colors[-1], 'width': self.ttv_model_width.value() + 1})
+        curve.setZValue(self.ttv_model_z.value())
+        bottom.addLine(y=0, pen=pg.mkPen(fit.ttv_colors[-1], width=self.ttv_model_width.value() + 1))
+        data = np.asarray(dataset[data_column], dtype=float)
+        errors = np.asarray(dataset[data_column + 1], dtype=float)
+        events = np.asarray(result[3][index][0], dtype=int) - 1
+        if len(data) != len(times) or len(errors) != len(data):
+            return
+        if len(events) != len(data) or np.any(events < 0) or np.any(events >= len(model)):
+            return
+        residuals = data - model[events]
+        for panel, values in ((top, data), (bottom, residuals)):
+            panel.plot(
+                times, values, pen=None, symbol=fit.pyqt_symbols_ttv[index],
+                symbolPen={'color': fit.ttv_colors[index], 'width': 1.1},
+                symbolBrush=fit.ttv_colors[index],
+                symbolSize=fit.pyqt_symbols_size_ttv[index],
+                name=dataset[-1] if panel is top else None)
+            panel.addItem(pg.ErrorBarItem(
+                x=times, y=values, top=errors, bottom=errors,
+                beam=0.0, pen=fit.ttv_colors[index]))
 
     def update_ttv_plots(self): 
         global fit, p_ttv, p_ttv_oc,p_ttv_00,p_ttv_01, colors,legend_ttv
@@ -5906,15 +5993,27 @@ Polyfit coefficients:
 
         self.check_ttv_symbol_sizes()
 
-        pl_ind     = self.ttv_comboBox_pl.currentIndex()
-
-
-        p_ttv.plot(clear=True,) 
         p_ttv_oc.plot(clear=True,)
         p_ttv_00.plot(clear=True,)
         p_ttv_01.plot(clear=True,)
+        for name, (top, bottom, legend) in self.transit_variation_panels.items():
+            top.clear()
+            bottom.clear()
+            legend.clear()
+            legend.setVisible(self.ttv_legend.isChecked())
+            if getattr(self, name + '_plot_cross_hair').isChecked():
+                self.cross_hair(top, log=False)
+                self.cross_hair(bottom, log=False)
 
         
+        timing_planet = self.ttv_o_c_comboBox_pl.currentData()
+        variation_planets = {
+            'depth': self.depth_comboBox_pl.currentData(),
+            'duration': self.duration_comboBox_pl.currentData(),
+        }
+        selected_planets = [timing_planet] + list(variation_planets.values())
+
+
         if fit.type_fit["TTV"] == False:
             #print("No TTV fit selected.")
             return
@@ -5943,11 +6042,14 @@ Polyfit coefficients:
         first_transit = None
         for j in range(len(ttv_files)):
             
-            if len(ttv_files[j]) == 0 or ttv_files[j][4] == False or ttv_files[j][3] != pl_ind+1:
+            if len(ttv_files[j]) == 0 or not ttv_files[j][4]:
                 continue
-            
-            if first_transit is None:
-                first_transit = min([min(ttv_files[x][1]) for x in range(10) if len(ttv_files[x]) != 0 and ttv_files[x][3] == pl_ind+1])
+            planet_number = ttv_files[j][3]
+            if planet_number not in selected_planets:
+                continue
+            first_transit = min(
+                min(dataset[1]) for dataset in ttv_files.values()
+                if len(dataset) != 0 and dataset[3] == planet_number)
             
 
             t = np.array(ttv_files[j][0])
@@ -6044,15 +6146,16 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 flux_o_c = flux-ttv_model_transits
 
 
-            if self.ttv_o_c.isChecked():   
+            ttv_model_ = ttv_model
+            variation_times = np.asarray(model_N_transits, dtype=float).copy()
+            if fit.npl > 0:
+                for name, selected_planet in variation_planets.items():
+                    if planet_number == selected_planet:
+                        self.plot_transit_variation(
+                            name, ttv_files[j], ttv_loglik, t, variation_times, j)
 
-                ttv_data = flux_o_c         
-                ttv_model_ = np.zeros(len(ttv_model)) 
-
-  
-            else:
-                ttv_data = flux         
-                ttv_model_ = ttv_model         
+            if planet_number != timing_planet:
+                continue
 
             if self.ttv_model_interpolate.isChecked():
 
@@ -6066,56 +6169,6 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
             
             
-            if self.show_TDepth_var.isChecked():
-
-                data_ = np.array(ttv_files[j][6])
-                data_err = np.array(ttv_files[j][7])             
-                model = dill.copy(ttv_loglik[4][j][4]) 
-                model_t = dill.copy(ttv_loglik[4][j][0])
-                p_ttv.setLabel('left', 'Depth [rel. flux]', units='',  **self.plot_font_style())
-            
-            elif self.show_TDur_var.isChecked():
-
-                data_ = np.array(ttv_files[j][8])
-                data_err = np.array(ttv_files[j][9])             
-                model = dill.copy(ttv_loglik[4][j][5]) 
-                model_t = dill.copy(ttv_loglik[4][j][0])     
-                p_ttv.setLabel('left', 'Duration [d]', units='',  **self.plot_font_style()) 
-                                     
-            else:
-                data_ = ttv_data
-                data_err = flux_err           
-                model = ttv_model_
-                model_t = model_N_transits            
-                label = 'O-C [d]' if self.ttv_o_c.isChecked() else ('TTV [d]' if self.ttv_show_Ntransit.isChecked() else 'BJD [d]')
-                p_ttv.setLabel('left', label, units='', **self.plot_font_style()) 
-                
-            p_ttv.plot(t, data_,
-            pen=None,
-            symbol=dill.copy(fit.pyqt_symbols_ttv[j]),
-            symbolPen={'color': dill.copy(fit.ttv_colors[j]), 'width': 1.1},
-            symbolSize=dill.copy(fit.pyqt_symbols_size_ttv[j]),enableAutoRange=True,viewRect=True,
-            symbolBrush=dill.copy(fit.ttv_colors[j]) ) 
-            
-            err_ = pg.ErrorBarItem(x=t, y=data_, symbol=dill.copy(fit.pyqt_symbols_ttv[j]),
-                                  # height=flux_err, 
-                                   top=data_err, 
-                                   bottom=data_err,
-                                   beam=0.0, pen=dill.copy(fit.ttv_colors[j]))
-
-            p_ttv.addItem(err_)
-
-            model_curve = p_ttv.plot(model_t,model,  pen={'color':  fit.ttv_colors[-1], 'width': self.ttv_model_width.value()+1}, enableAutoRange=True, viewRect=True )
-            model_curve.setZValue(self.ttv_model_z.value())
-
-            if self.ttv_plot_cross_hair.isChecked():
-                self.cross_hair(p_ttv,log=False)
-
-            #######################################
-            #p_ttv_00.addLine(x=None, y=0,   pen=pg.mkPen('#ff9933', width=0.8))
-
-            # The TDVs-tab o-c toggle applies only to its single-panel view.
-            # Keep the TTVs tab as timing curve above, residuals below.
             timing_label = 'TTV [d]' if self.ttv_show_Ntransit.isChecked() else 'BJD [d]'
             p_ttv_00.setLabel('left', timing_label, units='', **self.plot_font_style())
             model_curve_oc = p_ttv_00.plot(model_N_transits,ttv_model,  pen={'color':  fit.ttv_colors[-1], 'width': self.ttv_model_width.value()+1}, enableAutoRange=True, viewRect=True )
@@ -6165,7 +6218,11 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 self.cross_hair(p_ttv_01,log=False)  
 
         if self.ttv_plot_autorange.isChecked():
-            p_ttv.autoRange()           
+            for top, bottom, legend in self.transit_variation_panels.values():
+                top.autoRange()
+                bottom.autoRange()
+            p_ttv_00.autoRange()
+            p_ttv_01.autoRange()
             p_ttv_oc.autoRange()  
 
 
@@ -6189,21 +6246,19 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
 
     def ttv_pl_combo(self):
+        """Refresh available planets without coupling the three plot selectors."""
         global fit
-
-        self.ttv_comboBox_pl.clear()
-        self.ttv_o_c_comboBox_pl.clear()
-        
-        for i in range(9):
-
-            if not bool(fit.use_planet[i]):
-                continue
-
-            self.ttv_comboBox_pl.addItem('Planet %s'%str(i+1),i+1) 
-            self.ttv_o_c_comboBox_pl.addItem('Planet %s'%str(i+1),i+1) 
-            
-        self.ttv_comboBox_pl.setCurrentIndex(0)
-        self.ttv_o_c_comboBox_pl.setCurrentIndex(0)
+        for control in (self.ttv_o_c_comboBox_pl, self.depth_comboBox_pl,
+                        self.duration_comboBox_pl):
+            selected_planet = control.currentData()
+            blocker = QtCore.QSignalBlocker(control)
+            control.clear()
+            for i in range(9):
+                if fit.use_planet[i]:
+                    control.addItem('Planet %s' % (i + 1), i + 1)
+            index = control.findData(selected_planet)
+            control.setCurrentIndex(index if index >= 0 else 0)
+            del blocker
 
 
 #### Ast plots ################
@@ -8225,7 +8280,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
     def showDialog_fortran_input_file(self):
         global fit, ses_list
  
-        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open session', '', 'Data (*.init)', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
+        input_files = open_data_file(self, 'Open session', '', 'Data (*.init)')
         
         if str(input_files[0]) != '':
             fit_new=rv.signal_fit(str(input_files[0]), 'RVmod session',readinputfile=True)
@@ -8245,7 +8300,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
     def showDialog_RVbank_input_file(self):
         global fit, ses_list
 
-        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open RVBank data', '', 'All (*.*);;Data (*.csv)', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
+        input_files = open_data_file(self, 'Open RVBank data', '', 'All (*.*);;Data (*.csv)')
 
         if str(input_files[0]) != '':
 
@@ -8276,7 +8331,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
     def showDialog_MAROONX_input_file(self):
         global fit, ses_list
 
-        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open MAROON-X data', '', 'All (*.*);;Data (*.csv)', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
+        input_files = open_data_file(self, 'Open MAROON-X data', '', 'All (*.*);;Data (*.csv)')
 
         if str(input_files[0]) != '':
 
@@ -8458,7 +8513,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         global fit
 
         but_ind = self.buttonGroup_add_RV_data.checkedId()   
-        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open %s'%self.data_str, '', 'All (*.*);;Data (*.vels)', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
+        input_files = open_data_file(self, 'Open %s'%self.data_str, '', 'All (*.*);;Data (*.vels)')
 
         if str(input_files[0]) != '':
 
@@ -8633,7 +8688,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         global fit
 
         but_ind = self.buttonGroup_transit_data.checkedId()   
-        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open Transit data', '', 'All (*.*);;Data (*.tran)', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
+        input_files = open_data_file(self, 'Open Transit data', '', 'All (*.*);;Data (*.tran)')
 
         if str(input_files[0]) != '':
             
@@ -8737,7 +8792,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         global fit
 
         but_ind = self.buttonGroup_activity_data.checkedId()   
-        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open Activity data', '', 'All (*.*);;Data (*.act)', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
+        input_files = open_data_file(self, 'Open Activity data', '', 'All (*.*);;Data (*.act)')
 
         if str(input_files[0]) != '':
 
@@ -8795,7 +8850,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         global fit
 
         but_ind = self.buttonGroup_ttv_data.checkedId()   
-        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open TTV data', '', 'All (*.*);;Data (*.ttv)', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
+        input_files = open_data_file(self, 'Open TTV data', '', 'All (*.*);;Data (*.ttv)')
         
         
         planet_N     = self.ttv_data_to_planet[but_ind-1].value()
@@ -8906,7 +8961,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         global fit
 
         but_ind = self.buttonGroup_ast_data.checkedId()   
-        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open Astrometry data', '', 'All (*.*);;Data (*.ast)', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
+        input_files = open_data_file(self, 'Open Astrometry data', '', 'All (*.*);;Data (*.ast)')
         
         
         planet_N     = self.ast_data_to_planet[but_ind-1].value()
@@ -9065,7 +9120,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         global fit
 
         but_ind = self.buttonGroup_ast_data_2.checkedId()   
-        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open Astrometry (Hipp/Gaia) data', '', 'All (*.*);;Data (*.ast)', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
+        input_files = open_data_file(self, 'Open Astrometry (Hipp/Gaia) data', '', 'All (*.*);;Data (*.ast)')
         
         
         planet_N     = self.ast_data_to_planet_2[but_ind-1].value()
@@ -9219,7 +9274,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         global fit
 
         but_ind = self.buttonGroup_ast_data_3.checkedId()   
-        input_files = QtWidgets.QFileDialog.getOpenFileName(self, 'Open Astrometry (Hipp/Gaia) data', '', 'All (*.*);;Data (*.ast)', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
+        input_files = open_data_file(self, 'Open Astrometry (Hipp/Gaia) data', '', 'All (*.*);;Data (*.ast)')
         
         
         planet_N     = self.ast_data_to_planet_3[but_ind-1].value()
@@ -11239,7 +11294,7 @@ will be highly appreciated!
     def open_session(self):
         global fit,ses_list
 
-        input_file = QtWidgets.QFileDialog.getOpenFileName(self, 'Open session', '', 'Data (*.ses)', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
+        input_file = open_data_file(self, 'Open session', '', 'Data (*.ses)')
 
         if str(input_file[0]) != '':
 
@@ -11275,7 +11330,7 @@ will be highly appreciated!
     def save_session(self):
         global fit
         
-        output_file = QtWidgets.QFileDialog.getSaveFileName(self, 'Save session', '%s.ses'%fit.name, 'Data (*.ses)', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
+        output_file = save_data_file(self, 'Save session', '%s.ses'%fit.name, 'Data (*.ses)')
 
 
         if str(output_file[0]) != '':
@@ -11302,7 +11357,7 @@ will be highly appreciated!
     def open_sessions(self):
         global fit, ses_list
 
-        input_file = QtWidgets.QFileDialog.getOpenFileName(self, 'Open session', '', 'Data (*.mses)', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
+        input_file = open_data_file(self, 'Open session', '', 'Data (*.mses)')
 
         if str(input_file[0]) != '':
 
@@ -11336,7 +11391,7 @@ will be highly appreciated!
     def save_sessions(self):
         global fit, ses_list
 
-        output_file = QtWidgets.QFileDialog.getSaveFileName(self, 'Save multi-session', 'my_sessions.mses', 'Data (*.mses)', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
+        output_file = save_data_file(self, 'Save multi-session', 'my_sessions.mses', 'Data (*.mses)')
 
         if str(output_file[0]) != '':
             self.check_dilution()
@@ -11822,7 +11877,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
     def change_nest_samples_file_name(self):
         global fit
         
-        output_file = QtWidgets.QFileDialog.getSaveFileName(self, 'path and name of the nested samples', '', '', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
+        output_file = save_data_file(self, 'path and name of the nested samples', '', '')
 
         if output_file[0] != '':
             fit.nest_sample_file = output_file[0] 
@@ -12034,7 +12089,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
     def change_mcmc_samples_file_name(self):
         global fit
         
-        output_file = QtWidgets.QFileDialog.getSaveFileName(self, 'path and name of the mcmc samples', '', '', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
+        output_file = save_data_file(self, 'path and name of the mcmc samples', '', '')
         
         if output_file[0] != '':
             fit.mcmc_sample_file = output_file[0] 
@@ -12258,7 +12313,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
     def change_corner_plot_file_name(self, type_plot = "mcmc"):
         global fit
         
-        output_file = QtWidgets.QFileDialog.getSaveFileName(self, 'path and name of the corener plot', '', 'All (*.*);;Data (*.pdf);;Data (*.png)', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
+        output_file = save_data_file(self, 'path and name of the corener plot', '', 'All (*.*);;Data (*.pdf);;Data (*.png)')
         if output_file[0] != '':
             if type_plot == "mcmc":
                 fit.mcmc_corner_plot_file = output_file[0] 
@@ -12489,7 +12544,7 @@ Also, did you setup your priors? By default, the Exo-Striker's priors are WIDELY
             pdi_data_name = path
             pdi_target_name = path
 
-        output_file = QtWidgets.QFileDialog.getSaveFileName(self, 'Save to data (ascii) file', '%s_%s.dat'%(pdi_target_name,pdi_data_name), 'All (*.*);;', options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
+        output_file = save_data_file(self, 'Save to data (ascii) file', '%s_%s.dat'%(pdi_target_name,pdi_data_name), 'All (*.*);;')
 
         try:         
             x_pdi = dill.copy(pdi.plotItem.items[3].opts["x"])
@@ -13521,11 +13576,11 @@ Please install via 'pip install ttvfast'.
         #screen = QtWidgets.QApplication.primaryScreen()
         #p =  screen.grabWindow(0)
         #painter.setRenderHint(QtGui.QPainter.Antialiasing, self.params['antialias'])
-       # filename = QtWidgets.QFileDialog.getSaveFileName(self, 'Save image', filter="PNG(*.png);; JPEG(*.jpg)")
+       # filename = save_data_file(self, 'Save image', file_filter="PNG(*.png);; JPEG(*.jpg)")
         #p.save(filename[0], 'jpg')        
         #label.setPixmap(p)        # just for fun :)
-        img, _ = QtWidgets.QFileDialog.getSaveFileName(self,"Save image",
-                                            filter="PNG(*.png);; JPEG(*.jpg)", options=QtWidgets.QFileDialog.Option.DontUseNativeDialog)
+        img, _ = save_data_file(self,"Save image",
+                                            file_filter="PNG(*.png);; JPEG(*.jpg)")
         if img[-3:] == "png":
             p.save(img, "png")
         elif img[-3:] == "jpg":
@@ -13767,6 +13822,7 @@ Please install via 'pip install ttvfast'.
             if self.save_session() is False:
                 event.ignore()
                 return
+        self.term_emb.shutdown()
         warmup = getattr(self, '_initialization_warmup', None)
         if warmup is not None:
             warmup.shutdown()
@@ -14758,7 +14814,7 @@ Please install via 'pip install ttvfast'.
         
         self.console_widget = ConsoleWidget_embed(font_size = 10)
         
-        self.terminal_embeded.addTab(self.console_widget, "Jupyter")
+        self.terminal_embeded.insertTab(0, self.console_widget, "Jupyter")
         
         ###################### Console #############################
         
@@ -14766,11 +14822,10 @@ Please install via 'pip install ttvfast'.
         #self.terminal_embeded.addTab(self.tree_view_tab, "tree")
       
         
-        #if sys.platform[0:5] == "linux":
-        #    self.term_emb = terminal.mainWindow()
-        #    self.terminal_embeded.addTab(self.term_emb, "Bash shell")
+        self.term_emb = terminal.EmbeddedXTerm(self)
 
         self.terminal_embeded.addTab(pg_console.ConsoleWidget(), "pqg shell")
+        self.terminal_embeded.setCurrentWidget(self.console_widget)
 
         if openai_not_found != True:
             self.chat_widget = ChatWidget()
@@ -14902,8 +14957,6 @@ Please install via 'pip install ttvfast'.
         self.ttv_model_interpolate_points.valueChanged.connect(self.update_ttv_plots)
         self.ttv_model_interpolate.stateChanged.connect(self.update_ttv_plots)
         
-        self.show_TDepth_var.stateChanged.connect(self.update_ttv_plots)
-        self.show_TDur_var.stateChanged.connect(self.update_ttv_plots)        
 
         self.comboBox_ttv_model_interpolate.activated.connect(self.update_ttv_plots)
 
@@ -14923,13 +14976,15 @@ Please install via 'pip install ttvfast'.
         self.ttv_data_planet_10.valueChanged.connect(self.ttv_dataset_to_planet)
 
         self.ttv_pl_combo()
-        self.ttv_comboBox_pl.activated.connect(lambda: self.update_ttv_pl_index(o_c =False))
-        self.ttv_o_c_comboBox_pl.activated.connect(lambda: self.update_ttv_pl_index(o_c =True))
+        for control in (self.ttv_o_c_comboBox_pl, self.depth_comboBox_pl,
+                        self.duration_comboBox_pl):
+            control.activated.connect(
+                lambda index, source=control: self.update_ttv_pl_index(source))
 
-        self.ttv_plot_cross_hair.stateChanged.connect(self.update_ttv_plots)
+        self.depth_plot_cross_hair.stateChanged.connect(self.update_ttv_plots)
         self.ttv_o_c_plot_cross_hair.stateChanged.connect(self.update_ttv_plots)
 
-        self.ttv_o_c.stateChanged.connect(self.update_ttv_plots) 
+        self.duration_plot_cross_hair.stateChanged.connect(self.update_ttv_plots) 
 
         self.ttv_apply_mean_period.stateChanged.connect(self.update_ttv_plots)
 
@@ -15770,7 +15825,7 @@ def main():
         window.resize(int(width*0.8), int(height*0.8))
     else:
         pass
-    
+
 #    window.installEventFilter(window)
 
     window.show()

@@ -8,3 +8,6 @@ python3.11 -m PyQt6.uic.pyuic sample_correlation_options.ui -o ../sample_correla
 python3.11 -m PyQt6.uic.pyuic rv_phase_options.ui -o ../rv_phase_options_ui.py
 
 python3.11 -m PyQt6.uic.pyuic transit_phase_options.ui -o ../transit_phase_options_ui.py
+python3.11 -m PyQt6.uic.pyuic file_open.ui -o ../file_open_ui.py
+
+python3.11 -m PyQt6.uic.pyuic xterm_readme.ui -o ../xterm_readme_ui.py

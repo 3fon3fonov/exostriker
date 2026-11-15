@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>XTermReadme</class>
+ <widget class="QDialog" name="XTermReadme">
+  <property name="windowTitle"><string>xterm README</string></property>
+  <property name="geometry"><rect><x>0</x><y>0</y><width>760</width><height>650</height></rect></property>
+  <layout class="QVBoxLayout" name="layout">
+   <item><widget class="QTextBrowser" name="instructions">
+    <property name="openExternalLinks"><bool>true</bool></property>
+    <property name="html"><string>&lt;html&gt;&lt;body&gt;&lt;h2&gt;Embedded xterm&lt;/h2&gt;
+&lt;h3&gt;Menus&lt;/h3&gt;&lt;ul&gt;&lt;li&gt;Ctrl + right-click: fonts.&lt;/li&gt;&lt;li&gt;Ctrl + middle-click: terminal options.&lt;/li&gt;&lt;li&gt;Ctrl + left-click: main options.&lt;/li&gt;&lt;/ul&gt;
+&lt;h3&gt;Colors, font and scrollback&lt;/h3&gt;&lt;p&gt;Add or update these entries in &lt;b&gt;~/.Xresources&lt;/b&gt;:&lt;/p&gt;
+&lt;pre&gt;XTerm*background: #1e1e1e
+XTerm*foreground: #dddddd
+XTerm*cursorColor: #ffffff
+XTerm*faceName: DejaVu Sans Mono
+XTerm*faceSize: 11
+XTerm*saveLines: 10000
+XTerm*scrollBar: true&lt;/pre&gt;
+&lt;p&gt;Apply with:&lt;/p&gt;&lt;pre&gt;xrdb -merge ~/.Xresources&lt;/pre&gt;
+&lt;p&gt;Restart Exo-Striker to apply the appearance to its terminal. These settings also affect other xterm windows. Shell prompt and command colors are configured separately in your shell.&lt;/p&gt;
+&lt;h3&gt;Availability&lt;/h3&gt;&lt;p&gt;Xterm is not installed by default on every Linux distribution. Install it with your distribution's package manager, for example:&lt;/p&gt;
+&lt;pre&gt;Ubuntu / Debian: sudo apt install xterm
+Fedora:          sudo dnf install xterm
+Arch Linux:      sudo pacman -S xterm&lt;/pre&gt;
+&lt;p&gt;&lt;a href="https://invisible-island.net/xterm/manpage/xterm.html"&gt;Official xterm manual&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string></property>
+   </widget></item>
+   <item><widget class="QDialogButtonBox" name="buttons">
+    <property name="standardButtons"><set>QDialogButtonBox::StandardButton::Close</set></property>
+   </widget></item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections><connection><sender>buttons</sender><signal>rejected()</signal><receiver>XTermReadme</receiver><slot>reject()</slot></connection></connections>
+</ui>

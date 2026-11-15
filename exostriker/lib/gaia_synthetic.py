@@ -64,14 +64,16 @@ class GaiaDR4Simulation:
         """Write absolute centroids and the stellar header used by the importer."""
         path = Path(path)
         with path.open('w' if overwrite else 'x') as stream:
-            stream.write('# Synthetic Gaia DR4 nominal scanning-law astrometry\n')
+            stream.write('# Synthetic Gaia DR4 along-scan astrometry\n')
             stream.write(f'# Source {self.source_id}; reference epoch J{REFERENCE_EPOCH} TCB\n')
             stream.write('# Absolute AL centroids include parallax and proper motion\n')
-            stream.write('# One synthetic observation per nominal field-of-view transit\n')
+            stream.write('# Geometry: supplied samples or nominal field-of-view transits\n')
             stream.write('# Independent Gaussian noise; no Gaia instrument noise model\n')
             stream.write('# Catalogue errors retained without covariance propagation\n')
             stream.write(f'# Original catalogue epoch J{self.catalogue_epoch}\n#\n#\n')
             fields = (*HEADER_FIELDS, 'RefEpoch')
+            if 'ALOffsetRA' in self.header:
+                fields += ('ALOffsetRA', 'ALOffsetDE', 'ALRefRA', 'ALRefDE')
             stream.write('# ' + ' '.join(fields) + '\n')
             stream.write('# ' + ' '.join(str(self.header[key]) for key in fields) + '\n#\n')
             stream.write('# transit_id ccd t_JD_TCB centroid_AL_mas sigma_AL_mas '
@@ -84,7 +86,7 @@ class GaiaDR4Simulation:
 def GetGaiaDR4(planets, source_id=None, *, epoch=None, stellar_mass=None, sigma_al=0.1,
                seed=None, add_noise=True, catalogue=None, scan_data=None,
                output=None, overwrite=False, inclinations=None, Omega=None,
-               omega_convention='stellar'):
+               omega_convention='stellar', reference_position=None):
     """Create absolute along-scan astrometry from GetModel orbital parameters.
 
     planets uses GetModel's named dictionaries: K [m/s], P [days], e,
@@ -117,6 +119,10 @@ def GetGaiaDR4(planets, source_id=None, *, epoch=None, stellar_mass=None, sigma_
     omega_convention='stellar' matches Exo-Striker's Gaia likelihood, which
     uses the fitted omega directly. 'companion' adds 180 degrees, matching
     generic GetModel astrometry's companion-to-stellar conversion.
+    reference_position optionally supplies the AL coordinate origin as
+    (RA, Dec) in degrees. The published catalogue position can differ from
+    this origin; its east/north displacement is then included in the AL data
+    and recorded in the header for subtraction on import.
     """
     from model_only import _planet_parameters, _validate_rv_orbits
 
@@ -229,6 +235,19 @@ def GetGaiaDR4(planets, source_id=None, *, epoch=None, stellar_mass=None, sigma_
     header['DEdeg'] += header['pm_DE'] * elapsed / 3600000.
     if not -90 < header['DEdeg'] < 90:
         raise ValueError('Propagated catalogue position crosses a celestial pole.')
+    position_offsets = np.zeros(2)
+    if reference_position is not None:
+        reference = np.asarray(reference_position, dtype=float)
+        if reference.shape != (2,) or not np.all(np.isfinite(reference)):
+            raise ValueError('reference_position must contain finite RA and Dec in degrees.')
+        if not 0. <= reference[0] < 360. or not -90. < reference[1] < 90.:
+            raise ValueError('reference_position requires RA in [0,360), Dec in (-90,90).')
+        # Linear tangent-plane offsets, consistent with the Gaia fitter.
+        delta_ra = (header['RAdeg'] - reference[0] + 180.) % 360. - 180.
+        position_offsets[0] = delta_ra * np.cos(np.deg2rad(header['DEdeg'])) * 3600000.
+        position_offsets[1] = (header['DEdeg'] - reference[1]) * 3600000.
+        header.update(ALOffsetRA=position_offsets[0], ALOffsetDE=position_offsets[1],
+                      ALRefRA=reference[0], ALRefDE=reference[1])
 
     # Use the same omega and RV-to-angular-axis formula as ast_loglik_gaia /
     # a_from_K_in_mas, including its AU constant. A 180-degree reversal here
@@ -258,6 +277,7 @@ def GetGaiaDR4(planets, source_id=None, *, epoch=None, stellar_mass=None, sigma_
     scan_north = np.sin(np.pi / 2. - angles)
     baseline = (factors * header['Plx'] + relative_years * (
         scan_east * header['pm_RA'] + scan_north * header['pm_DE']))
+    baseline += scan_east * position_offsets[0] + scan_north * position_offsets[1]
     model = baseline + orbit
     # Follow GetModel's seed validation and leave global RNG state untouched.
     if seed is not None and (isinstance(seed, (bool, np.bool_))

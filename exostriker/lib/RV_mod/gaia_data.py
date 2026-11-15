@@ -22,11 +22,14 @@ def prepare_gaia_dataset(dataset):
     data, header = dataset[0], dataset[3]
     solution = tuple(float(header[key]) for key in _STANDARD_KEYS)
     reference_epoch = float(header.get('RefEpoch', 2017.5))
+    reference_offsets = (float(header.get('ALOffsetRA', 0.)),
+                         float(header.get('ALOffsetDE', 0.)))
     metadata = header.get(_METADATA_KEY)
     if (metadata is not None and metadata['solution'] == solution
-            and metadata.get('reference_epoch', 2017.5) == reference_epoch):
+            and metadata.get('reference_epoch', 2017.5) == reference_epoch
+            and metadata.get('reference_offsets', (0., 0.)) == reference_offsets):
         return data
-    if not np.all(np.isfinite((*solution, reference_epoch))):
+    if not np.all(np.isfinite((*solution, reference_epoch, *reference_offsets))):
         raise ValueError('Gaia catalogue position, parallax and proper motion must be finite')
 
     data = np.asarray(data, dtype=float)
@@ -47,11 +50,14 @@ def prepare_gaia_dataset(dataset):
     epoch_shift = 2017.5 - reference_epoch
     if epoch_shift != 0.:
         residual -= epoch_shift * (data[0] * solution[3] + data[1] * solution[4])
+    if reference_offsets != (0., 0.):
+        residual -= data[0] * reference_offsets[0] + data[1] * reference_offsets[1]
     prepared = data.copy()
     prepared[-2] = residual
     prepared_header = header.copy()
     prepared_header[_METADATA_KEY] = {
-        'solution': solution, 'raw_al': raw_al, 'reference_epoch': reference_epoch}
+        'solution': solution, 'raw_al': raw_al, 'reference_epoch': reference_epoch,
+        'reference_offsets': reference_offsets}
     # Publish only after validation and calculation, keeping a failed import
     # or header edit from leaving a partially prepared record.
     dataset[0], dataset[3] = prepared, prepared_header

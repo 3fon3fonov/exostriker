@@ -982,22 +982,22 @@
               </item>
              </layout>
             </widget>
-            <widget class="QWidget" name="Phot_o_c_timeseries_plot_2">
+            <widget class="QWidget" name="depth_timeseries_tab">
              <attribute name="title">
-              <string>TDVs</string>
+              <string>Transit Depths</string>
              </attribute>
-             <layout class="QGridLayout" name="gridLayout_263">
+             <layout class="QGridLayout" name="depth_gridLayout_312">
               <item row="0" column="0">
-               <layout class="QGridLayout" name="gridLayout_336">
+               <layout class="QGridLayout" name="depth_gridLayout_341">
                 <item row="0" column="0">
-                 <widget class="PlotWidget" name="graphicsView_timeseries_ttv"/>
+                 <widget class="PlotWidget" name="graphicsView_timeseries_depth" />
                 </item>
                </layout>
               </item>
               <item row="1" column="0">
-               <layout class="QGridLayout" name="gridLayout_248">
+               <layout class="QGridLayout" name="depth_gridLayout_283">
                 <item row="0" column="0">
-                 <widget class="QPushButton" name="ttv_print_info">
+                 <widget class="QPushButton" name="depth_print_info">
                   <property name="enabled">
                    <bool>false</bool>
                   </property>
@@ -1015,41 +1015,11 @@
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="3">
-                 <widget class="QCheckBox" name="ttv_o_c">
-                  <property name="text">
-                   <string>o-c</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="4">
-                 <widget class="QCheckBox" name="show_TDepth_var">
-                  <property name="text">
-                   <string>DepthVs</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="2">
-                 <widget class="QCheckBox" name="ttv_plot_cross_hair">
-                  <property name="font">
-                   <font>
-                    <pointsize>9</pointsize>
-                    <italic>false</italic>
-                    <bold>false</bold>
-                    <stylestrategy>PreferDefault</stylestrategy>
-                    <kerning>true</kerning>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Cross hair</string>
-                  </property>
-                 </widget>
-                </item>
                 <item row="0" column="1">
-                 <widget class="QComboBox" name="ttv_comboBox_pl"/>
+                 <widget class="QComboBox" name="depth_comboBox_pl" />
                 </item>
-                <item row="0" column="6">
-                 <spacer name="horizontalSpacer_154">
+                <item row="0" column="3">
+                 <spacer name="depth_horizontalSpacer_155">
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
                   </property>
@@ -1061,10 +1031,88 @@
                   </property>
                  </spacer>
                 </item>
-                <item row="0" column="5">
-                 <widget class="QCheckBox" name="show_TDur_var">
+                <item row="0" column="2">
+                 <widget class="QCheckBox" name="depth_plot_cross_hair">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
                   <property name="text">
-                   <string>DurationVs</string>
+                   <string> Cross hair</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="duration_timeseries_tab">
+             <attribute name="title">
+              <string>Transit Durations</string>
+             </attribute>
+             <layout class="QGridLayout" name="duration_gridLayout_312">
+              <item row="0" column="0">
+               <layout class="QGridLayout" name="duration_gridLayout_341">
+                <item row="0" column="0">
+                 <widget class="PlotWidget" name="graphicsView_timeseries_duration" />
+                </item>
+               </layout>
+              </item>
+              <item row="1" column="0">
+               <layout class="QGridLayout" name="duration_gridLayout_283">
+                <item row="0" column="0">
+                 <widget class="QPushButton" name="duration_print_info">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Print info</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QComboBox" name="duration_comboBox_pl" />
+                </item>
+                <item row="0" column="3">
+                 <spacer name="duration_horizontalSpacer_155">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item row="0" column="2">
+                 <widget class="QCheckBox" name="duration_plot_cross_hair">
+                  <property name="font">
+                   <font>
+                    <pointsize>9</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                    <stylestrategy>PreferDefault</stylestrategy>
+                    <kerning>true</kerning>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string> Cross hair</string>
                   </property>
                  </widget>
                 </item>
@@ -2158,8 +2206,34 @@
             <item row="0" column="0">
              <widget class="QTabWidget" name="terminal_embeded">
               <property name="currentIndex">
-               <number>-1</number>
+               <number>0</number>
               </property>
+              <widget class="QWidget" name="xterm_tab">
+               <attribute name="title"><string>xterm</string></attribute>
+               <layout class="QVBoxLayout" name="xterm_layout">
+                <property name="leftMargin"><number>9</number></property>
+                <property name="topMargin"><number>9</number></property>
+                <property name="rightMargin"><number>9</number></property>
+                <property name="bottomMargin"><number>9</number></property>
+                <item><widget class="QFrame" name="xterm_frame">
+                 <property name="frameShape"><enum>QFrame::StyledPanel</enum></property>
+                 <property name="frameShadow"><enum>QFrame::Sunken</enum></property>
+                 <layout class="QVBoxLayout" name="xterm_frame_layout">
+                  <property name="leftMargin"><number>0</number></property>
+                  <property name="topMargin"><number>0</number></property>
+                  <property name="rightMargin"><number>0</number></property>
+                  <property name="bottomMargin"><number>0</number></property>
+                  <item><widget class="QWidget" name="xterm_container" native="true">
+                   <property name="sizePolicy"><sizepolicy hsizetype="Expanding" vsizetype="Expanding"><horstretch>0</horstretch><verstretch>0</verstretch></sizepolicy></property>
+                  </widget></item>
+                 </layout>
+                </widget></item>
+                <item alignment="Qt::AlignRight"><widget class="QPushButton" name="xterm_readme_button">
+                 <property name="text"><string>README</string></property>
+                 <property name="toolTip"><string>Open xterm appearance and usage instructions</string></property>
+                </widget></item>
+               </layout>
+              </widget>
              </widget>
             </item>
            </layout>
