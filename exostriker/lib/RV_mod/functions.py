@@ -1510,8 +1510,13 @@ def _corner_stellar_draws(value, uncertainty, count):
     return np.random.normal(loc=float(center.reshape(-1)[0]), scale=sigma, size=count)
 
 
-def _corner_radius_draws(obj, samples, labels, sampler):
+def _corner_radius_draws(obj, samples, labels, sampler, value=None, uncertainty=None):
     """Select external stellar measurements or correlated model-radius draws."""
+    if value is not None or uncertainty is not None:
+        center = obj.st_radius if value is None else value
+        sigma = obj.st_radius_err if uncertainty is None else uncertainty
+        return _corner_stellar_draws(center, sigma, len(samples))
+
     source = getattr(obj, 'planet_radius_stellar_source', 'auto')
     if source not in ('auto', 'external', 'model'):
         raise ValueError('Unknown stellar-radius source for planet-radius propagation.')
@@ -1529,6 +1534,23 @@ def _corner_radius_draws(obj, samples, labels, sampler):
     if getattr(obj, 'rho', False) and density_label in labels and 'stellar_radius' in stellar_samples:
         return np.asarray(stellar_samples['stellar_radius'], float)
     return _corner_stellar_draws(obj.stellar_radius, obj.stellar_radius_err, len(samples))
+
+
+def _corner_mass_draws(obj, samples, labels, value=None, uncertainty=None):
+    """Use explicit measurements, sampled mass, or external calculator errors."""
+    if value is not None or uncertainty is not None:
+        center = obj.st_mass if value is None else value
+        sigma = obj.st_mass_err if uncertainty is None else uncertainty
+        return _corner_stellar_draws(center, sigma, len(samples))
+
+    label = getattr(obj, 'stellar_mass_str', 'Stellar mass')
+    if label in labels:
+        return np.asarray(samples[:, list(labels).index(label)], float)
+
+    external_error = np.asarray(getattr(obj, 'st_mass_err', 0.), float)
+    if np.any(np.abs(external_error) > 0.):
+        return _corner_stellar_draws(obj.st_mass, external_error, len(samples))
+    return _corner_stellar_draws(obj.stellar_mass, obj.stellar_mass_err, len(samples))
 
 
 def _corner_lambda_samples(obj, samples, labels, slot):
@@ -1600,6 +1622,17 @@ def _corner_nested_logl(sampler, samples):
 
 
 def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
+    """Plot posterior samples with optional external stellar measurements.
+
+    stellar_mass, stellar_mass_err, stellar_radius and stellar_radius_err
+    override propagation inputs in solar units without changing the session or
+    likelihood. Errors may be scalar sigmas or lower/upper pairs. By default,
+    use sampled mass, then calculator mass with nonzero sigma, then model mass;
+    radius follows planet_radius_stellar_source.
+    """
+    stellar_inputs = {}
+    for name in ('stellar_mass', 'stellar_mass_err', 'stellar_radius', 'stellar_radius_err'):
+        stellar_inputs[name] = kwargs.pop(name, None)
 
     statistics_only = kwargs.pop('return_statistics', False)
 
@@ -1765,10 +1798,9 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
 
 
     if mod_labels['mass'] or mod_labels['semimajor']:
-        if getattr(obj, 'stellar_mass_str', 'Stellar mass') in labels:
-            m_s = samples[:, list(labels).index(obj.stellar_mass_str)]
-        else:
-            m_s = _corner_stellar_draws(obj.stellar_mass, obj.stellar_mass_err, len(samples))
+        m_s = _corner_mass_draws(
+            obj, samples, labels,
+            stellar_inputs['stellar_mass'], stellar_inputs['stellar_mass_err'])
         slots, masses, semimajor = _corner_mass_axes(obj, samples, labels, m_s)
         M_fact, mass_lab = (317.82838, r'[M$_\oplus$]') if mod_labels['use_Me'] else ((1./1047.5654817267318, r'[M$_\odot$]') if mod_labels['use_Ms'] else (1., r'[M$_{\rm Jup.}$]'))
         for option, values, factor, symbol, unit in [
@@ -1791,7 +1823,9 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
 
     if mod_labels['radius']:
         sampler = obj.mcmc_sampler if type_plot == 'mcmc' else obj.ns_sampler
-        r_s = _corner_radius_draws(obj, samples, labels, sampler)
+        r_s = _corner_radius_draws(
+            obj, samples, labels, sampler,
+            stellar_inputs['stellar_radius'], stellar_inputs['stellar_radius_err'])
 
         for i in range(9):
             if not bool(obj.use_planet[i]):
@@ -2305,13 +2339,12 @@ def add_jitter(obj, errors, ind):
 
 
 def get_stellar_rotation(obj, print_output=False):
-    '''
-    '''
+    """Estimate rotation period from the calculator radius and vsini."""
     vsini   = float(obj.stellar_vsini)
     vsini_d = float(obj.stellar_vsini_err)
 
-    R   = float(obj.stellar_radius)
-    R_d = float(obj.stellar_radius_err)
+    R = float(obj.st_radius)
+    R_d = float(np.max(np.abs(obj.st_radius_err)))
 
     Rot = (2*np.pi*R*695700.0)/ (vsini * 86400.0)
 
@@ -2326,13 +2359,12 @@ def get_stellar_rotation(obj, print_output=False):
 
 
 def get_rv_scatter(obj, print_output=False,use_kb2011=False):
-    '''
-    '''
+    """Estimate oscillation scatter using the calculator stellar mass."""
     Solar_fact = 0.234
     Solar_fact_d = 0.014
 
-    M   = float(obj.stellar_mass)
-    M_d = float(obj.stellar_mass_err)
+    M = float(obj.st_mass)
+    M_d = float(np.max(np.abs(obj.st_mass_err)))
 
     L   = float(obj.stellar_luminosity)
     L_d = float(obj.stellar_luminosity_err)

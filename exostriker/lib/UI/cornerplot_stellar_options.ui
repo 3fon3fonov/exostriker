@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CornerplotStellarOptions</class>
+ <widget class="QWidget" name="CornerplotStellarOptions">
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QCheckBox" name="mass_check">
+     <property name="text">
+      <string>incl. mass (needed: K,P,e )</string>
+     </property>
+     <property name="toolTip">
+      <string>Stellar mass: uses sampled M★ when available. Otherwise, enter M★ and σ in Stellar param. → RV scatter calculator. A nonzero calculator σ enables external propagation; otherwise the model mass and its errors are used. This also applies to semi-major axes.</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QRadioButton" name="radio_mp_Me">
+     <property name="text">
+      <string>Earth</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QRadioButton" name="radio_mp_Mj">
+     <property name="text">
+      <string>Jupiter</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QRadioButton" name="radio_mp_So">
+     <property name="text">
+      <string>Solar</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="semi_check">
+     <property name="text">
+      <string>incl. semi-major axis (needed: P)</string>
+     </property>
+     <property name="toolTip">
+      <string>Stellar mass: uses sampled M★ when available. Otherwise, enter M★ and σ in Stellar param. → RV scatter calculator. A nonzero calculator σ enables external propagation; otherwise the model mass and its errors are used. This also applies to semi-major axes.</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="radi_check">
+     <property name="text">
+      <string>incl. radius (needed: Rp/Rs)</string>
+     </property>
+     <property name="toolTip">
+      <string>Stellar radius: enter R★ and σ in Stellar param. → RV scatter calculator. The Planet-radius R★ source selector on St. params controls propagation: External always uses these inputs; Automatic uses them when σ is nonzero; Model uses the fitted/model radius.</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QRadioButton" name="radio_Rp_Me">
+     <property name="text">
+      <string>Earth</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QRadioButton" name="radio_Rp_Mj">
+     <property name="text">
+      <string>Jupiter</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QRadioButton" name="radio_Rp_So">
+     <property name="text">
+      <string>Solar</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="stellar_inputs_note">
+     <property name="text">
+      <string>Stellar inputs: enter M★, R★ and their σ in Stellar param. → RV scatter calculator.
+
+Mass and semi-major axis: sampled M★ takes precedence; otherwise use calculator M★ with nonzero σ, then model mass/errors.
+
+Radius: Planet-radius R★ source on St. params selects External (calculator), Automatic (calculator when σ &gt; 0), or Model (fitted/model radius).
+
+These inputs propagate uncertainties. “Derive ρ★ from M★ and R★” is not required.</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>310</width>
+       <height>155</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>900</width>
+       <height>16777215</height>
+      </size>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources />
+ <connections />
+</ui>

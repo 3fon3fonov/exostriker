@@ -2,6 +2,7 @@ import sys #,os
 from PyQt6 import QtWidgets,QtGui 
 import numpy as np
 from color_dialog import choose_color
+from cornerplot_stellar_options_ui import Ui_CornerplotStellarOptions
  
 class show_param_boxes(QtWidgets.QDialog):
 
@@ -61,9 +62,15 @@ class show_param_boxes(QtWidgets.QDialog):
         self.radio_group.addButton(self.radio_best_gui,4)
         self.radio_group.addButton(self.radio_no_cross,5)
 
-        self.radio_mp_So      = QtWidgets.QRadioButton('Solar', self)
-        self.radio_mp_Mj      = QtWidgets.QRadioButton('Jupiter', self)
-        self.radio_mp_Me      = QtWidgets.QRadioButton('Earth', self)        
+        self.stellar_options_panel = QtWidgets.QWidget(self)
+        self.stellar_options = Ui_CornerplotStellarOptions()
+        self.stellar_options.setupUi(self.stellar_options_panel)
+        for name in (
+                'mass_check', 'semi_check', 'radi_check',
+                'radio_mp_So', 'radio_mp_Mj', 'radio_mp_Me',
+                'radio_Rp_So', 'radio_Rp_Mj', 'radio_Rp_Me'):
+            setattr(self, name, getattr(self.stellar_options, name))
+
  
     
         self.radio_group3.addButton(self.radio_mp_So,0)
@@ -71,9 +78,6 @@ class show_param_boxes(QtWidgets.QDialog):
         self.radio_group3.addButton(self.radio_mp_Me,2)
         
         
-        self.radio_Rp_So      = QtWidgets.QRadioButton('Solar', self)
-        self.radio_Rp_Mj      = QtWidgets.QRadioButton('Jupiter', self)
-        self.radio_Rp_Me      = QtWidgets.QRadioButton('Earth', self)        
  
     
         self.radio_group4.addButton(self.radio_Rp_So,0)
@@ -81,9 +85,6 @@ class show_param_boxes(QtWidgets.QDialog):
         self.radio_group4.addButton(self.radio_Rp_Me,2)        
         
     
-        self.mass_check  = QtWidgets.QCheckBox('incl. mass (needed: K,P,e )', self)
-        self.semi_check  = QtWidgets.QCheckBox('incl. semi-major axis (needed: P)', self)
-        self.radi_check  = QtWidgets.QCheckBox('incl. radius (needed: Rp/Rs)', self)
         self.ppm_check   = QtWidgets.QCheckBox('rel. flux --> ppm', self)
         self.lambda_check   = QtWidgets.QCheckBox('incl. lambda (needed: e,omega )', self)
         self.derived_hkl_checks = {}
@@ -326,16 +327,11 @@ class show_param_boxes(QtWidgets.QDialog):
 #            k = g
             #for 
  
+        self.layout.addWidget(self.stellar_options_panel, 0, l+2, 9, 1)
+        self.layout.addWidget(
+            self.stellar_options.stellar_inputs_note, 20, 0, 1, l+5)
+
         #for g in range(4):
-        self.layout.addWidget(self.mass_check, 0, l+2)
-        self.layout.addWidget(self.radio_mp_Me, 1,  l+2)
-        self.layout.addWidget(self.radio_mp_Mj, 2,  l+2)         
-        self.layout.addWidget(self.radio_mp_So, 3, l+2)        
-        self.layout.addWidget(self.semi_check, 4, l+2)
-        self.layout.addWidget(self.radi_check, 5, l+2)
-        self.layout.addWidget(self.radio_Rp_Me, 6,  l+2)
-        self.layout.addWidget(self.radio_Rp_Mj, 7,  l+2)         
-        self.layout.addWidget(self.radio_Rp_So, 8, l+2) 
         self.layout.addWidget(self.lambda_check, 9, l+2)         
         self.layout.addWidget(self.ppm_check, 10, l+2)
         for row, checkbox in enumerate(self.derived_hkl_checks.values(), 12):

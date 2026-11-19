@@ -11,3 +11,5 @@ python3.11 -m PyQt6.uic.pyuic transit_phase_options.ui -o ../transit_phase_optio
 python3.11 -m PyQt6.uic.pyuic file_open.ui -o ../file_open_ui.py
 
 python3.11 -m PyQt6.uic.pyuic xterm_readme.ui -o ../xterm_readme_ui.py
+
+python3.11 -m PyQt6.uic.pyuic cornerplot_stellar_options.ui -o ../cornerplot_stellar_options_ui.py
