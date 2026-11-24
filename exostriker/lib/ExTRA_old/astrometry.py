@@ -3,8 +3,13 @@ import numpy as np
 from numba import jit
 
 from astropy.time import Time
-from astropy.coordinates import solar_system_ephemeris, EarthLocation
-from astropy.coordinates import get_body_barycentric
+from astropy.coordinates import EarthLocation, get_body_barycentric, solar_system_ephemeris
+
+__all__ = [
+    "thiele", "calc_E", "orbit_old", "orbit", "orbit_total", "earth_position",
+    "parallax_factors", "standard_model", "sss_model", "pos_recalc", "secondary_mass",
+    "stand_correct"
+]
 
 
 #calculating thiele constants
@@ -119,6 +124,7 @@ def orbit_total(pars,t):
     Parameters:
     ---------
     pars: numpy array of either shape (7,) if one planet or (n,7) for n planets.
+    An empty array represents the single-star model with no orbital motion.
     the 7 length arrays are made up of P,e,om,i,Om,T0,a in this exact order
 
     Returns:
@@ -126,8 +132,10 @@ def orbit_total(pars,t):
     x_sum,y_sum: sum of positions of planets
     """
 
-    x_sum=0
-    y_sum=0
+    pars = np.asarray(pars, dtype=float)
+    t = np.asarray(t, dtype=float)
+    x_sum = np.zeros_like(t, dtype=float)
+    y_sum = np.zeros_like(t, dtype=float)
 
     if pars.shape==(7,):
         x_sum,y_sum=orbit(pars,t)

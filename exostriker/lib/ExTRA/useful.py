@@ -1,11 +1,12 @@
 import numpy as np
 from astropy.table import Table
 
+
 __all__ = [
     "J1991", "J2016", "J2017", "jitter_estimate", "mas_to_deg", "calc_a",
     "signature", "astropy_to_numpy", "mas_to_rad", "pc_in_km", "au_in_meter",
     "au_mas_parsec", "julian_year_seconds", "astro_unit", "astro_unit_z",
-    "lightyear", "au_km_year_per_sec", "c_0","angular_distance"
+    "lightyear", "au_km_year_per_sec", "c_0","angular_distance",
 ]
 #for cases like Hipparchos its J1991.25, or 2448349.0625JD
 #for gaia it is J2016, or 2456389.0
@@ -37,8 +38,8 @@ def calc_a(M_s,P):
 
 def signature(M_s,M_p,a_p,par):
     """M_s"""
-    
-    s=M_p/M_s *a_p *(par/1000)
+    MJUP_MSUN = 9.5479e-4
+    s=M_p/M_s *a_p *par *MJUP_MSUN
 
     return s
 
@@ -46,7 +47,7 @@ def signature(M_s,M_p,a_p,par):
 
 def astropy_to_numpy(table):
 
-    arr = np.vstack([table[col] for col in table.colnames])
+    arr = np.vstack([table[col] for col in table.colnames]).astype(np.float64)
     return arr
 
 
@@ -91,6 +92,8 @@ lightyear=	9460730472580800/1000 #in km
 au_km_year_per_sec = au_in_meter / (julian_year_seconds * 1000.0)
 
 c_0=299792.458 #kms
+
+
 
 
 

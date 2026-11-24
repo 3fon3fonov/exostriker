@@ -105,6 +105,8 @@ def component_parameter_counts(prepared):
     block(len(getattr(prepared, 'magnetic_cycle_indices', {})), ('RV',))
     if getattr(prepared, 'stellar_mass_radius', False):
         block(1, ('Transit', 'TTV'))  # physical stellar radius
+    if getattr(prepared, 'ast_radial_velocity_index', None) is not None:
+        block(1, ('Astrometry',))
     block(5, ('Astrometry',))  # catalogue position, parallax and proper-motion corrections
     stellar = block(1)
     if dynamical or getattr(prepared, 'mass_parameterization', False):
@@ -279,9 +281,14 @@ def collect_fit_statistics(fit, backend):
                     for dataset in datasets.values() if isinstance(datasets, dict) else datasets:
                         if len(dataset) and dataset[2]:
                             errors.extend(dataset[0][-1])
+                    velocity_options = {
+                        'v_rad': getattr(prepared, 'ast_radial_velocity', 0.0),
+                    }
+                    if attribute == 'ast_data_sets_hipp':
+                        velocity_options['ast_files_gaia'] = prepared.ast_data_sets_gaia
                     loglik += function(*common, datasets, prepared.npl,
                         prepared.params.stellar_mass, prepared.ast_times, prepared.hkl,
-                        fit_results=model_fit, return_model=False)
+                        fit_results=model_fit, return_model=False, **velocity_options)
                 if not errors and not getattr(prepared, 'use_ast_hipp_gaia', True):
                     datasets = prepared.ast_data_sets
                     for dataset in datasets.values() if isinstance(datasets, dict) else datasets:

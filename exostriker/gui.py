@@ -57,7 +57,7 @@ if not sys.warnoptions:
 
 import RV_mod as rv
 from file_dialogs import open_data_file, save_data_file
-from mass_parameterization import amplitude_root, ensure_mass_settings, sync_amplitudes, model_vector
+from mass_parameterization import amplitude_root, ensure_mass_settings, sync_amplitudes, model_vector, physical_mass_mode
 
 import pyqtgraph as pg
 import pyqtgraph.console as pg_console
@@ -81,6 +81,9 @@ from Jupyter_emb import ConsoleWidget_embed
 
 from stdout_pipe import MyDialog, DebugDialog
 from print_info_window import print_info
+from astrometric_velocity import ensure_velocity_settings
+from astrometry_binning import bin_astrometry
+from astrometry_phase import astrometry_plot_times
 from fit_statistics import collect_fit_statistics, dataset_statistics_html, joint_information_criteria, statistics_html
 from symbols_window import show_symbols
 from color_dialog import choose_color
@@ -490,6 +493,10 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
 
  
         
+        ensure_velocity_settings(fit)
+        self.radioButton_astrometry_cartesian.setChecked(fit.astrometric_cartesian)
+        self.radioButton_astrometry_standard.setChecked(not fit.astrometric_cartesian)
+        self.ast_radial_velocity.setValue(fit.ast_radial_velocity)
         self.param_gui_ast[0].setValue(fit.ast_alpha[0])
         self.param_gui_ast[1].setValue(fit.ast_delta[0])
         self.param_gui_ast[2].setValue(fit.ast_pi[0])        
@@ -686,9 +693,18 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
             fit.ld_u_nonlin[i] = [self.nonlin_u1[i].value(),self.nonlin_u2[i].value(),
                                       self.nonlin_u3[i].value(),self.nonlin_u4[i].value()]
 
+    def set_astrometric_mode(self, cartesian):
+        """Retain the selected parametrisation without reading other widgets."""
+        global fit
+        ensure_velocity_settings(fit)
+        fit.astrometric_cartesian = bool(cartesian)
+
     def read_ast(self):
         global fit
             
+        ensure_velocity_settings(fit)
+        fit.astrometric_cartesian = self.radioButton_astrometry_cartesian.isChecked()
+        fit.ast_radial_velocity = self.ast_radial_velocity.value()
         fit.ast_alpha[0]    = self.param_gui_ast[0].value()
         fit.ast_delta[0]    = self.param_gui_ast[1].value()
         fit.ast_pi[0]       = self.param_gui_ast[2].value()
@@ -1009,6 +1025,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             self.err_nonlin_u4[i].setText("+/- %.3f"%max(np.abs(fit.ld_u_nonlin_err[i][3])))
 
 
+        ensure_velocity_settings(fit)
+        velocity_error = np.max(np.abs(fit.ast_radial_velocity_err))
+        self.err_ast_radial_velocity.setText("+/- %.3f" % velocity_error)
         self.param_errors_gui_ast[0].setText("+/- %.3f"%max(np.abs(fit.ast_alpha_err[0])))
         self.param_errors_gui_ast[1].setText("+/- %.3f"%max(np.abs(fit.ast_delta_err[0])))
         self.param_errors_gui_ast[2].setText("+/- %.3f"%max(np.abs(fit.ast_pi_err[0])))
@@ -1059,6 +1078,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
     def update_use_from_session(self):
         global fit
+        self.restore_astrometry_selectors()
         ensure_mass_settings(fit)
         if hasattr(self, 'mass_controls'):
             self.mass_controls.sync_values()
@@ -1165,6 +1185,10 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
         self.get_use_astrometry()
 
+        ensure_velocity_settings(fit)
+        velocity_use_blocker = QtCore.QSignalBlocker(self.use_ast_radial_velocity)
+        self.use_ast_radial_velocity.setChecked(fit.ast_radial_velocity_use)
+        del velocity_use_blocker
         self.use_param_gui_ast[0].setChecked(bool(fit.ast_alpha_use[0]))
         self.use_param_gui_ast[1].setChecked(bool(fit.ast_delta_use[0]))
         self.use_param_gui_ast[2].setChecked(bool(fit.ast_pi_use[0]))
@@ -1312,6 +1336,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
     def update_ast_use(self):
         global fit
         
+        ensure_velocity_settings(fit)
+        fit.ast_radial_velocity_use = self.use_ast_radial_velocity.isChecked()
+        fit.astrometric_cartesian = self.radioButton_astrometry_cartesian.isChecked()
         fit.ast_alpha_use[0]     = self.use_param_gui_ast[0].isChecked()
         fit.ast_delta_use[0]     = self.use_param_gui_ast[1].isChecked()
         fit.ast_pi_use[0]        = self.use_param_gui_ast[2].isChecked()
@@ -2124,6 +2151,10 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
     ########### Astrometry ##########
     def update_ast_bounds(self):
         global fit
+        ensure_velocity_settings(fit)
+        self.ast_radial_velocity_min.setValue(fit.ast_radial_velocity_bound[0])
+        self.ast_radial_velocity_max.setValue(fit.ast_radial_velocity_bound[1])
+
 
         for z in range(2):    
             self.ast_bounds_gui[0][z].setValue(fit.ast_alpha_bound[0][z])
@@ -2138,6 +2169,11 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
     def update_ast_priors_nr(self):
         global fit
+        ensure_velocity_settings(fit)
+        self.ast_radial_velocity_mean.setValue(fit.ast_radial_velocity_norm_pr[0])
+        self.ast_radial_velocity_sigma.setValue(fit.ast_radial_velocity_norm_pr[1])
+        self.use_ast_radial_velocity_nr_pr.setChecked(bool(fit.ast_radial_velocity_norm_pr[2]))
+
 
         for z in range(2):    
             self.ast_norm_pr_gui[0][z].setValue(fit.ast_alpha_norm_pr[0][z])
@@ -2162,6 +2198,11 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         
     def update_ast_priors_jeff(self):
         global fit
+        ensure_velocity_settings(fit)
+        self.ast_radial_velocity_alpha.setValue(fit.ast_radial_velocity_jeff_pr[0])
+        self.ast_radial_velocity_beta.setValue(fit.ast_radial_velocity_jeff_pr[1])
+        self.use_ast_radial_velocity_jeff_pr.setChecked(bool(fit.ast_radial_velocity_jeff_pr[2]))
+
 
         for z in range(2):    
             self.ast_jeff_pr_gui[0][z].setValue(fit.ast_alpha_jeff_pr[0][z])
@@ -2186,6 +2227,11 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
     def check_ast_bounds(self):
         global fit
+        ensure_velocity_settings(fit)
+        fit.ast_radial_velocity_bound = [
+            self.ast_radial_velocity_min.value(), self.ast_radial_velocity_max.value(),
+        ]
+
  
         for z in range(2):    
             fit.ast_alpha_bound[0][z] = self.ast_bounds_gui[0][z].value()
@@ -2200,6 +2246,12 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
             
     def check_ast_priors_nr(self):
         global fit
+        ensure_velocity_settings(fit)
+        fit.ast_radial_velocity_norm_pr = [
+            self.ast_radial_velocity_mean.value(), self.ast_radial_velocity_sigma.value(),
+            self.use_ast_radial_velocity_nr_pr.isChecked(),
+        ]
+
  
         for z in range(2):    
             fit.ast_alpha_norm_pr[0][z]    = self.ast_norm_pr_gui[0][z].value()
@@ -2224,6 +2276,12 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                             
     def check_ast_priors_jeff(self):
         global fit
+        ensure_velocity_settings(fit)
+        fit.ast_radial_velocity_jeff_pr = [
+            self.ast_radial_velocity_alpha.value(), self.ast_radial_velocity_beta.value(),
+            self.use_ast_radial_velocity_jeff_pr.isChecked(),
+        ]
+
  
         for z in range(2):    
             fit.ast_alpha_jeff_pr[0][z]    = self.ast_jeff_pr_gui[0][z].value()
@@ -3331,7 +3389,8 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         self.initialize_TTV_subplots()
         self.initialize_transit_variation_subplots()
         self.initialize_ast_subplots()
-        self.initialize_RV_phase_subplots()               
+        self.initialize_RV_phase_subplots()
+        self.update_residual_subpanels()               
 
 
         return
@@ -3393,11 +3452,54 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
                 sources[name + '_residuals'] = (title + ' residuals', bottom, None)
         self.extra_plot_mirror = ExtraPlotMirror(self, sources)
 
+    def set_residual_subplot_visibility(self, top, bottom, graphics_layout, visible):
+        """Collapse a residual row and move its horizontal axis onto the main plot."""
+        # Hidden PlotItems still contribute their axes' minimum heights to
+        # Qt's grid. Detach only the layout item, keeping its scene and curves.
+        grid = graphics_layout.layout
+        in_layout = grid.rowCount() > 1 and grid.itemAt(1, 0) is bottom
+        if visible and not in_layout:
+            grid.addItem(bottom, 1, 0)
+        elif not visible and in_layout:
+            grid.removeItem(bottom)
+        bottom.setVisible(visible)
+        grid.setRowSpacing(0, 0.)
+        graphics_layout.layout.setRowMinimumHeight(1, 30 if visible else 0)
+        graphics_layout.layout.setRowMaximumHeight(1, 150 if visible else 0)
+        top.showAxis('bottom')
+        axis = bottom.getAxis('bottom')
+        top.setLabel('bottom', axis.labelText, units=axis.labelUnits,
+                     **self.plot_font_style())
+        top_axis = top.getAxis('bottom')
+        top_axis.setStyle(showValues=not visible)
+        top_axis.showLabel(not visible)
+        top_axis.setHeight(0 if visible else None)
+        graphics_layout.layout.invalidate()
+
+    def update_residual_subpanels(self):
+        """Apply the RV and transit display controls to their linked plot pairs."""
+        global p00, p01, p30, p31, pe0, pe1
+        show_rv = self.RV_plot_add_o_c.isChecked()
+        show_transit = self.tra_plot_add_o_c.isChecked()
+        self.set_residual_subplot_visibility(
+            p00, p01, self.rv_subplot_layout, show_rv)
+        self.set_residual_subplot_visibility(
+            pe0, pe1, self.rv_phase_subplot_layout, show_rv)
+        self.set_residual_subplot_visibility(
+            p30, p31, self.tra_subplot_layout, show_transit)
+        transit_phase = getattr(self, 'transit_phase_view', None)
+        if transit_phase is not None:
+            self.set_residual_subplot_visibility(
+                transit_phase.top, transit_phase.bottom,
+                transit_phase.graphics.ci, show_transit)
+
     def initialize_RV_phase_subplots(self):
 
         global pe,pe0,pe1,legend_RV_phased
         
-        l = pg.GraphicsLayout()                                                             
+        l = pg.GraphicsLayout()
+        self.rv_phase_subplot_layout = l
+
         pe.setCentralItem(l)            
 
         if qso_mode:
@@ -3489,7 +3591,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         else:
             o_c_label = "o-c [m/s]"    
        
-        l = pg.GraphicsLayout()                                                             
+        l = pg.GraphicsLayout()
+        self.rv_subplot_layout = l
+
         p1.setCentralItem(l)            
                                                                                                       
 
@@ -3571,7 +3675,9 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
 
         global p3,p30,p31,legend_tra
         
-        ll = pg.GraphicsLayout()                                                             
+        ll = pg.GraphicsLayout()
+        self.tra_subplot_layout = ll
+
         p3.setCentralItem(ll)                                                                                                                        
         
         p30 = ll.addPlot(0, 0, colspan=3)                                                               
@@ -3743,6 +3849,7 @@ Data set # %s is present, but you cannot tie it to a Data set with a larger inde
         p_ast_01.setXLink(p_ast_00)      
 
         legend_ast = p_ast_00.addLegend()                                                                     
+        self.initialize_astrometry_residual_plot()
         legend_ast_hipp = p_ast_hipp.addLegend()                                                                     
 
         #for i in (1, 2):
@@ -4762,23 +4869,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         self.jitter_color_button.setStyleSheet("color: %s;"%colors_RV_jitter[0])
 
 
-        #print(self.RV_plot_add_o_c.isChecked())
-
-        if self.RV_plot_add_o_c.isChecked():
-            self.update_RV_plot_with_o_c()            
-        else:
-            #if hasattr(p1, 'p00'):
-           # p1.removeItem(-1)
-            #if hasattr(p1, 'p01'):
-            try:
-                p1.scene().removeItem(p00)
-                p1.scene().removeItem(p01)
-            #    p1.centralWidget = None
-            except:
-                pass
-            #p1  = self.graphicsView_timeseries_RV
-           # p1 = pz
-            self.update_RV_plot()
+        self.update_RV_plot_with_o_c()
 
         self.update_RV_plot_o_c()
 
@@ -4966,7 +5057,7 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
         if self.RV_plot_autorange.isChecked():
             p01.autoRange()
 
-            
+        self.update_residual_subpanels()
 
 
     def update_RV_plots_old(self):
@@ -5271,25 +5362,15 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
                 
             else:
 
-                if self.tra_plot_add_o_c.isChecked():
-                    p31.setLabel('bottom', 'BJD [days]', units='',  **self.plot_font_style())
-                   # p31.getAxis("bottom").setTickFont= self.plot_font
-                    p31.getAxis("bottom").setStyle(tickTextOffset = 2)
-                    p31.getAxis("left").setStyle(tickTextOffset = 2)
-                    p30.getAxis("left").setStyle(tickTextOffset = 2)
-                    p4.setLabel('bottom', 'BJD [days]', units='',  **self.plot_font_style()) 
-                  #  p3.getAxis("bottom").setTickFont= self.plot_font
-                    p4.getAxis("bottom").setStyle(tickTextOffset = 2)                
-                    p4.getAxis("left").setStyle(tickTextOffset = 2) 
-                else:
-                    p3.setLabel('bottom', 'BJD [days]', units='',  **self.plot_font_style()) 
-                  #  p3.getAxis("bottom").setTickFont= self.plot_font
-                    p3.getAxis("bottom").setStyle(tickTextOffset = 2)                
-                    p3.getAxis("left").setStyle(tickTextOffset = 2) 
-                    p4.setLabel('bottom', 'BJD [days]', units='',  **self.plot_font_style()) 
-                  #  p3.getAxis("bottom").setTickFont= self.plot_font
-                    p4.getAxis("bottom").setStyle(tickTextOffset = 2)                
-                    p4.getAxis("left").setStyle(tickTextOffset = 2) 
+                p31.setLabel('bottom', 'BJD [days]', units='',  **self.plot_font_style())
+               # p31.getAxis("bottom").setTickFont= self.plot_font
+                p31.getAxis("bottom").setStyle(tickTextOffset = 2)
+                p31.getAxis("left").setStyle(tickTextOffset = 2)
+                p30.getAxis("left").setStyle(tickTextOffset = 2)
+                p4.setLabel('bottom', 'BJD [days]', units='',  **self.plot_font_style()) 
+              #  p3.getAxis("bottom").setTickFont= self.plot_font
+                p4.getAxis("bottom").setStyle(tickTextOffset = 2)                
+                p4.getAxis("left").setStyle(tickTextOffset = 2) 
 
                 self.tra_xaxis_offset.setEnabled(False) 
                 self.trans_phase_slider.setEnabled(False)
@@ -5299,53 +5380,34 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
 
 
-            if self.tra_plot_add_o_c.isChecked():
+            p30.plot(t, flux,
+            pen=None,
+            symbol=dill.copy(fit.pyqt_symbols_tra[j]),
+            symbolPen={'color': fit.tra_colors[j]+"%02x"%int(dill.copy(fit.pyqt_color_alpha_tra[j])), 'width': 1.1},
+            symbolSize=dill.copy(fit.pyqt_symbols_size_tra[j]),enableAutoRange=True,viewRect=True,
+            symbolBrush=fit.tra_colors[j]+"%02x"%int(dill.copy(fit.pyqt_color_alpha_tra[j])),name=fit.tra_data_sets[j][-1] ) 
+            
+            err_ = pg.ErrorBarItem(x=t, y=flux, symbol = dill.copy(fit.pyqt_symbols_tra[j]),
+                                  # height=flux_err, 
+                                   top=flux_err, 
+                                   bottom=flux_err,
+                                   beam=0.0, pen=fit.tra_colors[j]+"%02x"%int(dill.copy(fit.pyqt_color_alpha_tra[j])))
 
-                p30.plot(t, flux,
-                pen=None,
-                symbol=dill.copy(fit.pyqt_symbols_tra[j]),
-                symbolPen={'color': fit.tra_colors[j]+"%02x"%int(dill.copy(fit.pyqt_color_alpha_tra[j])), 'width': 1.1},
-                symbolSize=dill.copy(fit.pyqt_symbols_size_tra[j]),enableAutoRange=True,viewRect=True,
-                symbolBrush=fit.tra_colors[j]+"%02x"%int(dill.copy(fit.pyqt_color_alpha_tra[j])),name=fit.tra_data_sets[j][-1] ) 
-                
-                err_ = pg.ErrorBarItem(x=t, y=flux, symbol = dill.copy(fit.pyqt_symbols_tra[j]),
-                                      # height=flux_err, 
-                                       top=flux_err, 
-                                       bottom=flux_err,
-                                       beam=0.0, pen=fit.tra_colors[j]+"%02x"%int(dill.copy(fit.pyqt_color_alpha_tra[j])))
+            p30.addItem(err_)
 
-                p30.addItem(err_)
+            p31.plot(t, tr_o_c,
+            pen=None,
+            symbol=dill.copy(fit.pyqt_symbols_tra[j]),
+            symbolPen={'color': fit.tra_colors[j]+"%02x"%int(dill.copy(fit.pyqt_color_alpha_tra[j])), 'width': 1.1},
+            symbolSize=dill.copy(fit.pyqt_symbols_size_tra[j]),enableAutoRange=True,viewRect=True,
+            symbolBrush=fit.tra_colors[j]+"%02x"%int(dill.copy(fit.pyqt_color_alpha_tra[j])) )
 
-                p31.plot(t, tr_o_c,
-                pen=None,
-                symbol=dill.copy(fit.pyqt_symbols_tra[j]),
-                symbolPen={'color': fit.tra_colors[j]+"%02x"%int(dill.copy(fit.pyqt_color_alpha_tra[j])), 'width': 1.1},
-                symbolSize=dill.copy(fit.pyqt_symbols_size_tra[j]),enableAutoRange=True,viewRect=True,
-                symbolBrush=fit.tra_colors[j]+"%02x"%int(dill.copy(fit.pyqt_color_alpha_tra[j])) )
-
-                err_ = pg.ErrorBarItem(x=t, y=tr_o_c, symbol=dill.copy(fit.pyqt_symbols_tra[j]),
-               # height=flux_err,
-                top=flux_err,
-                bottom=flux_err,
-                beam=0.0, pen=fit.tra_colors[j]+"%02x"%int(dill.copy(fit.pyqt_color_alpha_tra[j])))
-                p31.addItem(err_)
-
-            else:
-
-                p3.plot(t, flux,
-                pen=None,
-                symbol=dill.copy(fit.pyqt_symbols_tra[j]),
-                symbolPen={'color': fit.tra_colors[j]+"%02x"%int(dill.copy(fit.pyqt_color_alpha_tra[j])), 'width': 1.1},
-                symbolSize=dill.copy(fit.pyqt_symbols_size_tra[j]),enableAutoRange=True,viewRect=True,
-                symbolBrush=fit.tra_colors[j]+"%02x"%int(dill.copy(fit.pyqt_color_alpha_tra[j])) ) 
-                
-                err_ = pg.ErrorBarItem(x=t, y=flux, symbol = dill.copy(fit.pyqt_symbols_tra[j]),
-                                      # height=flux_err, 
-                                       top=flux_err, 
-                                       bottom=flux_err,
-                                       beam=0.0, pen=fit.tra_colors[j]+"%02x"%int(dill.copy(fit.pyqt_color_alpha_tra[j])))
-
-                p3.addItem(err_)
+            err_ = pg.ErrorBarItem(x=t, y=tr_o_c, symbol=dill.copy(fit.pyqt_symbols_tra[j]),
+           # height=flux_err,
+            top=flux_err,
+            bottom=flux_err,
+            beam=0.0, pen=fit.tra_colors[j]+"%02x"%int(dill.copy(fit.pyqt_color_alpha_tra[j])))
+            p31.addItem(err_)
 
 
 
@@ -5402,14 +5464,10 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
         if len(t_model) != 0:
 
-            if self.tra_plot_add_o_c.isChecked():
-                model_curve = p30.plot(t_model,y_model, pen={'color':  fit.tra_colors[-1], 'width': self.tra_model_width.value()+1},
-            enableAutoRange=True,viewRect=True )
-                model_curve_o_c = p31.plot(t_model,y_model_o_c, pen={'color':  fit.tra_colors[-1], 'width': self.tra_model_width.value()+1},
-            enableAutoRange=True,viewRect=True ) 
-            else:
-                model_curve = p3.plot(t_model,y_model, pen={'color':  fit.tra_colors[-1], 'width': self.tra_model_width.value()+1},
-            enableAutoRange=True,viewRect=True ) 
+            model_curve = p30.plot(t_model,y_model, pen={'color':  fit.tra_colors[-1], 'width': self.tra_model_width.value()+1},
+        enableAutoRange=True,viewRect=True )
+            model_curve_o_c = p31.plot(t_model,y_model_o_c, pen={'color':  fit.tra_colors[-1], 'width': self.tra_model_width.value()+1},
+        enableAutoRange=True,viewRect=True ) 
 
             model_curve_o_c = p4.plot(t_model,y_model_o_c, pen={'color':  fit.tra_colors[-1], 'width': self.tra_model_width.value()+1},
             enableAutoRange=True,viewRect=True ) 
@@ -5421,26 +5479,22 @@ period = %.2f [d], power = %.4f"""%(per_x[j],per_y[j])
 
         if self.trans_plot_cross_hair.isChecked():
 
-            if self.tra_plot_add_o_c.isChecked():
-                self.cross_hair(p30,log=False)
-                self.cross_hair(p31,log=False)
-            else:            
-                self.cross_hair(p3,log=False)
+            self.cross_hair(p30,log=False)
+            self.cross_hair(p31,log=False)
 
         if self.trans_o_c_plot_cross_hair.isChecked():
             self.cross_hair(p4,log=False)  
 
         if self.tra_plot_autorange.isChecked():
-            if self.tra_plot_add_o_c.isChecked():
-                p30.autoRange()                
-                p31.autoRange()
-            else:
-                p3.autoRange()
+            p30.autoRange()                
+            p31.autoRange()
             p4.autoRange()
+
+        self.update_residual_subpanels()
 
 #plot_transit_GP_model
 
-######################## Correlation plots ###################################### 
+######################## Correlation plots ######################################
 
     def init_correlations_combo(self):
         global fit
@@ -6277,18 +6331,160 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         self.ast_comboBox_pl_hipp_gaia.setCurrentIndex(pl_ind)
         self.update_ast_plots()
 
+    def initialize_astrometry_residual_plot(self):
+        """Style and link the residual PlotWidget defined in Designer."""
+        global p_ast_hipp
+        panel = self.graphicsView_ast_hipp_gaia_residuals
+        panel.setXLink(p_ast_hipp)
+        panel.setAxisItems({'bottom': pg_hack.CustomAxisItem('bottom')})
+        panel.showAxis('top')
+        panel.showAxis('right')
+        panel.getAxis('right').setWidth(12)
+        # Use the normal axis stroke, as in the RV/transit panels. Reserve
+        # one pixel so the top axis is visible at the PlotWidget boundary.
+        panel.getAxis('top').setHeight(1)
+        for side in ('left', 'bottom', 'top', 'right'):
+            panel.getAxis(side).setStyle(tickTextOffset=12, tickFont=self.plot_font)
+            panel.getAxis(side).enableAutoSIPrefix(enable=False)
+        axis_width = np.rint(70. * float(self.plot_font.pointSize()) / 11.)
+        panel.getAxis('left').setWidth(axis_width)
+        p_ast_hipp.getAxis('left').setWidth(axis_width)
+        panel.getPlotItem().layout.setContentsMargins(0., 0., 0., 0.)
+        panel.getPlotItem().layout.setVerticalSpacing(0.)
+        p_ast_hipp.getPlotItem().layout.setContentsMargins(0., 0., 0., 0.)
+        p_ast_hipp.getPlotItem().layout.setVerticalSpacing(0.)
+
+    def sync_astrometry_residual_axes(self):
+        """Reserve the horizontal axis for the bottom panel when it is shown."""
+        show_residuals = (self.ast_show_residual_panel.isChecked()
+                          and self.ast_use_plot_ra_dec.isChecked())
+        axis = self.graphicsView_timeseries_ast_hipp_gaia.getAxis('bottom')
+        axis.setStyle(showValues=not show_residuals,
+                      tickLength=0 if show_residuals else -5)
+        axis.showLabel(not show_residuals)
+        axis.setHeight(0 if show_residuals else None)
+
+    def plot_astrometry_residuals(self, coordinates, residuals, errors,
+                                  style_index, name, mission, folded=False):
+        """Draw exact observed-minus-computed coordinates and their optional bins."""
+        global fit
+        if not (self.ast_show_residual_panel.isChecked()
+                and self.ast_use_plot_ra_dec.isChecked()):
+            return
+        panel = self.graphicsView_ast_hipp_gaia_residuals
+        coordinate_index = 0 if self.ast_plot_ra.isChecked() else 2
+        values = np.asarray(residuals[coordinate_index])
+        uncertainty = np.asarray(residuals[coordinate_index + 1])
+        show_original = (not self.ast_show_binned.isChecked()
+                         or self.ast_show_unbinned.isChecked())
+        if show_original:
+            color = fit.ast_colors[style_index]
+            panel.plot(
+                coordinates, values, pen=None,
+                symbol=fit.pyqt_symbols_ast[style_index],
+                symbolSize=fit.pyqt_symbols_size_ast[style_index],
+                symbolBrush=color, symbolPen=color,
+            )
+            bars = pg.ErrorBarItem(
+                x=coordinates, y=values, top=uncertainty, bottom=uncertainty,
+                beam=0., pen=pg.mkPen(color=color),
+            )
+            panel.addItem(bars)
+        self.plot_astrometry_bins(
+            coordinates, residuals, errors, style_index + 2,
+            name, mission, folded=folded, target=panel,
+        )
+        bottom_label = 'BJD [days]'
+        if folded:
+            bottom_label = ('Time within period [days]' if self.ast_phase_period.isChecked()
+                            else 'Orbital phase')
+        panel.setLabel('bottom', bottom_label, **self.plot_font_style())
+        panel.setLabel('left', 'O−C [mas]', **self.plot_font_style())
+
+    def update_ast_phase_controls(self):
+        """Enable folding only for RA/Dec plots with an active planet."""
+        global fit
+        slot = self.ast_phase_planet.currentData()
+        has_planet = isinstance(slot, int) and bool(fit.use_planet[slot])
+        enabled = self.ast_use_plot_ra_dec.isChecked() and has_planet
+        self.ast_show_residual_panel.setEnabled(self.ast_use_plot_ra_dec.isChecked())
+        self.graphicsView_ast_hipp_gaia_residuals.setVisible(
+            self.ast_show_residual_panel.isChecked()
+            and self.ast_use_plot_ra_dec.isChecked())
+        self.ast_show_phased.setEnabled(enabled)
+        folded = enabled and self.ast_show_phased.isChecked()
+        self.ast_phase_fold.setEnabled(folded)
+        self.ast_phase_period.setEnabled(folded)
+        self.ast_phase_planet.setEnabled(folded)
+        self.ast_phase_slider.setEnabled(folded)
+        binned = self.ast_show_binned.isChecked()
+        self.ast_show_unbinned.setEnabled(binned)
+        self.ast_time_bin_width.setEnabled(binned and not folded)
+        self.ast_time_bin_label.setEnabled(binned and not folded)
+        self.ast_phase_bin_width.setEnabled(binned and folded)
+        self.ast_phase_bin_label.setEnabled(binned and folded)
+        self.sync_astrometry_residual_axes()
+
+    def plot_astrometry_bins(self, coordinates, sky_data, errors, style_index,
+                             name, mission, folded=False, target=None):
+        """Overlay plot-only bins without changing the fitted measurements."""
+        global fit, p_ast_hipp
+        if not self.ast_show_binned.isChecked():
+            return
+        panel = p_ast_hipp if target is None else target
+        if folded:
+            width = self.ast_phase_bin_width.value()
+            if self.ast_phase_period.isChecked():
+                width *= float(fit.P[self.ast_phase_planet.currentData()])
+            origin = 0.
+        else:
+            width = self.ast_time_bin_width.value()
+            origin = fit.epoch
+        bin_coordinates, points, counts = bin_astrometry(
+            coordinates, sky_data, errors, width, origin=origin,
+        )
+        if not len(counts):
+            return
+        x, error_x, y, error_y = points
+        color = fit.ast_colors[style_index]
+        symbol = fit.pyqt_symbols_ast[style_index]
+        symbol_size = fit.pyqt_symbols_size_ast[style_index]
+        bars = None
+        if self.ast_use_plot_ra_dec.isChecked():
+            values = x if self.ast_plot_ra.isChecked() else y
+            uncertainty = error_x if self.ast_plot_ra.isChecked() else error_y
+            plot_x, plot_y = bin_coordinates, values
+            bars = pg.ErrorBarItem(
+                x=plot_x, y=plot_y, top=uncertainty, bottom=uncertainty,
+                beam=0., pen=pg.mkPen(color=color, width=2),
+            )
+        else:
+            plot_x, plot_y = x, y
+        points_item = panel.plot(
+            plot_x, plot_y, pen=None, symbol=symbol, symbolSize=symbol_size,
+            symbolBrush=color, symbolPen=color, name=f'{mission}: {name} (binned)',
+        )
+        points_item.setZValue(20)
+        if bars is not None:
+            bars.setZValue(19)
+            panel.addItem(bars)
+
     def update_ast_plots(self):
+        self.update_ast_phase_controls()
         
         self.update_ast_plots_img()
         
         if self.use_hipp_gaia_ast.isChecked():
-            if self.radioButton_show_gaia.isChecked():
-                self.update_ast_plots_gaia()        
+            if self.radioButton_show_ast_combined.isChecked():
+                self.update_ast_plots_gaia()
+                self.update_ast_plots_hipp(clear_plot=False)
+            elif self.radioButton_show_gaia.isChecked():
+                self.update_ast_plots_gaia()
             else:
-                self.update_ast_plots_hipp()        
+                self.update_ast_plots_hipp()
 
-        
-        
+        self.sync_astrometry_residual_axes()
+
     def update_ast_plots_img(self):
         global fit, p_ast, p_ast_oc,p_ast_00,p_ast_01, colors,legend_ast
         
@@ -6442,19 +6638,26 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             p_ast_oc.autoRange()  
 
    
-    def update_ast_plots_gaia(self):
+    def update_ast_plots_gaia(self, clear_plot=True):
         global fit, p_ast_hipp, p_ast_oc,p_ast_00,p_ast_01, colors,legend_ast_hipp
         
         self.check_ast_symbol_sizes()
  
         
  
-        p_ast_hipp.plot(clear=True,) 
+        if clear_plot:
+            self.graphicsView_ast_hipp_gaia_residuals.clear()
+            if (self.ast_show_residual_panel.isChecked()
+                    and self.ast_use_plot_ra_dec.isChecked()):
+                self.graphicsView_ast_hipp_gaia_residuals.addItem(
+                    pg.InfiniteLine(pos=0., angle=0, pen=pg.mkPen('gray')))
+            p_ast_hipp.plot(clear=True,) 
                 
         ast_files = fit.ast_data_sets_gaia 
  
         if self.ast_legend.isChecked()==True:
-            legend_ast_hipp.clear()
+            if clear_plot:
+                legend_ast_hipp.clear()
             legend_ast_hipp.setVisible(True)
         else:
             legend_ast_hipp.setVisible(False)
@@ -6475,17 +6678,27 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             model_vector(fit), vel_files, ast_files, fit.npl, fit.params.stellar_mass,
             times, fit.hkl, fit_results=fit.fit_results if fit.rtg[0] else False,
             return_model=True, model_max=self.ast_model_max_range.value(),
-            model_samp=self.ast_points_to_draw_model.value())
+            model_samp=self.ast_points_to_draw_model.value(),
+            v_rad=getattr(fit, "ast_radial_velocity", 0.0))
         if ast_loglik is None or np.isscalar(ast_loglik):
             return
         fit.ast_results = dill.copy(ast_loglik)
         for j in range(len(ast_files)):
             if len(ast_files[j]) == 0:
                 continue
-            data = ast_loglik[1][j][1 if self.ast_o_c_hipp_gaia.isChecked() else 0]
+            data = ast_loglik[1][j][0 if self.ast_show_raw_data.isChecked() else 1]
             x_axis, x_axis_err, y_axis, y_axis_err = map(np.asarray, data)
             bjd_dates = np.asarray(ast_loglik[1][j][2])
             ast_model_x, ast_model_y, ast_model_bjd = ast_loglik[2][j]
+            show_original = (not self.ast_show_binned.isChecked()
+                             or self.ast_show_unbinned.isChecked())
+            # Astrometry controls 1/2 style Gaia/Hipparcos originals;
+            # controls 3/4 style their binned overlays.
+            data_style = 0
+            data_symbol = fit.pyqt_symbols_ast[data_style]
+            data_name = 'Gaia: ' + ast_files[j][-1]
+            bin_coordinates = bjd_dates
+            folded_bins = False
 
             if self.ast_use_plot_ra_dec.isChecked():
                
@@ -6506,25 +6719,54 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                     yaxis_err = y_axis_err                    
                     yaxis_model = ast_model_y                    
                 
-                p_ast_hipp.plot(bjd_dates, yaxis,
+                phase_slot = self.ast_phase_planet.currentData()
+                period = None
+                if (self.ast_show_phased.isChecked()
+                        and isinstance(phase_slot, int)
+                        and fit.use_planet[phase_slot]):
+                    selected_period = float(fit.P[phase_slot])
+                    if np.isfinite(selected_period) and selected_period > 0.:
+                        period = selected_period
+                plot_dates, model_dates, model_order = astrometry_plot_times(
+                    bjd_dates, ast_model_bjd, period=period, epoch=fit.epoch,
+                    phase_offset=self.ast_phase_slider.value() / 100.,
+                    phase_units='period' if self.ast_phase_period.isChecked() else 'phase',
+                )
+                bin_coordinates = plot_dates
+                folded_bins = period is not None
+                bottom_label = 'BJD [days]'
+                if period is not None:
+                    bottom_label = ('Time within period [days]'
+                                    if self.ast_phase_period.isChecked() else 'Orbital phase')
+                p_ast_hipp.setLabel('bottom', bottom_label, **self.plot_font_style())
+                yaxis_model = np.asarray(yaxis_model)[model_order]
+                self.plot_astrometry_residuals(
+                    plot_dates, ast_loglik[1][j][3], ast_files[j][0][-1],
+                    data_style, ast_files[j][-1], data_name.split(':')[0],
+                    folded=folded_bins,
+                )
+
+                data_curve = p_ast_hipp.plot(plot_dates, yaxis,
                 pen=None,
-                symbol=dill.copy(fit.pyqt_symbols_ast[j]),
-                symbolPen={'color': dill.copy(fit.ast_colors[j]), 'width': 1.1},
-                symbolSize=dill.copy(fit.pyqt_symbols_size_ast[j]),enableAutoRange=True,viewRect=True,
-                symbolBrush=dill.copy(fit.ast_colors[j]),name=ast_files[j][-1]  )             
+                symbol=dill.copy(data_symbol),
+                symbolPen={'color': dill.copy(fit.ast_colors[data_style]), 'width': 1.1},
+                symbolSize=dill.copy(fit.pyqt_symbols_size_ast[data_style]),enableAutoRange=True,viewRect=True,
+                symbolBrush=dill.copy(fit.ast_colors[data_style]),name=data_name  )             
                 
-                err_ = pg.ErrorBarItem(x=bjd_dates, y=yaxis, symbol=dill.copy(fit.pyqt_symbols_ast[j]),
+                err_ = pg.ErrorBarItem(x=plot_dates, y=yaxis, symbol=dill.copy(data_symbol),
                                       # height=flux_err, 
                                        top=yaxis_err, 
                                        bottom=yaxis_err,
                                        #left=y_axis_err,
                                       # right=y_axis_err,
-                                       beam=0.0, pen=dill.copy(fit.ast_colors[j]))
+                                       beam=0.0, pen=dill.copy(fit.ast_colors[data_style]))
 
+                data_curve.setVisible(show_original)
+                err_.setVisible(show_original)
                 p_ast_hipp.addItem(err_)               
                 
                 
-                model_curve = p_ast_hipp.plot(ast_model_bjd, yaxis_model, pen={'color':  fit.ast_colors[-1], 'width': self.ast_model_width.value()}, enableAutoRange=True, viewRect=True )
+                model_curve = p_ast_hipp.plot(model_dates, yaxis_model, pen={'color':  fit.ast_colors[-1], 'width': self.ast_model_width.value()}, enableAutoRange=True, viewRect=True )
                  
 
             else:
@@ -6576,7 +6818,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
  
                     # Points
                     point_qcolors = cmap.map(b_norm_data, mode='qcolor')
-                    scatter = pg.ScatterPlotItem(x_axis, y_axis, brush=point_qcolors, pen=None, size=5)
+                    scatter = pg.ScatterPlotItem(x_axis, y_axis, brush=point_qcolors, pen=None, size=fit.pyqt_symbols_size_ast[data_style], symbol=data_symbol)
+                    scatter.setVisible(show_original)
                     p_ast_hipp.addItem(scatter)
  
 
@@ -6599,18 +6842,20 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                         y_err = np.column_stack((y1[idx], y2[idx])).reshape(-1)
 
                         pen_k = pg.mkPen(color=rgba_bins[k], width=width_err)
-                        p_ast_hipp.plot(x_err, y_err, connect='pairs', pen=pen_k)
+                        p_ast_hipp.plot(x_err, y_err, connect='pairs', pen=pen_k).setVisible(show_original)
 
                  
                 else:
                 
-                    p_ast_hipp.plot(x_axis, y_axis,
+                    data_curve = p_ast_hipp.plot(x_axis, y_axis,
                     pen=None, 
-                    symbol=dill.copy(fit.pyqt_symbols_ast[j]),
-                    symbolPen={'color': dill.copy(fit.ast_colors[j]), 'width': 1.1},
-                    symbolSize=dill.copy(fit.pyqt_symbols_size_ast[j]),enableAutoRange=True,viewRect=True,
-                    symbolBrush=dill.copy(fit.ast_colors[j]),name=ast_files[j][-1]  )    
+                    symbol=dill.copy(data_symbol),
+                    symbolPen={'color': dill.copy(fit.ast_colors[data_style]), 'width': 1.1},
+                    symbolSize=dill.copy(fit.pyqt_symbols_size_ast[data_style]),enableAutoRange=True,viewRect=True,
+                    symbolBrush=dill.copy(fit.ast_colors[data_style]),name=data_name  )    
                 
+                    data_curve.setVisible(show_original)
+
                     # Error bar endpoints (you already computed x1,y1,x2,y2)
                     # We will color them by binning b_norm
                     K = 64  # 32, 64, 128 are typical
@@ -6627,8 +6872,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                         y_err = np.column_stack((y1[idx], y2[idx])).reshape(-1)
 
 
-                        pen_k = pg.mkPen(color=fit.ast_colors[j], width=width_err)
-                        p_ast_hipp.plot(x_err, y_err, connect='pairs', pen=pen_k)
+                        pen_k = pg.mkPen(color=fit.ast_colors[data_style], width=width_err)
+                        p_ast_hipp.plot(x_err, y_err, connect='pairs', pen=pen_k).setVisible(show_original)
                         
                         
 
@@ -6671,6 +6916,10 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
 
 
+            self.plot_astrometry_bins(
+                bin_coordinates, data, ast_files[j][0][-1], 2,
+                ast_files[j][-1], 'Gaia', folded=folded_bins,
+            )
             model_curve.setZValue(self.ast_model_z.value())
 
             if self.ast_plot_cross_hair_hipp_gaia.isChecked():
@@ -6681,7 +6930,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             #######################################
 
         
-    def update_ast_plots_hipp(self):
+    def update_ast_plots_hipp(self, clear_plot=True):
         global fit, p_ast_hipp, p_ast_oc,p_ast_00,p_ast_01, colors,legend_ast_hipp
         
         self.check_ast_symbol_sizes()
@@ -6689,14 +6938,21 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         
         #print(pl_ind)
         
-        p_ast_hipp.plot(clear=True,) 
+        if clear_plot:
+            self.graphicsView_ast_hipp_gaia_residuals.clear()
+            if (self.ast_show_residual_panel.isChecked()
+                    and self.ast_use_plot_ra_dec.isChecked()):
+                self.graphicsView_ast_hipp_gaia_residuals.addItem(
+                    pg.InfiniteLine(pos=0., angle=0, pen=pg.mkPen('gray')))
+            p_ast_hipp.plot(clear=True,) 
 
             
         ast_files = fit.ast_data_sets_hipp
 
  
         if self.ast_legend.isChecked()==True:
-            legend_ast_hipp.clear()
+            if clear_plot:
+                legend_ast_hipp.clear()
             legend_ast_hipp.setVisible(True)
         else:
             legend_ast_hipp.setVisible(False)
@@ -6717,17 +6973,28 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             model_vector(fit), vel_files, ast_files, fit.npl, fit.params.stellar_mass,
             times, fit.hkl, fit_results=fit.fit_results if fit.rtg[0] else False,
             return_model=True, model_max=self.ast_model_max_range.value(),
-            model_samp=self.ast_points_to_draw_model.value())
+            model_samp=self.ast_points_to_draw_model.value(),
+            ast_files_gaia=fit.ast_data_sets_gaia,
+            v_rad=getattr(fit, "ast_radial_velocity", 0.0))
         if ast_loglik is None or np.isscalar(ast_loglik):
             return
         fit.ast_results = dill.copy(ast_loglik)
         for j in range(len(ast_files)):
             if len(ast_files[j]) == 0:
                 continue
-            data = ast_loglik[1][j][1 if self.ast_o_c_hipp_gaia.isChecked() else 0]
+            data = ast_loglik[1][j][0 if self.ast_show_raw_data.isChecked() else 1]
             x_axis, x_axis_err, y_axis, y_axis_err = map(np.asarray, data)
             bjd_dates = np.asarray(ast_loglik[1][j][2])
             ast_model_x, ast_model_y, ast_model_bjd = ast_loglik[2][j]
+            show_original = (not self.ast_show_binned.isChecked()
+                             or self.ast_show_unbinned.isChecked())
+            # Astrometry controls 1/2 style Gaia/Hipparcos originals;
+            # controls 3/4 style their binned overlays.
+            data_style = 1
+            data_symbol = fit.pyqt_symbols_ast[data_style]
+            data_name = 'Hipparcos: ' + ast_files[j][-1]
+            bin_coordinates = bjd_dates
+            folded_bins = False
 
             if self.ast_use_plot_ra_dec.isChecked():
                
@@ -6748,25 +7015,54 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                     yaxis_err = y_axis_err                    
                     yaxis_model = ast_model_y                    
                 
-                p_ast_hipp.plot(bjd_dates, yaxis,
+                phase_slot = self.ast_phase_planet.currentData()
+                period = None
+                if (self.ast_show_phased.isChecked()
+                        and isinstance(phase_slot, int)
+                        and fit.use_planet[phase_slot]):
+                    selected_period = float(fit.P[phase_slot])
+                    if np.isfinite(selected_period) and selected_period > 0.:
+                        period = selected_period
+                plot_dates, model_dates, model_order = astrometry_plot_times(
+                    bjd_dates, ast_model_bjd, period=period, epoch=fit.epoch,
+                    phase_offset=self.ast_phase_slider.value() / 100.,
+                    phase_units='period' if self.ast_phase_period.isChecked() else 'phase',
+                )
+                bin_coordinates = plot_dates
+                folded_bins = period is not None
+                bottom_label = 'BJD [days]'
+                if period is not None:
+                    bottom_label = ('Time within period [days]'
+                                    if self.ast_phase_period.isChecked() else 'Orbital phase')
+                p_ast_hipp.setLabel('bottom', bottom_label, **self.plot_font_style())
+                yaxis_model = np.asarray(yaxis_model)[model_order]
+                self.plot_astrometry_residuals(
+                    plot_dates, ast_loglik[1][j][3], ast_files[j][0][-1],
+                    data_style, ast_files[j][-1], data_name.split(':')[0],
+                    folded=folded_bins,
+                )
+
+                data_curve = p_ast_hipp.plot(plot_dates, yaxis,
                 pen=None,
-                symbol=dill.copy(fit.pyqt_symbols_ast[j]),
-                symbolPen={'color': dill.copy(fit.ast_colors[j]), 'width': 1.1},
-                symbolSize=dill.copy(fit.pyqt_symbols_size_ast[j]),enableAutoRange=True,viewRect=True,
-                symbolBrush=dill.copy(fit.ast_colors[j]),name=ast_files[j][-1]  )             
+                symbol=dill.copy(data_symbol),
+                symbolPen={'color': dill.copy(fit.ast_colors[data_style]), 'width': 1.1},
+                symbolSize=dill.copy(fit.pyqt_symbols_size_ast[data_style]),enableAutoRange=True,viewRect=True,
+                symbolBrush=dill.copy(fit.ast_colors[data_style]),name=data_name  )             
                 
-                err_ = pg.ErrorBarItem(x=bjd_dates, y=yaxis, symbol=dill.copy(fit.pyqt_symbols_ast[j]),
+                err_ = pg.ErrorBarItem(x=plot_dates, y=yaxis, symbol=dill.copy(data_symbol),
                                       # height=flux_err, 
                                        top=yaxis_err, 
                                        bottom=yaxis_err,
                                        #left=y_axis_err,
                                       # right=y_axis_err,
-                                       beam=0.0, pen=dill.copy(fit.ast_colors[j]))
+                                       beam=0.0, pen=dill.copy(fit.ast_colors[data_style]))
 
+                data_curve.setVisible(show_original)
+                err_.setVisible(show_original)
                 p_ast_hipp.addItem(err_)               
                 
                 
-                model_curve = p_ast_hipp.plot(ast_model_bjd, yaxis_model, pen={'color':  fit.ast_colors[-1], 'width': self.ast_model_width.value()}, enableAutoRange=True, viewRect=True )
+                model_curve = p_ast_hipp.plot(model_dates, yaxis_model, pen={'color':  fit.ast_colors[-1], 'width': self.ast_model_width.value()}, enableAutoRange=True, viewRect=True )
                  
 
             else:
@@ -6818,7 +7114,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
  
                     # Points
                     point_qcolors = cmap.map(b_norm_data, mode='qcolor')
-                    scatter = pg.ScatterPlotItem(x_axis, y_axis, brush=point_qcolors, pen=None, size=5)
+                    scatter = pg.ScatterPlotItem(x_axis, y_axis, brush=point_qcolors, pen=None, size=fit.pyqt_symbols_size_ast[data_style], symbol=data_symbol)
+                    scatter.setVisible(show_original)
                     p_ast_hipp.addItem(scatter)
  
 
@@ -6841,18 +7138,20 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                         y_err = np.column_stack((y1[idx], y2[idx])).reshape(-1)
 
                         pen_k = pg.mkPen(color=rgba_bins[k], width=width_err)
-                        p_ast_hipp.plot(x_err, y_err, connect='pairs', pen=pen_k)
+                        p_ast_hipp.plot(x_err, y_err, connect='pairs', pen=pen_k).setVisible(show_original)
 
                  
                 else:
                 
-                    p_ast_hipp.plot(x_axis, y_axis,
+                    data_curve = p_ast_hipp.plot(x_axis, y_axis,
                     pen=None, 
-                    symbol=dill.copy(fit.pyqt_symbols_ast[j]),
-                    symbolPen={'color': dill.copy(fit.ast_colors[j]), 'width': 1.1},
-                    symbolSize=dill.copy(fit.pyqt_symbols_size_ast[j]),enableAutoRange=True,viewRect=True,
-                    symbolBrush=dill.copy(fit.ast_colors[j]),name=ast_files[j][-1]  )    
+                    symbol=dill.copy(data_symbol),
+                    symbolPen={'color': dill.copy(fit.ast_colors[data_style]), 'width': 1.1},
+                    symbolSize=dill.copy(fit.pyqt_symbols_size_ast[data_style]),enableAutoRange=True,viewRect=True,
+                    symbolBrush=dill.copy(fit.ast_colors[data_style]),name=data_name  )    
                 
+                    data_curve.setVisible(show_original)
+
                     # Error bar endpoints (you already computed x1,y1,x2,y2)
                     # We will color them by binning b_norm
                     K = 64  # 32, 64, 128 are typical
@@ -6869,8 +7168,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                         y_err = np.column_stack((y1[idx], y2[idx])).reshape(-1)
 
 
-                        pen_k = pg.mkPen(color=fit.ast_colors[j], width=width_err)
-                        p_ast_hipp.plot(x_err, y_err, connect='pairs', pen=pen_k)
+                        pen_k = pg.mkPen(color=fit.ast_colors[data_style], width=width_err)
+                        p_ast_hipp.plot(x_err, y_err, connect='pairs', pen=pen_k).setVisible(show_original)
                         
                         
 
@@ -6913,6 +7212,10 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
 
 
+            self.plot_astrometry_bins(
+                bin_coordinates, data, ast_files[j][0][-1], 3,
+                ast_files[j][-1], 'Hipparcos', folded=folded_bins,
+            )
             model_curve.setZValue(self.ast_model_z.value())
 
             if self.ast_plot_cross_hair_hipp_gaia.isChecked():
@@ -6926,6 +7229,9 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
     def ast_pl_combo(self):
         global fit
 
+        phase_slot = self.ast_phase_planet.currentData()
+        phase_blocker = QtCore.QSignalBlocker(self.ast_phase_planet)
+        self.ast_phase_planet.clear()
         self.ast_comboBox_pl.clear()
         self.ast_o_c_comboBox_pl.clear()
         self.ast_comboBox_pl_hipp_gaia.clear()
@@ -6935,6 +7241,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
             if not bool(fit.use_planet[i]):
                 continue
+            self.ast_phase_planet.addItem('Planet %s' % str(i + 1), i)
             self.ast_comboBox_pl.addItem('Planet %s'%str(i+1),i+1) 
             self.ast_o_c_comboBox_pl.addItem('Planet %s'%str(i+1),i+1) 
             self.ast_comboBox_pl_hipp_gaia.addItem('Planet %s'%str(i+1),i+1) 
@@ -6942,7 +7249,12 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         self.ast_comboBox_pl.setCurrentIndex(0)
         self.ast_o_c_comboBox_pl.setCurrentIndex(0)
         self.ast_comboBox_pl_hipp_gaia.setCurrentIndex(0)
-        
+        phase_index = self.ast_phase_planet.findData(phase_slot)
+        self.ast_phase_planet.setCurrentIndex(max(phase_index, 0))
+        del phase_blocker
+        self.update_ast_phase_controls()
+
+
 ############################# N-Body plots ########################################     
 
 
@@ -7956,7 +8268,10 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             self.cross_hair(pe1,log=False)   
 
 
-    ############### VERY VERY VERY Ugly fix !!!! 
+    ############### VERY VERY VERY Ugly fix !!!!
+
+        self.update_residual_subpanels()
+
 
     def extra_RV_GLS_plots(self):
         global fit,  pe2 
@@ -9071,51 +9386,90 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 
 ################################ Astr. files (Hipp) #####################################
 
+    def display_standard_astrometry(self, gaia):
+        """Show comparison coordinates separately from catalogue offsets."""
+        global fit
+        datasets = fit.ast_data_sets_gaia if gaia else fit.ast_data_sets_hipp
+        records = datasets.values() if isinstance(datasets, dict) else datasets
+        loaded = [dataset for dataset in records if len(dataset)]
+        selected = [dataset for dataset in loaded if dataset[2]]
+        dataset = (selected or loaded)[0] if loaded else None
+        header = dataset[3] if dataset is not None else {}
+
+        def formatted(value, decimals=3):
+            try:
+                number = float(value)
+            except (TypeError, ValueError):
+                return '---'
+            return f'{number:.{decimals}f}' if np.isfinite(number) else '---'
+
+        self.ast_std_label_ra.setText(formatted(header.get('RAdeg'), 10))
+        self.ast_std_label_dec.setText(formatted(header.get('DEdeg'), 10))
+        alpha = header.get('delta_RA', header.get('ALOffsetRA', 0.)) if gaia else 0.
+        delta = header.get('deltaDE', header.get('ALOffsetDE', 0.)) if gaia else 0.
+        values = [alpha, delta, header.get('Plx', 0.),
+                  header.get('pm_RA', 0.), header.get('pm_DE', 0.)]
+        error_keys = ['e_RA', 'e_DE', 'e_Plx', 'e_pmRA', 'e_pmDE']
+        labels = [self.ast_std_label_alpha, self.ast_std_label_delta,
+                  self.ast_std_label_pi, self.ast_std_label_mu_alpha,
+                  self.ast_std_label_mu_delta]
+        for label, value, error_key in zip(labels, values, error_keys):
+            error = header.get(error_key, '---' if header else 0.)
+            label.setText(f'{formatted(value)} +/- {formatted(error)}')
+        derivatives = [
+            ('dpmRA', 'e_dpmRA', self.ast_std_label_mu_alpha_dot),
+            ('dpmDE', 'e_dpmDE', self.ast_std_label_mu_delta_dot),
+            ('ddpmRA', 'e_ddpmRA', self.ast_std_label_mu_alpha_ddot),
+            ('ddpmDE', 'e_ddpmDE', self.ast_std_label_mu_delta_ddot),
+        ]
+        for value_key, error_key, label in derivatives:
+            value = formatted(header.get(value_key, 0.))
+            error = formatted(header.get(error_key, 0.))
+            if value == '---':
+                value = '0.000'
+            if error == '---':
+                error = '0.000'
+            label.setText(f'{value} +/- {error}')
+
+
     def check_std_ast_solution(self):
-        global fit      
-        
-        for i in range(1): #TBD fixed!!!!
+        """Restore the saved catalogue, with data-aware defaults for old sessions."""
+        global fit
+        choice = getattr(fit, 'ast_standard_solution', None)
+        loaded = {}
+        for mission in ('gaia', 'hipp'):
+            datasets = getattr(fit, 'ast_data_sets_' + mission, {})
+            records = datasets.values() if isinstance(datasets, dict) else datasets
+            loaded[mission] = any(len(record) for record in records)
 
-            if self.radioButton_gaia_std_sol.isChecked():
-                if len(fit.ast_data_sets_gaia[i]) != 0:
+        if choice not in loaded or (not loaded[choice] and any(loaded.values())):
+            choice = 'hipp' if loaded['hipp'] and not loaded['gaia'] else 'gaia'
+        fit.ast_standard_solution = choice
+        gaia_blocker = QtCore.QSignalBlocker(self.radioButton_gaia_std_sol)
+        hipp_blocker = QtCore.QSignalBlocker(self.radioButton_hipp_std_sol)
+        self.radioButton_gaia_std_sol.setChecked(choice == 'gaia')
+        self.radioButton_hipp_std_sol.setChecked(choice == 'hipp')
+        del gaia_blocker, hipp_blocker
+        self.display_standard_astrometry(choice == 'gaia')
 
-                    try:
-                        self.ast_std_label_alpha.setText("%.3f +/- %.3f "%(fit.ast_data_sets_gaia[i][3]["RAdeg"],fit.ast_data_sets_gaia[i][3]["e_RA"]))                    
-                        self.ast_std_label_delta.setText("%.3f +/- %.3f "%(fit.ast_data_sets_gaia[i][3]["DEdeg"],fit.ast_data_sets_gaia[i][3]["e_DE"]))                    
-                        self.ast_std_label_pi.setText("%.3f +/- %.3f "%(fit.ast_data_sets_gaia[i][3]["Plx"],fit.ast_data_sets_gaia[i][3]["e_Plx"]))
-                        self.ast_std_label_mu_alpha.setText("%.3f +/- %.3f "%(fit.ast_data_sets_gaia[i][3]["pm_RA"],fit.ast_data_sets_gaia[i][3]["e_pmRA"]))                    
-                        self.ast_std_label_mu_delta.setText("%.3f +/- %.3f "%(fit.ast_data_sets_gaia[i][3]["pm_DE"],fit.ast_data_sets_gaia[i][3]["e_pmDE"]))             
-                    except:
-                        print("No Gaia stdandard solution found in the loaded memory! Make sure the input astrometric file is following the requested format (see READ ME button)")
+    def select_standard_astrometry(self, button, checked):
+        """Store an explicit catalogue choice in the active session."""
+        global fit
+        if not checked:
+            return
+        fit.ast_standard_solution = (
+            'gaia' if button is self.radioButton_gaia_std_sol else 'hipp')
+        self.check_std_ast_solution()
 
-                else:                       
-                    self.ast_std_label_alpha.setText("%.3f +/- %.3f "%(0.000,0.000))                    
-                    self.ast_std_label_delta.setText("%.3f +/- %.3f "%(0.000,0.000))                    
-                    self.ast_std_label_pi.setText("%.3f +/- %.3f "%(0.000,0.000))
-                    self.ast_std_label_mu_alpha.setText("%.3f +/- %.3f "%(0.000,0.000))                    
-                    self.ast_std_label_mu_delta.setText("%.3f +/- %.3f "%(0.000,0.000))                    
- 
-            if self.radioButton_hipp_std_sol.isChecked():
-                if len(fit.ast_data_sets_hipp[i]) != 0:
+    def restore_astrometry_selectors(self):
+        """Restore selectors before other widget signals can read their state."""
+        global fit
+        ensure_velocity_settings(fit)
+        cartesian = fit.astrometric_cartesian
+        self.radioButton_astrometry_cartesian.setChecked(cartesian)
+        self.radioButton_astrometry_standard.setChecked(not cartesian)
+        self.check_std_ast_solution()
 
-                    try:
-                        self.ast_std_label_alpha.setText("%.3f +/- %.3f "%(fit.ast_data_sets_hipp[i][3]["RAdeg"],fit.ast_data_sets_hipp[i][3]["e_RA"]))                    
-                        self.ast_std_label_delta.setText("%.3f +/- %.3f "%(fit.ast_data_sets_hipp[i][3]["DEdeg"],fit.ast_data_sets_hipp[i][3]["e_DE"]))                    
-                        self.ast_std_label_pi.setText("%.3f +/- %.3f "%(fit.ast_data_sets_hipp[i][3]["Plx"],fit.ast_data_sets_hipp[i][3]["e_Plx"]))
-                        self.ast_std_label_mu_alpha.setText("%.3f +/- %.3f "%(fit.ast_data_sets_hipp[i][3]["pm_RA"],fit.ast_data_sets_hipp[i][3]["e_pmRA"]))                    
-                        self.ast_std_label_mu_delta.setText("%.3f +/- %.3f "%(fit.ast_data_sets_hipp[i][3]["pm_DE"],fit.ast_data_sets_hipp[i][3]["e_pmDE"]))             
-                    except:
-                        print("No Hipparcos stdandard solution found in the loaded memory! Make sure the input astrometric file is following the requested format (see READ ME button)")
-
-                else:                       
-                    self.ast_std_label_alpha.setText("%.3f +/- %.3f "%(0.000,0.000))                    
-                    self.ast_std_label_delta.setText("%.3f +/- %.3f "%(0.000,0.000))                    
-                    self.ast_std_label_pi.setText("%.3f +/- %.3f "%(0.000,0.000))
-                    self.ast_std_label_mu_alpha.setText("%.3f +/- %.3f "%(0.000,0.000))                    
-                    self.ast_std_label_mu_delta.setText("%.3f +/- %.3f "%(0.000,0.000))                    
-                 
-                
-                               
     def showDialog_ast_input_file_2(self):
         global fit
 
@@ -9247,29 +9601,9 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
 ################################ Astr. files (Gaia) #####################################
 
     def check_std_ast_solution_gaia(self):
-        global fit      
-        
-        for i in range(1): #TBD fixed!!!!
-            #print("TEST",fit.ast_data_sets_gaia[i]) 
-            if len(fit.ast_data_sets_gaia[i]) != 0:
+        """Refresh the Gaia catalogue after importing Gaia measurements."""
+        self.display_standard_astrometry(True)
 
-                try:
-                    self.ast_std_label_alpha.setText("%.3f +/- %.3f "%(fit.ast_data_sets_gaia[i][9]["RAdeg"],fit.ast_data_sets_gaia[i][9]["e_RA"]))                    
-                    self.ast_std_label_delta.setText("%.3f +/- %.3f "%(fit.ast_data_sets_gaia[i][9]["DEdeg"],fit.ast_data_sets_gaia[i][9]["e_DE"]))                    
-                    self.ast_std_label_pi.setText("%.3f +/- %.3f "%(fit.ast_data_sets_gaia[i][9]["Plx"],fit.ast_data_sets_gaia[i][9]["e_Plx"]))
-                    self.ast_std_label_mu_alpha.setText("%.3f +/- %.3f "%(fit.ast_data_sets_gaia[i][9]["pm_RA"],fit.ast_data_sets_gaia[i][9]["e_pmRA"]))                    
-                    self.ast_std_label_mu_delta.setText("%.3f +/- %.3f "%(fit.ast_data_sets_gaia[i][9]["pm_DE"],fit.ast_data_sets_gaia[i][9]["e_pmDE"]))             
-                except:
-                    print("No Hipp./Gaia std. solution found in the loaded memory! Make sure the input astrometric file is following the requested format (see READ ME button)")
-
-            else:                       
-                self.ast_std_label_alpha.setText("%.3f +/- %.3f "%(0.000,0.000))                    
-                self.ast_std_label_delta.setText("%.3f +/- %.3f "%(0.000,0.000))                    
-                self.ast_std_label_pi.setText("%.3f +/- %.3f "%(0.000,0.000))
-                self.ast_std_label_mu_alpha.setText("%.3f +/- %.3f "%(0.000,0.000))                    
-                self.ast_std_label_mu_delta.setText("%.3f +/- %.3f "%(0.000,0.000))                    
-                
-                               
     def showDialog_ast_input_file_3(self):
         global fit
 
@@ -11429,6 +11763,7 @@ will be highly appreciated!
             fit = ses_list[ind]
             
 
+        self.restore_astrometry_selectors()
         self.check_type_fit()
 
         
@@ -12797,6 +13132,7 @@ np.min(y_err), np.max(y_err),   np.mean(y_err),  np.median(y_err))
 
     def mute_boxes(self):
         global fit
+        previous_mass_convention = physical_mass_mode(fit)
         ensure_mass_settings(fit)
 
 #        self.get_jupyter_vars()
@@ -13018,6 +13354,17 @@ Please install via 'pip install ttvfast'.
             print("Use only RV jitter boolean for data 1, and mute the rest!")
         
 
+
+        if fit.mass_parameterization and previous_mass_convention != physical_mass_mode(fit):
+            # Changing the selected data must preserve K and the current orbit.
+            fit.mass_parameterization = False
+            try:
+                sync_amplitudes(fit)
+            finally:
+                fit.mass_parameterization = True
+        elif not fit.mass_parameterization:
+            sync_amplitudes(fit)
+        self.sync_mass_controls()
 
         if hasattr(self, 'stellar_density_controls'):
             self.stellar_density_controls.sync()
@@ -15012,9 +15359,16 @@ Please install via 'pip install ttvfast'.
         
         self.ast_model_color_gradient.stateChanged.connect(self.update_ast_plots)
 
-        self.ast_o_c_hipp_gaia.stateChanged.connect(self.update_ast_plots)
+        self.ast_show_raw_data.stateChanged.connect(self.update_ast_plots)
 
         self.radioButton_show_gaia.toggled.connect(self.update_ast_plots)
+        self.radioButton_show_hipp.toggled.connect(self.update_ast_plots)
+        self.radioButton_show_ast_combined.toggled.connect(self.update_ast_plots)
+        self.ast_show_residual_panel.toggled.connect(self.update_ast_plots)
+        self.ast_show_binned.toggled.connect(self.update_ast_plots)
+        self.ast_show_unbinned.toggled.connect(self.update_ast_plots)
+        self.ast_time_bin_width.valueChanged.connect(self.update_ast_plots)
+        self.ast_phase_bin_width.valueChanged.connect(self.update_ast_plots)
 
 
 
@@ -15058,9 +15412,15 @@ Please install via 'pip install ttvfast'.
         self.ast_o_c_plot_cross_hair.stateChanged.connect(self.update_ast_plots)
         self.ast_plot_cross_hair_hipp_gaia.stateChanged.connect(self.update_ast_plots)
         
+        self.ast_show_phased.toggled.connect(self.update_ast_plots)
+        self.ast_phase_fold.toggled.connect(self.update_ast_plots)
+        self.ast_phase_slider.valueChanged.connect(self.update_ast_plots)
+        self.ast_phase_planet.currentIndexChanged.connect(self.update_ast_plots)
         self.ast_use_plot_ra_dec.stateChanged.connect(self.update_ast_plots)         
         self.ast_o_c.stateChanged.connect(self.update_ast_plots) 
 
+        self.radioButton_astrometry_cartesian.toggled.connect(self.set_astrometric_mode)
+        self.use_ast_radial_velocity.toggled.connect(self.update_ast_use)
         self.buttonGroup_use_ast_plot_RA_Dec.buttonClicked.connect(self.update_ast_plots)
         #self.ast_apply_mean_period.stateChanged.connect(self.update_ast_plots)
 
@@ -15274,7 +15634,7 @@ Please install via 'pip install ttvfast'.
        
         self.trans_phase_slider.valueChanged.connect(self.update_transit_plots)       
         self.tra_xaxis_offset.valueChanged.connect(self.update_transit_plots)
-        self.tra_plot_add_o_c.stateChanged.connect(self.update_transit_plots)                
+        self.tra_plot_add_o_c.toggled.connect(self.update_residual_subpanels)                
 
         self.plot_transit_GP_model.stateChanged.connect(self.update_transit_plots) 
 
@@ -15286,7 +15646,7 @@ Please install via 'pip install ttvfast'.
         self.rv_model_width.valueChanged.connect(self.update_extra_plots)    
         self.RV_model_z.valueChanged.connect(self.update_RV_plots)
         self.RV_model_z.valueChanged.connect(self.update_extra_plots)    
-        self.RV_plot_add_o_c.stateChanged.connect(self.update_RV_plots)
+        self.RV_plot_add_o_c.toggled.connect(self.update_residual_subpanels)
         self.extra_plot_RVphase_norm.stateChanged.connect(
             lambda: self.phase_plots(self.comboBox_extra_plot.currentData())
             if self.comboBox_extra_plot.currentData() is not None else None)    
@@ -15519,7 +15879,8 @@ Please install via 'pip install ttvfast'.
         self.radioButton_plmass.toggled.connect(self.set_mass_parameterization)
  
  
-        self.radioButton_gaia_std_sol.toggled.connect(self.check_std_ast_solution)
+        self.buttonGroup_standard_astrometry.buttonToggled.connect(
+            self.select_standard_astrometry)
 
 
         self.radioButton_RV_WF_period.toggled.connect(self.update_WF_plots)

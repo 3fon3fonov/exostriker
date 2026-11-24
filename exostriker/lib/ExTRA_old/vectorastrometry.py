@@ -1,7 +1,7 @@
 """
 Provides vector astrometry functions.
 """
-#Thank you Anthony Brown from Leiden University for letting me copy this code to safe some work
+#Thank you Anthony Brown from Leiden University for letting me copy this code to save some work
 
 
 

@@ -18,7 +18,7 @@ def thiele(a,omega,Omega,i):
     """Thiele Innes Constants"""
     
     
-    #omega=omega+np.pi
+    
     
     A=a*(np.cos(omega)*np.cos(Omega)-np.sin(omega)*np.sin(Omega)*np.cos(i)) 
     B=a*(np.cos(omega)*np.sin(Omega)+np.sin(omega)*np.cos(Omega)*np.cos(i)) 
@@ -96,7 +96,7 @@ def orbit(planet,t):
 
         P,e,om,i,Om,T0,a=planet
         #calculating thiele constants
-        const=thiele(a,om,Om,i)
+        A,B,F,G=thiele(a,om,Om,i)
 
         #calculating E
         M=2*np.pi*((t-T0)%P)/P
@@ -108,10 +108,10 @@ def orbit(planet,t):
 
         #const=A,B,F,G
         #with thiele, X,Y, we can calculate the final position x,y for a time t
-        x=const[1]*X+const[3]*Y
-        y=const[0]*X+const[2]*Y
+        x=A*X+F*Y
+        y=B*X+G*Y
 
-        return x,y
+        return y,x
 
 
 
@@ -124,7 +124,6 @@ def orbit_total(pars,t):
     Parameters:
     ---------
     pars: numpy array of either shape (7,) if one planet or (n,7) for n planets.
-    An empty array represents the single-star model with no orbital motion.
     the 7 length arrays are made up of P,e,om,i,Om,T0,a in this exact order
 
     Returns:
@@ -132,10 +131,8 @@ def orbit_total(pars,t):
     x_sum,y_sum: sum of positions of planets
     """
 
-    pars = np.asarray(pars, dtype=float)
-    t = np.asarray(t, dtype=float)
-    x_sum = np.zeros_like(t, dtype=float)
-    y_sum = np.zeros_like(t, dtype=float)
+    x_sum=0
+    y_sum=0
 
     if pars.shape==(7,):
         x_sum,y_sum=orbit(pars,t)
@@ -373,7 +370,8 @@ def secondary_mass(M_prime,parallax,P,e,i,a,unit="jup"):
     print("K:")
     print(K)
     #print((2*np.pi*G)*(M_s**2))
-    M_s=((K**3) *(P*24*60**2)/(2*np.pi*G*np.sin(i)**3)*(M_prime**2))**(1/3)
+    M_p=M_prime*M_sun
+    M_s=((K**3) *(P*24*60**2)/(2*np.pi*G*np.sin(i)**3)*(M_p**2))**(1/3)
 
     if unit=="jup":
         return M_s/M_jup

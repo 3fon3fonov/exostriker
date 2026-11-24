@@ -3,6 +3,8 @@
 import numpy as np
 from numba import jit
 
+__all__ = ["calc_E", "calc_f", "RV_mod"]
+
 
 @jit(nopython=True)
 def calc_E(e,M,n=30):

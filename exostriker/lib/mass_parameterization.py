@@ -1,13 +1,18 @@
 """Alternative mass coordinates, with K retained for existing model interfaces.
 
-Masses are in Jupiter masses. Dynamical masses are physical Jacobi masses;
-Keplerian masses are exact edge-on minimum masses (usually called m sin i).
+Masses are in Jupiter masses. N-body and astrometric models use physical
+Jacobi masses; RV-only Keplerian models use exact edge-on minimum masses.
 """
 import copy
 import numpy as np
 from RV_mod.jacobi import GMSUN, TWOPI, mass_a_from_jacobi_el
 
 MSUN_TO_MJUP = 1047.5654817267318
+
+
+def physical_mass_mode(session):
+    """Use inclination when dynamics or astrometry constrain the physical orbit."""
+    return bool(session.mod_dynamical or getattr(session, 'type_fit', {}).get('AST', False))
 
 
 def amplitude_root(session):
@@ -30,13 +35,30 @@ def ensure_mass_settings(session):
     for name, value in defaults.items():
         if not hasattr(session, name):
             setattr(session, name, {i: copy.deepcopy(value) for i in range(9)})
+    if not hasattr(session, 'astrometric_mass_convention_version'):
+        # Older Keplerian astrometric sessions saved mp as an edge-on mass.
+        # Reconstruct true masses from their saved K, preserving the RV orbit.
+        if session.mass_parameterization and not session.mod_dynamical and physical_mass_mode(session):
+            slots = list(np.flatnonzero(session.use_planet))
+            rows = session_rows(session, slots)
+            masses, _ = mass_a_from_jacobi_el(rows, len(slots), session.params.stellar_mass)
+            for index, slot in enumerate(slots):
+                session.mp[slot] = masses[index]
+            for slot in range(9):
+                session.mp_err[slot] = [0., 0.]
+        session.astrometric_mass_convention_version = 1
+
     session.mp_str = {i: r'$m_%s$ [M$_J$]' % chr(98+i) for i in range(9)}
-    if not session.mod_dynamical:
+    if not physical_mass_mode(session):
         session.mp_str = {i: r'$m_{%s,\min}$ [M$_J$]' % chr(98+i) for i in range(9)}
 
 
 def masses_to_k(rows, masses, stellar_mass, dynamical=True):
-    """Convert a full period-ordered Jacobi system to equivalent RV amplitudes."""
+    """Convert a period-ordered Jacobi system to equivalent RV amplitudes.
+
+    The historical dynamical flag applies sin(i) for physical masses, including
+    Keplerian astrometric models. False denotes edge-on minimum masses.
+    """
     rows = np.asarray(rows, float).reshape(-1, 7)
     masses = np.asarray(masses, float) / MSUN_TO_MJUP
     if masses.shape != (len(rows),):
@@ -86,11 +108,11 @@ def sync_amplitudes(session):
     if mass_mode:
         amplitudes = masses_to_k(
             rows, [session.mp[i] for i in slots],
-            session.params.stellar_mass, session.mod_dynamical)
+            session.params.stellar_mass, physical_mass_mode(session))
         for index, slot in enumerate(slots):
             session.K[slot] = amplitudes[index]
     else:
-        if not session.mod_dynamical:
+        if not physical_mass_mode(session):
             rows[:, 5] = 90.
         try:
             masses, _ = mass_a_from_jacobi_el(
@@ -115,7 +137,7 @@ def set_mass_mode(session, enabled):
         rows = session_rows(session, slots)
         if np.any(rows[:, 0] < 0):
             raise ValueError('Switching to mass requires nonnegative RV amplitudes.')
-        if not session.mod_dynamical:
+        if not physical_mass_mode(session):
             rows[:, 5] = 90.
         masses, _ = mass_a_from_jacobi_el(rows, len(slots), session.params.stellar_mass)
         for index, slot in enumerate(slots):
@@ -137,7 +159,7 @@ def configure_mass_options(session, options):
         if bool(np.asarray(getattr(session, 'mixed_fit', [False])[0]).item()):
             raise ValueError('Mass parameterization is not yet supported for mixed dynamical subsets.')
     options['mass_parameterization'] = getattr(session, 'mass_parameterization', False)
-    options['mass_dynamical'] = session.mod_dynamical
+    options['mass_dynamical'] = physical_mass_mode(session)
 
 
 def vector_to_k(parameters, npl, ndset, options):
@@ -159,7 +181,7 @@ def model_vector(session):
         return session.parameters
     ndset = len(getattr(session, 'mcmc_dataset_slots', ()))
     options = dict(hkl=session.hkl, copl_incl=session.copl_incl,
-                   mass_dynamical=session.mod_dynamical)
+                   mass_dynamical=physical_mass_mode(session))
     return vector_to_k(session.parameters, session.npl, ndset, options)
 
 

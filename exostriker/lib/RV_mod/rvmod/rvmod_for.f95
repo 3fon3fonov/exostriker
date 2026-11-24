@@ -1183,6 +1183,7 @@ subroutine compute_abs_loglik_dyn(ndata, x, y, a2, ma, mfit, ts, &
         sig, loglik, a, ia, epsil, deltat, hkl, dynamical_planets, &
         coplar_inc,jit_flag)
 
+    use, intrinsic :: ieee_arithmetic, only: ieee_is_finite
     use rv_optimizer_state
     implicit none
     integer :: MMAX, npl, ndset, NDSMAX, idset, mfit, hkl, gr_flag,ndata
@@ -1223,6 +1224,10 @@ subroutine compute_abs_loglik_dyn(ndata, x, y, a2, ma, mfit, ts, &
 
     call RVKEP_dynamo (x, a3, y2, y_pl, ma, ndata, epsil, deltat, hkl, &
             dynamical_planets, ts, coplar_inc)
+    if (.not.all(ieee_is_finite(y2))) then
+        loglik = huge(1.d0)/100.d0
+        return
+    endif
 
 
     do i = 1, ndata
@@ -3375,6 +3380,7 @@ end
 
 subroutine integrate_cop_fin(ymod, ymod_pl, t, nbod, ndata, mass, &
         xh, yh, zh, vxh, vyh, vzh, eps, dt)
+    use, intrinsic :: ieee_arithmetic, only: ieee_is_finite, ieee_value, ieee_quiet_nan
     include 'rvmod.inc'
 
     integer :: nbod, ndata, i, j, k, left, middle, right, width
@@ -3395,6 +3401,10 @@ subroutine integrate_cop_fin(ymod, ymod_pl, t, nbod, ndata, mass, &
     initial(5,:) = vyh(1:nbod)
     initial(6,:) = vzh(1:nbod)
     mtotal = sum(mass(1:nbod))
+
+    if (.not.all(ieee_is_finite(initial)) .or. .not.all(ieee_is_finite(mass(1:nbod)))) goto 900
+    if (.not.all(ieee_is_finite(t)) .or. .not.all(ieee_is_finite([dt, eps]))) goto 900
+    if (eps <= 0.d0 .or. mtotal <= 0.d0) goto 900
 
     ! Stable merge sort of row indices: accept arbitrary input order without
     ! changing observation rows, and avoid a quadratic scan at every step.
@@ -3465,6 +3475,8 @@ subroutine integrate_cop_fin(ymod, ymod_pl, t, nbod, ndata, mass, &
                 if (h == 0.d0) h = remaining
                 call bs_step2(nbod, mass, 0.d0, 0.d0, &
                         xh, yh, zh, vxh, vyh, vzh, h, eps)
+                if (.not.all(ieee_is_finite(vzh(1:nbod)))) goto 900
+                if (time + h == time) goto 900
                 if (abs(h) >= abs(remaining)) then
                     time = target
                 else
@@ -3478,10 +3490,15 @@ subroutine integrate_cop_fin(ymod, ymod_pl, t, nbod, ndata, mass, &
             previous = row
         enddo
     enddo
+    return
+900 continue
+    ymod = ieee_value(0.d0, ieee_quiet_nan)
+    ymod_pl = ieee_value(0.d0, ieee_quiet_nan)
 end
 
 subroutine bs_step2(nbod, mass, j2rp2, j4rp4, &
         xh, yh, zh, vxh, vyh, vzh, dt, eps)
+    use, intrinsic :: ieee_arithmetic, only: ieee_is_finite, ieee_value, ieee_quiet_nan
     include 'rvmod.inc'
     include 'bs.inc'
 
@@ -3497,7 +3514,7 @@ subroutine bs_step2(nbod, mass, j2rp2, j4rp4, &
     integer ::  i, ntpi
     real(8) :: xb(NPLMAX), yb(NPLMAX), zb(NPLMAX), eps
     real(8) :: vxb(NPLMAX), vyb(NPLMAX), vzb(NPLMAX)
-    real(8) :: ybs(6, (NTPMAX + NPLMAX)), tfake, dttmp, msys
+    real(8) :: ybs(6, (NTPMAX + NPLMAX)), tfake, dttmp, msys, previous
 
     !...  Executable code
 
@@ -3527,8 +3544,19 @@ subroutine bs_step2(nbod, mass, j2rp2, j4rp4, &
     dttmp = dt
 
     do while(abs(tfake - dt) > 1.0e-7 * abs(dt))
+        previous = tfake
         call bs_int_pl(nbod, ntpi, mass, j2rp2, j4rp4, &
                 tfake, dttmp, ybs, eps)
+        if (.not.ieee_is_finite(tfake) .or. tfake == previous .or. &
+                .not.all(ieee_is_finite(ybs(:,1:nbod)))) then
+            xh = ieee_value(0.d0, ieee_quiet_nan)
+            yh = xh
+            zh = xh
+            vxh = xh
+            vyh = xh
+            vzh = xh
+            return
+        endif
         dttmp = dt - tfake
     enddo
 
@@ -3812,6 +3840,7 @@ end
 subroutine MRQCOF_dynlm (x, ts, y, sig, ndata, a, ia, ma, alpha, beta, nalp, &
         chisq, funcs, loglik, jitt, epsil, deltat, hkl, coplar_inc, &
         dynamical_planets)
+    use, intrinsic :: ieee_arithmetic, only: ieee_is_finite
     use rv_optimizer_state
     implicit none
     integer ::  npl, ndset, idset, ma, nalp, ndata, ia(ma), NDSMAX, MMAX
@@ -3851,6 +3880,14 @@ subroutine MRQCOF_dynlm (x, ts, y, sig, ndata, a, ia, ma, alpha, beta, nalp, &
 
     ! Loop over all data.
     call FUNCS (x, a, ymod, ymod_pl, dyda, ma, ndata, epsil, deltat, hkl, coplar_inc, dynamical_planets, ia)
+    if (.not.all(ieee_is_finite(ymod)) .or. .not.all(ieee_is_finite(dyda(:,1:ma)))) then
+        chisq = huge(1.d0)/100.d0
+        loglik = -chisq
+        alpha = 0.d0
+        beta = 0.d0
+        return
+    endif
+
 
     do i = 1, ndata
         idset = ts(i)
@@ -5273,6 +5310,7 @@ end
 ! Date:    5/17/93
 ! Last revision: 2/24/94
 subroutine bs_int_pl(nbod, ntp, mass, j2rp2, j4rp4, x, h0, y, eps)
+    use, intrinsic :: ieee_arithmetic, only: ieee_is_finite, ieee_value, ieee_quiet_nan
     include 'rvmod.inc'
     include 'bs.inc'
 
@@ -5301,8 +5339,14 @@ subroutine bs_int_pl(nbod, ntp, mass, j2rp2, j4rp4, x, h0, y, eps)
     !...  Executable code
     n = 6 * (nbod + ntp)
     xa = x
+    ! An invalid trial must return to the optimizer, never retry unchanged time.
+    if (.not.all(ieee_is_finite(y(1:n)))) goto 900
+    if (.not.all(ieee_is_finite(mass))) goto 900
+    if (.not.all(ieee_is_finite([x, h0, eps]))) goto 900
+    if (eps <= 0.d0 .or. h0 == 0.d0) goto 900
 
     call bs_der_pl(nbod, mass, j2rp2, j4rp4, y, dy)
+    if (.not.all(ieee_is_finite(dy(1:n)))) goto 900
     do i = 1, n
         ii = 12 * i
         tp(ii - 1) = dabs(y(i))
@@ -5317,6 +5361,7 @@ subroutine bs_int_pl(nbod, ntp, mass, j2rp2, j4rp4, x, h0, y, eps)
 
     do idiv = 0, NTRYS
         xb = h0 + xa
+        if (xb == xa .or. .not.ieee_is_finite(xb)) goto 900
         !successive extrapolations
         m = 1
         lbreak = .true.
@@ -5347,6 +5392,7 @@ subroutine bs_int_pl(nbod, ntp, mass, j2rp2, j4rp4, x, h0, y, eps)
             do i1 = 1, i1max
                 x = x + hd
                 call bs_der_pl(nbod, mass, j2rp2, j4rp4, y, dy)
+                if (.not.all(ieee_is_finite(dy(1:n)))) goto 800
                 do i = 1, n
                     ii = 12 * i
                     tp(ii - 1) = dmax1(tp(ii - 1), dabs(y(i)))
@@ -5357,6 +5403,7 @@ subroutine bs_int_pl(nbod, ntp, mass, j2rp2, j4rp4, x, h0, y, eps)
             enddo
 
             call bs_der_pl(nbod, mass, j2rp2, j4rp4, y, dy)
+            if (.not.all(ieee_is_finite(dy(1:n)))) goto 800
             do i = 1, n
                 ii = 12 * i
                 dta = tp(ii - 11)
@@ -5393,6 +5440,7 @@ subroutine bs_int_pl(nbod, ntp, mass, j2rp2, j4rp4, x, h0, y, eps)
                         ii = 12 * i
                         y(i) = tp(ii - 2)
                     enddo
+                    if (.not.all(ieee_is_finite(y(1:n)))) goto 800
                     h0 = h0 * 1.5d0 * 0.6d0**(m - 1 - m1) !recommend a new step size
                     return
                 endif
@@ -5405,9 +5453,16 @@ subroutine bs_int_pl(nbod, ntp, mass, j2rp2, j4rp4, x, h0, y, eps)
             varma = varm
             m = m + 1
         enddo
+        ! A singular intermediate approximation may resolve with a smaller
+        ! step; only the initial force or an exhausted retry is a hard failure.
+800     continue
         h0 = h0 / 2.d0
     enddo
-    write(*, *) ' ERROR (b_int): lack of convergence !!!! '
+900 continue
+    ! Callers already reject nonfinite states. Do not print per trial or leave
+    ! the last unconverged extrapolation looking like a usable model.
+    x = ieee_value(0.d0, ieee_quiet_nan)
+    y(1:n) = x
 end
 
 !**************************************************************************

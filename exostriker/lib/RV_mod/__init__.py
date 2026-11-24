@@ -94,7 +94,11 @@ from .posterior import posterior_summary, posterior_errors
 from .dilution import ensure_dilution_parameters, validate_dilution
 from .Warning_log import Warning_log
 from .functions import *
+from astrometric_velocity import (
+    pack_velocity, publish_velocity, velocity_from_parameters,
+)
 from .gaia_data import prepare_gaia_dataset
+from .hipparcos_data import prepare_hipparcos_dataset
 
 from .errors import Error, InputError, FittingError
 from .rv_files import rvfile, rvfile_list
@@ -519,12 +523,41 @@ def ttvs_mod(par,vel_files,npl, stellar_mass, times, planet_N, hkl, fit_results=
  
     return calc_model
  
- 
+def ast_loglik_all(par, vel_files, ast_files_hipp, ast_files_gaia, npl,
+                   stellar_mass, times, hkl, fit_results=False,
+                   return_model=False, model_max=0, model_samp=1000, v_rad=0.):
+    """Sum selected mission likelihoods, anchoring joint fits to Gaia."""
+    hip_result = ast_loglik_hipp(
+        par, vel_files, ast_files_hipp, npl, stellar_mass, times, hkl,
+        fit_results=fit_results, return_model=return_model,
+        model_max=model_max, model_samp=model_samp, v_rad=v_rad,
+        ast_files_gaia=ast_files_gaia,
+    )
+    gaia_result = ast_loglik_gaia(
+        par, vel_files, ast_files_gaia, npl, stellar_mass, times, hkl,
+        fit_results=fit_results, return_model=return_model,
+        model_max=model_max, model_samp=model_samp, v_rad=v_rad,
+    )
+    
+    
+    if return_model:
+        print("TESSSSSTTTT")
+        return [hip_result[0] + gaia_result[0], hip_result[1], hip_result[2],
+                gaia_result[1], gaia_result[2]]
+    return hip_result + gaia_result
 
 
+def ast_loglik_hipp(par, vel_files, ast_files_hipp, npl, stellar_mass, times,
+                    hkl, fit_results=False, return_model=False, model_max=0,
+                    model_samp=1000, use_with_gaia=False, v_rad=0.0,
+                    ast_files_gaia=None):
+    """Fit Hipparcos alone, or propagate a selected Gaia solution onto it.
 
-def ast_loglik_hipp(par,vel_files, ast_files_hipp,npl,stellar_mass, times, hkl, fit_results = False , return_model = False, model_max=0, model_samp=1000):
-    """Evaluate the Hipparcos likelihood and optionally prepare sky-plane plots."""
+    Corrections refer to the Gaia solution when Gaia is selected; otherwise
+    they refer to the Hipparcos catalogue at its reference epoch.
+    """
+    
+
 
  
     loglik_ast_hipp = 0
@@ -539,9 +572,47 @@ def ast_loglik_hipp(par,vel_files, ast_files_hipp,npl,stellar_mass, times, hkl, 
     dataset_slots = [slot for slot in loaded_slots if bool(ast_files_hipp[slot][2])]
     if not dataset_slots and not (return_model and loaded_slots):
         return [loglik_ast_hipp, calc_data, calc_model] if return_model else loglik_ast_hipp
-    reference = ast_files_hipp[(dataset_slots or loaded_slots)[0]]
+    # Older sessions retain catalogue residuals. Restore their baseline once,
+    # just as for a new import, before either likelihood or plot evaluation.
+    for slot in loaded_slots:
+        if slot in dataset_slots or return_model:
+            prepare_hipparcos_dataset(ast_files_hipp[slot])
+
+    gaia_reference = None
+    if ast_files_gaia is not None:
+        gaia_datasets = (
+            ast_files_gaia.values() if isinstance(ast_files_gaia, dict)
+            else ast_files_gaia
+        )
+        gaia_reference = next(
+            (dataset for dataset in gaia_datasets if len(dataset) and dataset[2]),
+            None,
+        )
+    if use_with_gaia and gaia_reference is None:
+        raise ValueError('A selected Gaia dataset is needed to propagate its solution')
+    use_with_gaia = gaia_reference is not None
+    reference = gaia_reference if use_with_gaia else ast_files_hipp[(dataset_slots or loaded_slots)[0]]
     parallax = reference[3]['Plx'] + par[-4]
     correction = np.array([par[-6], par[-5], par[-4], par[-3], par[-2]])
+
+    def reference_solution(hip_header):
+        """Return the propagation solution, comparison point and epoch."""
+        if use_with_gaia:
+            header = gaia_reference[3]
+            offsets = [
+                header.get('delta_RA', header.get('ALOffsetRA', 0.)),
+                header.get('deltaDE', header.get('ALOffsetDE', 0.)),
+            ]
+            epoch = 2451545. + (header.get('RefEpoch', 2017.5) - 2000.) * 365.25
+        else:
+            header = hip_header
+            offsets = [0., 0.]
+            epoch = 2451545. + (header.get('RefEpoch', 1991.25) - 2000.) * 365.25
+        solution = np.array([
+            *offsets, header['Plx'], header['pm_RA'], header['pm_DE'],
+        ], dtype=float)
+        comparison_point = np.array([header['RAdeg'], header['DEdeg']], dtype=float)
+        return solution, comparison_point, epoch
 
     for i in range(npl):
         
@@ -583,9 +654,28 @@ def ast_loglik_hipp(par,vel_files, ast_files_hipp,npl,stellar_mass, times, hkl, 
     pl_params = np.asarray(pl_params, dtype=float).reshape(-1, 7)
     
     for slot in dataset_slots:
-        loglik_ast_hipp -= ex.L_hip(ast_files_hipp[slot][0], correction, pl_params)
+        header = ast_files_hipp[slot][3]
+        sss_hip = np.array([
+            header['RAdeg'], header['DEdeg'], header['Plx'],
+            header['pm_RA'], header['pm_DE'],
+        ], dtype=float)
+        sss_reference, cpo_reference, reference_epoch = reference_solution(header)
+        if use_with_gaia:
+            loglik_ast_hipp -= ex.L_hip_rigorous(
+                pl_params, correction, ast_files_hipp[slot][0], sss_hip,
+                cpo_reference, sss_reference, Sepoch=reference_epoch,
+                v_rad=v_rad, s=0,
+            )
+        else:
+            loglik_ast_hipp -= ex.L_gaia_rigorous(
+                pl_params, correction, ast_files_hipp[slot][0],
+                cpo_reference, sss_reference, Sepoch=reference_epoch,
+                v_rad=v_rad, s=0, iad_epoch=ex.J1991(),
+            )
 
     if return_model:
+    
+    
         for slot in loaded_slots:
 
             # Read the observations and set the time range for the plotted orbit.
@@ -596,36 +686,63 @@ def ast_loglik_hipp(par,vel_files, ast_files_hipp,npl,stellar_mass, times, hkl, 
             model_end = max(timestamps) + model_max
             model_times = np.linspace(model_start, model_end, model_samp)
 
-            # Apply the fitted position, parallax and proper-motion corrections.
-            scan_residuals = data[-2]
-            astrometric_derivatives = data[:5]
-            reference_correction = np.zeros(5)
+            header = ast_files_hipp[slot][3]
+            cpo_hip = np.array([header['RAdeg'], header['DEdeg']], dtype=float)
+            sss_reference, cpo_reference, reference_epoch = reference_solution(header)
+            xi, eta, parallax_at_data, orbit_times = ex.propagate_lpc(
+                sss_reference + correction, cpo_reference, timestamps,
+                v_rad=v_rad, Sepoch=reference_epoch,
+            )
+            orbit_x, orbit_y = ex.orbit_total(pl_params, orbit_times)
+            baseline_x, baseline_y = ex.gaia_lpc_to_hip_lpc(
+                xi, eta, cpo_reference, cpo_hip,
+            )
+            total_x, total_y = ex.gaia_lpc_to_hip_lpc(
+                xi + orbit_x, eta + orbit_y, cpo_reference, cpo_hip,
+            )
+            ast_x_data = total_x - baseline_x
+            ast_y_data = total_y - baseline_y
+            corrected_residuals = (
+                data[-2] - data[0] * baseline_x - data[1] * baseline_y
+                - data[2] * parallax_at_data
+            )
+            residuals = corrected_residuals - data[0] * ast_x_data - data[1] * ast_y_data
 
-            corrected_residuals = ex.abs_res(
-                scan_residuals,
-                correction,
-                reference_correction,
-                astrometric_derivatives,
+            model_xi, model_eta, _, model_orbit_times = ex.propagate_lpc(
+                sss_reference + correction, cpo_reference, model_times,
+                v_rad=v_rad, Sepoch=reference_epoch,
+            )
+            model_orbit_x, model_orbit_y = ex.orbit_total(pl_params, model_orbit_times)
+            baseline_model_x, baseline_model_y = ex.gaia_lpc_to_hip_lpc(
+                model_xi, model_eta, cpo_reference, cpo_hip,
+            )
+            total_model_x, total_model_y = ex.gaia_lpc_to_hip_lpc(
+                model_xi + model_orbit_x, model_eta + model_orbit_y,
+                cpo_reference, cpo_hip,
+            )
+            ast_x_model = total_model_x - baseline_model_x
+            ast_y_model = total_model_y - baseline_model_y
+
+            plot_iad = data.copy()
+            plot_iad[-2] = corrected_residuals
+            
+            
+            observed = ex.hip_2d(plot_iad)
+            plot_iad[-2] = residuals
+            
+            
+            #print(corrected_residuals)
+            
+            residual_x, error_x, residual_y, error_y = ex.hip_2d(plot_iad)
+            observations_on_orbit = (
+                residual_x + ast_x_data, error_x,
+                residual_y + ast_y_data, error_y,
             )
 
-            # Evaluate the orbit on the plotting grid and at the observation times.
-            ast_x_model, ast_y_model = ex.orbit_total(pl_params, model_times)
-            ast_x_data, ast_y_data = ex.orbit_total(pl_params, timestamps)
-
-            # Project the orbital displacement onto each measurement's scan direction.
-            scan_x = data[0]
-            scan_y = data[1]
-            along_scan_model = scan_x * ast_x_data + scan_y * ast_y_data
-            residuals = corrected_residuals - along_scan_model
-
-            # Convert to sky coordinates. The second helper adds the orbit back
-            # to the projected residuals so the observations can be plotted around it.
-            observed = ex.hip_2d(data)
-            observations_on_orbit = ex.res_to_orbit(residuals, data, pl_params)
-
-            # Preserve the plot-data layout: observations, orbit projection, times.
-            plot_data = np.empty(3, dtype=object)
-            plot_data[:] = [observed, observations_on_orbit, timestamps]
+            # Keep the original entries and append exact residuals at observation times.
+            sky_residuals = (residual_x, error_x, residual_y, error_y)
+            plot_data = np.empty(4, dtype=object)
+            plot_data[:] = [observed, observations_on_orbit, timestamps, sky_residuals]
 
             calc_data[slot] = plot_data
             calc_model[slot] = np.array([ast_x_model, ast_y_model, model_times])
@@ -636,7 +753,7 @@ def ast_loglik_hipp(par,vel_files, ast_files_hipp,npl,stellar_mass, times, hkl, 
         return loglik_ast_hipp
 
  
-def ast_loglik_gaia(par,vel_files, ast_files_gaia,npl,stellar_mass, times, hkl, fit_results = False , return_model = False, model_max=0, model_samp=1000):
+def ast_loglik_gaia(par,vel_files, ast_files_gaia,npl,stellar_mass, times, hkl, fit_results = False , return_model = False, model_max=0, model_samp=1000, v_rad=0.):
     """Evaluate the Gaia likelihood and optionally prepare sky-plane plots."""
  
     loglik_ast_gaia = 0
@@ -693,10 +810,22 @@ def ast_loglik_gaia(par,vel_files, ast_files_gaia,npl,stellar_mass, times, hkl, 
 
     pl_params = np.asarray(pl_params, dtype=float).reshape(-1, 7)
     
+    
     for slot in dataset_slots:
-        # New imports are residuals; legacy preparation is cached once.
-        res_astrometric = prepare_gaia_dataset(ast_files_gaia[slot])
-        loglik_ast_gaia -= ex.L_gaia(res_astrometric, correction, pl_params)
+        dataset = ast_files_gaia[slot]
+        gaia_iad = prepare_gaia_dataset(dataset)
+        header = dataset[3]
+        cpo_gaia = np.array([header['RAdeg'], header['DEdeg']], dtype=float)
+        sss_gaia = np.array([
+            header.get('delta_RA', header.get('ALOffsetRA', 0.)),
+            header.get('deltaDE', header.get('ALOffsetDE', 0.)),
+            header['Plx'], header['pm_RA'], header['pm_DE'],
+        ], dtype=float)
+        reference_epoch = 2451545. + (header.get('RefEpoch', 2017.5) - 2000.) * 365.25
+        loglik_ast_gaia -= ex.L_gaia_rigorous(
+            pl_params, correction, gaia_iad, cpo_gaia, sss_gaia,
+            Sepoch=reference_epoch, v_rad=v_rad,
+        )
 
     if return_model:
         for slot in loaded_slots:
@@ -709,21 +838,30 @@ def ast_loglik_gaia(par,vel_files, ast_files_gaia,npl,stellar_mass, times, hkl, 
             model_end = max(timestamps) + model_max
             model_times = np.linspace(model_start, model_end, model_samp)
 
-            # Apply the fitted position, parallax and proper-motion corrections.
-            scan_residuals = data[-2]
-            astrometric_derivatives = data[:5]
-            reference_correction = np.zeros(5)
-
-            corrected_residuals = ex.abs_res(
-                scan_residuals,
-                correction,
-                reference_correction,
-                astrometric_derivatives,
+            header = ast_files_gaia[slot][3]
+            cpo_gaia = np.array([header['RAdeg'], header['DEdeg']], dtype=float)
+            sss_gaia = np.array([
+                header.get('delta_RA', header.get('ALOffsetRA', 0.)),
+                header.get('deltaDE', header.get('ALOffsetDE', 0.)),
+                header['Plx'], header['pm_RA'], header['pm_DE'],
+            ], dtype=float)
+            reference_epoch = 2451545. + (header.get('RefEpoch', 2017.5) - 2000.) * 365.25
+            xi, eta, parallax_at_data, orbit_times = ex.propagate_lpc(
+                sss_gaia + correction, cpo_gaia, timestamps,
+                v_rad=v_rad, Sepoch=reference_epoch,
             )
-
-            # Evaluate the orbit on the plotting grid and at the observation times.
-            ast_x_model, ast_y_model = ex.orbit_total(pl_params, model_times)
-            ast_x_data, ast_y_data = ex.orbit_total(pl_params, timestamps)
+            corrected_residuals = (
+                data[-2] - data[0] * xi - data[1] * eta
+                - data[2] * parallax_at_data
+            )
+            model_orbit_times = ex.propagate_lpc(
+                sss_gaia + correction, cpo_gaia, model_times,
+                v_rad=v_rad, Sepoch=reference_epoch,
+            )[-1]
+            ast_x_model, ast_y_model = ex.orbit_total(pl_params, model_orbit_times)
+            ast_x_model = np.broadcast_to(ast_x_model, model_times.shape)
+            ast_y_model = np.broadcast_to(ast_y_model, model_times.shape)
+            ast_x_data, ast_y_data = ex.orbit_total(pl_params, orbit_times)
 
             # Project the orbital displacement onto each measurement's scan direction.
             scan_x = data[0]
@@ -731,14 +869,23 @@ def ast_loglik_gaia(par,vel_files, ast_files_gaia,npl,stellar_mass, times, hkl, 
             along_scan_model = scan_x * ast_x_data + scan_y * ast_y_data
             residuals = corrected_residuals - along_scan_model
 
-            # Convert to sky coordinates. The second helper adds the orbit back
-            # to the projected residuals so the observations can be plotted around it.
-            observed = ex.hip_2d(data)
-            observations_on_orbit = ex.res_to_orbit_gaia(residuals, data, pl_params)
+            # Reconstruct sky-plane points using the same light-time orbit
+            # as the rigorous likelihood.
+            plot_iad = data.copy()
+            plot_iad[-2] = corrected_residuals
+            observed = ex.hip_2d(plot_iad)
+            residual_iad = data.copy()
+            residual_iad[-2] = residuals
+            residual_x, error_x, residual_y, error_y = ex.hip_2d(residual_iad)
+            observations_on_orbit = (
+                residual_x + ast_x_data, error_x,
+                residual_y + ast_y_data, error_y,
+            )
 
-            # Preserve the plot-data layout: observations, orbit projection, times.
-            plot_data = np.empty(3, dtype=object)
-            plot_data[:] = [observed, observations_on_orbit, timestamps]
+            # Keep the original entries and append exact residuals at observation times.
+            sky_residuals = (residual_x, error_x, residual_y, error_y)
+            plot_data = np.empty(4, dtype=object)
+            plot_data[:] = [observed, observations_on_orbit, timestamps, sky_residuals]
 
             calc_data[slot] = plot_data
             calc_model[slot] = np.array([ast_x_model, ast_y_model, model_times])
@@ -748,140 +895,7 @@ def ast_loglik_gaia(par,vel_files, ast_files_gaia,npl,stellar_mass, times, hkl, 
     else:
         return loglik_ast_gaia
 
-
-def ast_loglik_gaia_old(par,vel_files, ast_files_gaia,npl,stellar_mass, times, hkl, fit_results = False , return_model = False, model_max=0, model_samp=1000):
-
  
-    loglik_ast_gaia = 0
-    calc_data   = {kx: [] for kx in range(10)}
-    calc_model  = {kx: [] for kx in range(10)}
-    
-    
-    for i in range(npl):
-        
-        if hkl == True:
-            ecc_ = np.sqrt(par[len(vel_files)*2 +7*i+2]**2 + par[len(vel_files)*2 +7*i+3]**2)
-            om_  = np.degrees(np.arctan2(par[len(vel_files)*2 +7*i+2],par[len(vel_files)*2 +7*i+3]))%360
-            Ma_  = (par[len(vel_files)*2 +7*i+4] - om_)%360.0
-            # reject e > 0 
-            if ecc_ >= 1.0: 
-                return -np.inf  
-        else:
-            ecc_, om_, Ma_ = par[len(vel_files)*2 +7*i+2], par[len(vel_files)*2 +7*i+3], par[len(vel_files)*2 +7*i+4]         
-
-        T0 = transit_tperi(par[len(vel_files)*2 +7*i+1],ecc_, om_, Ma_ ,times[0])[0] #%par[len(vel_files)*2 +7*i+1] 
-
-        om_ = (om_ - 0.0)%360.0
-        Ma_ = (Ma_ + 0.0)%360.0
-        
-        incl = par[len(vel_files)*2 +7*i+5]
-        Om_ = (par[len(vel_files)*2 +7*i+6] + 0.0)%360.0
- 
-        for x in range(10):
-            if len(ast_files_gaia[x]) == 0 or ast_files_gaia[x][1] == False or ast_files_gaia[x][2] != i+1:
-                continue
-            else:
- 
-                g_stand = [
-                ast_files_gaia[x][3]["RAdeg"], 
-                ast_files_gaia[x][3]["DEdeg"], 
-                ast_files_gaia[x][3]["Plx"], 
-                ast_files_gaia[x][3]["pm_RA"], 
-                ast_files_gaia[x][3]["pm_DE"], 
-                ]
-
-                parallax=g_stand[2]+par[-4] #corrected parallax                
-                correction=np.array([par[-6],par[-5],par[-4],par[-3],par[-2]])
-                
-                a = a_from_K_in_mas(
-                par[len(vel_files)*2 +7*i+1],
-                par[len(vel_files)*2 +7*i+0],
-                ecc_,
-                incl,
-                parallax)
- 
-
-                #print(a,par[len(vel_files)*2 +7*i+1],
-                #par[len(vel_files)*2 +7*i+0],
-                #ecc_,
-                #incl,
-                #parallax)    
-                
-                res_astrometric = prepare_gaia_dataset(ast_files_gaia[x])
-                
-              
-                results = -1*ex.L_gaia(
-                         #ast_files_gaia[x][0],
-                         res_astrometric,
-                         correction,
-                         par[len(vel_files)*2 +7*i+1], 
-                         ecc_, 
-                         np.radians(om_), 
-                         np.radians(incl),
-                         np.radians(Om_),                         
-                         T0,
-                         a) #Sepoch=ex.J1991(),s_hip=0)
-
-
-                loglik_ast_gaia = loglik_ast_gaia + results
-                
-                #print(results)
-                
-        if return_model == True:
- 
-
-            t_gaia=ex.gaia_JD(ast_files_gaia[0][0])         
-
-            times3 = np.linspace(min(t_gaia),max(t_gaia)+model_max,model_samp )
-            orb_params = [par[len(vel_files)*2 +7*i+1], 
-                         ecc_, 
-                         np.radians(om_), 
-                         np.radians(incl),
-                         np.radians(Om_),                         
-                         T0,a]
-                         
-
-            #g_stand=np.array([0,0,0,0,0]) 
-            
-            res_astrometric = prepare_gaia_dataset(ast_files_gaia[0])
-            planet_residual = res_astrometric[-2]
-
- 
-            fit_residuals=ex.abs_res(
-                planet_residual,
-                correction,
-                np.zeros(5), 
-                ast_files_gaia[0][0][:5])
-                
-            #print(ast_files_gaia[0][0])
-            ast_x_model,ast_y_model=ex.orbit(orb_params,times3)
-            ast_x ,ast_y = ex.orbit(orb_params,t_gaia)
-             
-            #print( planet_residual)
-             
-            res_gaia_final_=fit_residuals-(
-            ast_files_gaia[0][0][0]*ast_x + 
-            ast_files_gaia[0][0][1]*ast_y)
- 
-            #print(orb_params)
- 
- 
-            #hip_data_res  =ex.res_to_orbit_gaia(hip_data_res_,hip_ad,orb_params)
-            
-            
-            gaia_data = ex.hip_2d(res_astrometric) #Rotates the HIP measurements into the RA,Dec frame. 
-            #print(gaia_data)
-            res_gaia_final  =ex.res_to_orbit_gaia(res_gaia_final_,ast_files_gaia[0][0],orb_params) 
- 
-            calc_data[i] = np.array([gaia_data, res_gaia_final ,t_gaia],dtype=object)         
-            calc_model[i] = np.array([ast_x_model,ast_y_model,times3])
- 
-    
-    if return_model == True:
-        return [loglik_ast_gaia, calc_data, calc_model]
-    else:
-        return loglik_ast_gaia
-
 
 
 def ttvs_loglik(par,vel_files,ttv_files,npl,stellar_mass,times, hkl, fit_results = False , return_model = False, components=None):
@@ -1836,19 +1850,13 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
  
     if(opt["AST"]):
 
-        #start_time = time.time()
+        astr_loglik += ast_loglik_all(
+            par, vel_files, ast_files_hipp, ast_files_gaia, npl,
+            stmass, ast_times, hkl,
+            fit_results=rvmod if rtg[0] else False,
+            v_rad=velocity_from_parameters(par, opt),
+        )
 
-        if(rtg[0])==False:
-
-            astr_loglik = astr_loglik + ast_loglik_hipp(par,vel_files,ast_files_hipp,npl,stmass,ast_times,hkl,fit_results=False, return_model = False)  
-            astr_loglik = astr_loglik + ast_loglik_gaia(par,vel_files,ast_files_gaia,npl,stmass,ast_times,hkl,fit_results=False, return_model = False)              
-        else:
-
-            astr_loglik = astr_loglik + ast_loglik_hipp(par,vel_files,ast_files_hipp,npl,stmass,ast_times,hkl,fit_results=rvmod, return_model = False)              
-            astr_loglik = astr_loglik + ast_loglik_gaia(par,vel_files,ast_files_gaia,npl,stmass,ast_times,hkl,fit_results=rvmod, return_model = False)              
-            #print(astr_loglik)
-        #print("--- %s seconds ---" % (time.time() - start_time))              
-            
     if(opt["TTV"]):
         if(rtg[0])==False:
             ttv_loglik = ttvs_loglik(par,vel_files,ttv_files,npl,stmass,ttv_times,hkl,fit_results=False, return_model = False,components=opt.get("TTV_fit_components"))
@@ -2212,6 +2220,8 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
            "AST_files_gaia":ast_files3,                                  
            "TTV_times":obj.ttv_times,
            "AST_times":obj.ast_times,
+           "ast_radial_velocity":getattr(obj, "ast_radial_velocity", 0.0),
+           "ast_radial_velocity_index":getattr(obj, "ast_radial_velocity_index", None),
            "AMD_stab":obj.optim_AMD_stab, 
            "Nbody_stab":obj.optim_Nbody_stab,
            "get_TTVs":obj.get_TTVs,
@@ -2646,6 +2656,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
     if obj.type_fit["AST"] and obj.use_ast_hipp_gaia == True: 
 
+        publish_velocity(obj, par)
         obj.ast_alpha[0]    =    par[-6]
         obj.ast_delta[0]    =    par[-5]
         obj.ast_pi[0]       =    par[-4]       
@@ -2811,9 +2822,12 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
         orbital_refresh(obj, outputfiles=[1,1,1], minimize_fortran=True, minimize_loglik=True, amoeba_starts=0, doGP=False, npoints= obj.model_npoints, eps=float(opt["eps"])/1e-13, dt=float(opt["dt"])/86400.0)
 
 
-        astr_loglik2 = ast_loglik_hipp(par,vel_files, obj.ast_data_sets_hipp,obj.npl,obj.params.stellar_mass,obj.ast_times,obj.hkl, fit_results=obj.fit_results, return_model = False)
-
-        astr_loglik2 = astr_loglik2 + ast_loglik_gaia(par,vel_files, obj.ast_data_sets_gaia,obj.npl,obj.params.stellar_mass,obj.ast_times,obj.hkl, fit_results=obj.fit_results, return_model = False)
+        astr_loglik2 = ast_loglik_all(
+            par, vel_files, obj.ast_data_sets_hipp, obj.ast_data_sets_gaia,
+            obj.npl, obj.params.stellar_mass, obj.ast_times, obj.hkl,
+            fit_results=obj.fit_results,return_model=False,
+            v_rad=getattr(obj, "ast_radial_velocity", 0.0),
+        )
 
  
         if rtg[1]:
@@ -2829,10 +2843,11 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
     elif obj.type_fit["RV"] == False and obj.type_fit["Transit"] == False and obj.type_fit["AST"] == True:
 
-        astr_loglik = 0
-
-        astr_loglik = astr_loglik + ast_loglik_hipp(par,vel_files,obj.ast_data_sets_hipp,npl,stmass,obj.ast_times,obj.hkl,fit_results=False, return_model = False)
-        astr_loglik = astr_loglik + ast_loglik_gaia(par,vel_files,obj.ast_data_sets_gaia,npl,stmass,obj.ast_times,obj.hkl,fit_results=False, return_model = False)        
+        astr_loglik = ast_loglik_all(
+            par, vel_files, obj.ast_data_sets_hipp, obj.ast_data_sets_gaia,
+            npl, stmass, obj.ast_times, obj.hkl, return_model=False,
+            v_rad=getattr(obj, "ast_radial_velocity", 0.0),
+        )
         obj.loglik     =  astr_loglik
  
     if any(obj.type_fit.get(kind, False) for kind in ('RV', 'AST', 'TTV')) and not obj.mod_dynamical:
@@ -2960,6 +2975,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
 
     if obj.type_fit["AST"] and obj.use_ast_hipp_gaia == True: 
 
+        publish_velocity(obj, par, errors=e_par)
         obj.ast_alpha_err[0]    =    e_par[-6]
         obj.ast_delta_err[0]    =    e_par[-5]
         obj.ast_pi_err[0]       =    e_par[-4]       
@@ -3184,6 +3200,8 @@ def run_nestsamp(obj, **kwargs):
            "AST_files_gaia":ast_files3,                                
            "TTV_times":obj.ttv_times,
            "AST_times":obj.ast_times,
+           "ast_radial_velocity":getattr(obj, "ast_radial_velocity", 0.0),
+           "ast_radial_velocity_index":getattr(obj, "ast_radial_velocity_index", None),
            "AMD_stab":obj.NS_AMD_stab, 
            "Nbody_stab":obj.NS_Nbody_stab,
            "get_TTVs":obj.get_TTVs,
@@ -3757,6 +3775,8 @@ def run_mcmc(obj, **kwargs):
            "AST_files_gaia":ast_files3,                                 
            "TTV_times":obj.ttv_times,
            "AST_times":obj.ast_times,
+           "ast_radial_velocity":getattr(obj, "ast_radial_velocity", 0.0),
+           "ast_radial_velocity_index":getattr(obj, "ast_radial_velocity_index", None),
            "AMD_stab":obj.mcmc_AMD_stab, 
            "Nbody_stab":obj.mcmc_Nbody_stab,
            "get_TTVs":obj.get_TTVs,
@@ -4434,6 +4454,7 @@ class signal_fit(object):
         self.use_ast_imaging   = False 
         
  
+        self.ast_radial_velocity = 0.0
         self.ast_alpha     = {k: 0.0 for k in range(1)}
         self.ast_delta      = {k: 0.0 for k in range(1)}
         self.ast_pi        = {k: 0.0 for k in range(1)}
@@ -5420,6 +5441,9 @@ class signal_fit(object):
         self.ast_data_sets[ast_idset] = []
         return
 
+
+
+
 ############################ Ast datasets Hipp ##########################################
     def add_ast_dataset_hipp(self, name, path, ast_idset = 0, planet = 0, use = True):
  
@@ -5523,10 +5547,11 @@ class signal_fit(object):
 
         #hip_ad=np.array([A_3,A_4,A_5,A_6,A_7,A_8,A_9])
         hipp = np.array([A3,A4,A5,A6,A7,A8,A9])
-
+        
 
         ast_file_name = file_from_path(path)
         ast_data_set = np.array([hipp, planet, use, hipp_header, ast_file_name],dtype=object)
+        prepare_hipparcos_dataset(ast_data_set)
         
         print(planet, use, hipp_header, ast_file_name)
         
@@ -5541,37 +5566,53 @@ class signal_fit(object):
         return
 
 
+
+
+
+
 ############################ Ast datasets Gaia ##########################################
     def add_ast_dataset_gaia(self, name, path, ast_idset = 0, planet = 0, use = True):
- 
- 
- 
- 
+
+  
  
 # [np.arange(0,len(A8)),frac,A5,A3,A4,A8,A9])
 
         def read_standard_solution(file_path):
-            """Read only the RAdeg header and its immediately following value row."""
+            """Read Gaia offsets and comparison coordinates, or a legacy solution."""
+            solution = {}
             with open(file_path, 'r') as file:
                 for line in file:
                     if not line.lstrip().startswith("#"):
                         continue
                     headers = line.lstrip()[1:].split()
-                    if headers[:3] != ["RAdeg", "DEdeg", "Plx"]:
+                    if headers[:1] == ["ALModelRemoved"]:
+                        solution["ALModelRemoved"] = float(headers[1])
+                        continue
+                    is_reference = headers == ["RAdeg", "DEdeg"]
+                    is_solution = headers[:3] in (
+                        ["RAdeg", "DEdeg", "Plx"],
+                        ["delta_RA", "deltaDE", "Plx"],
+                    )
+                    if not (is_reference or is_solution):
                         continue
 
                     value_line = next(file, "").strip()
                     if value_line.startswith("#"):
                         value_line = value_line[1:]
                     values = value_line.split()
-                    # DR4 exports may append unused placeholders without column names.
                     if len(values) < len(headers):
-                        raise ValueError("Gaia standard solution value row has fewer values than its header")
-                    return {
+                        raise ValueError("Gaia solution value row has fewer values than its header")
+                    solution.update({
                         key: value if value == "---" else float(value)
                         for key, value in zip(headers, values)
-                    }
-            raise ValueError("Gaia standard solution header '# RAdeg DEdeg Plx ...' was not found")
+                    })
+            required = ("RAdeg", "DEdeg", "Plx", "pm_RA", "pm_DE")
+            # Partial legacy headers are also used by older export tools.
+            if "RAdeg" not in solution or "Plx" not in solution:
+                raise ValueError("Gaia solution and comparison coordinates were not found")
+            if "delta_RA" in solution and not all(key in solution for key in (*required, "deltaDE")):
+                raise ValueError("Incomplete Gaia solution or comparison coordinates")
+            return solution
 
         gaia_header = read_standard_solution(path)
 
@@ -5613,8 +5654,7 @@ class signal_fit(object):
         ast_file_name = file_from_path(path)
         ast_data_set = np.array([gaia, planet, use, gaia_header, ast_file_name],dtype=object)
 
-        # Imported centroids contain the catalogue solution. Store residuals
-        # now so the likelihood only fits corrections and planetary motion.
+        # Keep original centroids: rigorous ExTRA subtracts the propagated solution.
         try:
             prepare_gaia_dataset(ast_data_set)
         except ValueError as exc:
@@ -5775,11 +5815,11 @@ class signal_fit(object):
 
         self.npl = sum(bool(active) for active in self.use_planet)
         if getattr(self, 'mass_parameterization', False):
-            from mass_parameterization import ensure_mass_settings, session_rows
+            from mass_parameterization import ensure_mass_settings, session_rows, physical_mass_mode
             ensure_mass_settings(self)
             slots = list(np.flatnonzero(self.use_planet))
             rows = session_rows(self, slots)
-            if not self.mod_dynamical:
+            if not physical_mass_mode(self):
                 rows[:, 5] = 90.
             masses, _ = mass_a_from_jacobi_el(rows, len(slots), self.params.stellar_mass)
             self.mp[ind] = masses[slots.index(ind)]
@@ -6129,9 +6169,9 @@ class signal_fit(object):
         vel_files = [0]*sum(bool(len(data)) for data in self.rv_data_sets.values())
         model_parameters = self.parameters
         if getattr(self, 'mass_parameterization', False):
-            from mass_parameterization import vector_to_k
+            from mass_parameterization import vector_to_k, physical_mass_mode
             model_parameters = vector_to_k(self.parameters, self.npl, len(vel_files),
-                dict(hkl=self.hkl, copl_incl=self.copl_incl, mass_dynamical=self.mod_dynamical))
+                dict(hkl=self.hkl, copl_incl=self.copl_incl, mass_dynamical=physical_mass_mode(self)))
         result = ttvs_loglik(model_parameters, vel_files, self.ttv_data_sets,
                             self.npl, self.params.stellar_mass, self.ttv_times,
                             self.hkl, fit_results=self.fit_results if self.rtg[0] else False,
@@ -7532,6 +7572,8 @@ class signal_fit(object):
             bounds.append(validate_stellar_prior(self, 'stellar_radius'))
             prior_nr.append(self.stellar_radius_norm_pr)
             prior_jeff.append(self.stellar_radius_jeff_pr)
+
+        pack_velocity(self, par, flag, par_str, bounds, prior_nr, prior_jeff)
 
        #### Astr. & Stellar parameters #####
        

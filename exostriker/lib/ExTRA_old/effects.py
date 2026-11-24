@@ -4,46 +4,96 @@ from astropy.time import Time
 from .hipparcos import hip_JD, abs_res
 from .gaia import gaia_JD
 from .useful import *
-from .vectorastrometry import spherical_to_cartesian, normal_triad, EpochPropagation
+from .vectorastrometry import spherical_to_cartesian, normal_triad, EpochPropagation, cartesian_to_spherical
+
+__all__ = [
+    "mu_to_v", "secular_zech", "secular_lindegren", "secular_acceleration", "secular_shift",
+    "ltd_approx", "ltd_accurate", "consistent_models", "secular_correction", "propagate_v"
+]
 
 def mu_to_v(parallax,mu):
     return mu*astro_unit/ parallax
 
 
 
-#accumulated shift over period delta_t compared to standard epoch
-def secular_shift(sss,v_r,delta_t):
-    
-    theta=np.arctan(sss[3]/sss[4])
-
-    mu_total=(sss[3]**2+sss[4]**2)**0.5
-
-    delta_pos= -1*v_r*sss[2]*mu_total*delta_t*abs(delta_t) /astro_unit_z
-    delta_asc_star=delta_pos*np.cos(theta)
-    delta_dec=delta_pos*np.sin(theta)
-
-    
-    return np.array([delta_asc_star,delta_dec]) # in mas 
 
 
 
-#shift of parallax and proper motion per year
-def secular_acceleration(sss,v_r):
-    
-    theta=np.arctan(sss[3]/sss[4])
+## secular formula by zechmeister, it does not need an RV
+def secular_zech(sss):
+    conv=pc_in_km*mas_to_rad**2 *1/julian_year_seconds *1000
+    v_r_dot=conv*(sss[3]**2 + sss[4]**2) *1/sss[2]
 
-    mu_total=(sss[3]**2+sss[4]**2)**0.5
-    # Scalar formula for secular acceleration
-    dot_mu = -2*v_r*sss[2]*mu_total/astro_unit_z 
+    return v_r_dot
 
-    delta_mu_asc=dot_mu *np.cos(theta)
-    delta_mu_dec=dot_mu *np.sin(theta)
+def secular_lindegren(sss,v_r):
 
+    delta_mu_asc=-2*v_r*sss[2]*sss[3]/astro_unit_z 
+    delta_mu_dec=-2*v_r*sss[2]*sss[4]/astro_unit_z 
     delta_par=-1*sss[2]**2 *v_r/astro_unit_z
 
 
+
+    return np.array([delta_par,delta_mu_asc,delta_mu_dec])# in mas/yr , mas/yr^2 , mas/yr^2,km/s/yr
+
+
+
+def secular_acceleration(sss,v_r):
+
+    v_r_dot=secular_zech(sss)
+
+    par_dot,mu_asc_dot,mu_dec_dot=secular_lindegren(sss,v_r)
+
+
     
-    return np.array([delta_par,delta_mu_asc,delta_mu_dec]) # in mas/yr , mas/yr^2 , mas/yr^2
+    return np.array([par_dot,mu_asc_dot,mu_dec_dot,v_r_dot]) # in mas/yr , mas/yr^2 , mas/yr^2,km/s/yr
+
+def secular_shift(t,sss,v_rad,format="years"):
+
+    
+
+
+    pc_to_km = 3.085677581e13
+    d0_pc=1000/sss[2] #distance in pc using parallax
+    d0=d0_pc*pc_to_km #distance in km
+
+    
+
+    r0_cartesian=spherical_to_cartesian(d0,np.radians(sss[0]),np.radians(sss[1])) #cartesian vector to source sss in rad rad 
+    v_asc,v_dec=mu_to_v(sss[2],np.array([sss[3],sss[4]])) #mu to v using parallax
+    
+
+    if format=="years":
+        v0_vec=np.array([v_asc,v_dec,v_rad])*365.25*24*60**2 #km/yr
+    if format=="days":
+        v0_vec=np.array([v_asc,v_dec,v_rad])*24*60**2 
+    
+
+    triad=np.array(normal_triad(np.radians(sss[0]),np.radians(sss[1])))
+    v0_cartesian=triad @ v0_vec #cartesian velocity
+
+    asc_shift=[]
+    dec_shift=[]
+    for time in t:
+        r1_cartesian=r0_cartesian+v0_cartesian * time
+
+    
+    
+        r1_spherical=cartesian_to_spherical(*r1_cartesian)
+        asc_shift.append(np.degrees(r1_spherical[1])-sss[0])
+        dec_shift.append(np.degrees(r1_spherical[2])-sss[1])
+    
+
+
+    
+
+
+    return np.array([asc_shift,dec_shift])
+
+
+
+
+
 
 
 
@@ -160,7 +210,7 @@ def secular_correction(iad,sss,v_rad,Sepoch=J1991(),ltd=True):
         t_corrected=t_jyear_relative
     
     
-    shift_asc,shift_dec=secular_shift(sss,v_rad,t_corrected)
+    shift_asc,shift_dec=secular_shift(sss,v_rad,t_corrected) ###this can be done more accuratly
     #please see that we used the already ltd corrected timestamps
     #removing the shift accordingly:
     abs_secular_corrected=iad[-2]-(shift_asc*iad[0]+shift_dec*iad[1])

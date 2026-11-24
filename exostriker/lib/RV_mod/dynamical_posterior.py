@@ -123,8 +123,8 @@ def orbital_draw(fit, sample, labels, *, validate_mapping_only=False):
     if getattr(fit, 'copl_incl', False):
         elements[:, 5] = elements[0, 5]
     if getattr(fit, 'mass_parameterization', False):
-        from mass_parameterization import masses_to_k
-        elements[:, 0] = masses_to_k(elements, elements[:, 0].copy(), stellar_mass, fit.mod_dynamical)
+        from mass_parameterization import masses_to_k, physical_mass_mode
+        elements[:, 0] = masses_to_k(elements, elements[:, 0].copy(), stellar_mass, physical_mass_mode(fit))
     masses, axes = mass_a_from_jacobi_el(elements, len(elements), stellar_mass)
     planets = np.column_stack((masses / 1047.5654817267318, axes,
                                elements[:, 2], elements[:, 5], elements[:, 3],

@@ -160,8 +160,8 @@ class SessionModelAdapter:
         if self.mode == 'nbody' and session.copl_incl and len(orbits):
             orbits[:, 5] = orbits[0, 5]
         if getattr(session, 'mass_parameterization', False):
-            from mass_parameterization import masses_to_k
-            orbits[:, 0] = masses_to_k(orbits, orbits[:, 0].copy(), mass, self.mode == 'nbody')
+            from mass_parameterization import masses_to_k, physical_mass_mode
+            orbits[:, 0] = masses_to_k(orbits, orbits[:, 0].copy(), mass, physical_mass_mode(session))
         planets = {}
         fields = ('K', 'P', 'e', 'omega', 'M0', 'inclination', 'node')
         for j, slot in enumerate(self.slots):

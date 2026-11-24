@@ -6,6 +6,11 @@ from .astrometry import *
 from .useful import *
 from .gaia import *
 
+__all__ = [
+    "loglikelihood", "L_RVs", "L_RVs_comb", "L_sss", "L_hip_old", "L_hip",
+    "L_gaia_old", "L_gaia", "L_combined_old"
+]
+
 
 
 
@@ -74,7 +79,7 @@ def L_RVs(t,data, err, s, v0, K, P, e, om, T0):
     return L
 
 
-def L_RVs_comb(t,data,err,s,v0,P,e,om,i,T0,a,parallax):
+def L_RVs_comb(t,data,err,s,v0,planet,parallax):
     """
     Calculates the loglikelihood of RV data when combined with astrometry
         
@@ -93,8 +98,9 @@ def L_RVs_comb(t,data,err,s,v0,P,e,om,i,T0,a,parallax):
     L : float
         The summed loglikelihood  *-1 -----> needs to be minimized
      """
+    P,e,om,i,Om,T0,a=planet
 
-    v_mod=RV_comb(v0,P,e,om,i,T0,a,parallax,t)
+    v_mod=RV_comb(v0,planet,parallax,t)
     RV_res=data-v_mod
     L=loglikelihood(RV_res,err,s)
     return L
@@ -396,51 +402,20 @@ def L_gaia(gaia_ad,correction,par,Sepoch=J2017(),s_gaia=0):
     #gaia_stand=np.array(gaia_stand)
     #calc gaia timestamps
     t_gaia=gaia_JD(gaia_ad)
-    
     #A8 is the abs residual
     #A8=np.array(A8)
     #new residual due to standard model correction:
-    
     c_res_gaia=abs_res(A8,correction,np.zeros(5),gaia_ad)
-
-    
-
     #print(c_res_gaia)
-    
-
-
-    
-    
-    
-
     #Now we have the remaining residuals, where the orbital motion is still contained
     #now we need to subtract the orbit, but in hipparcos manner
-    if par.shape==(7,):
-        x_sum,y_sum=orbit(planet,t_gaia)
-
-
-    else:
-        x_sum=0
-        y_sum=0
-        for planet in par:
-                x_O,y_O=orbit(planet,t_gaia)
-                x_sum+=x_O
-                y_sum+=y_O
-    
+    x_sum,y_sum=orbit_total(par,t_gaia)
     res_gaia_final=c_res_gaia-(A3*x_sum+A4*y_sum)
     #we multiply the orbit positions with the respective hipparcos derivation and subtract them from
     #the remaining residual
-    
-    
-    
-    
-    
     #error of hip residual
     A9=np.array(A9)
-    
-    
     L_gaia=loglikelihood(res_gaia_final,A9,s_gaia)
-
     return L_gaia
 
 

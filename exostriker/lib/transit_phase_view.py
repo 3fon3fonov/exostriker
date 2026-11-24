@@ -133,6 +133,9 @@ class TransitPhaseView(QtCore.QObject):
         self.top.setLabel('left', 'Relative flux', **style)
         self.bottom.setLabel('left', 'o-c', **style)
         self.bottom.setLabel('bottom', 'phase' if self.norm.isChecked() else 'phase [days]', **style)
+        self.gui.set_residual_subplot_visibility(
+            self.top, self.bottom, self.graphics.ci,
+            self.gui.tra_plot_add_o_c.isChecked())
         for panel in (self.top, self.bottom):
             panel.getAxis('top').setStyle(showValues=False)
             panel.getAxis('right').setStyle(showValues=False)

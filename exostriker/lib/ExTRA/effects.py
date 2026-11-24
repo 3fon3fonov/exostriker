@@ -22,6 +22,7 @@ def mu_to_v(parallax,mu):
 ## secular formula by zechmeister, it does not need an RV
 def secular_zech(sss):
     conv=pc_in_km*mas_to_rad**2 *1/julian_year_seconds *1000
+    print(conv)
     v_r_dot=conv*(sss[3]**2 + sss[4]**2) *1/sss[2]
 
     return v_r_dot
@@ -97,6 +98,47 @@ def secular_shift(t,sss,v_rad,format="years"):
 
 
 
+
+def ltd_time_bounds(varpi_mas,mu_mas_yr,sigma_theta_mas,):
+    """
+    Calculate astrometric time bounds.
+
+    Parameters
+    ----------
+    varpi_mas : float
+        Parallax in mas.
+    sigma_theta_mas : float
+        Position uncertainty in mas.
+    mu_mas_yr : float
+        Proper motion in mas/yr.
+    sigma_mu_mas_yr : float
+        Proper-motion uncertainty in mas/yr.
+
+    Returns
+    -------
+    t1_yr, t2_yr : float
+        Time bounds in years.
+    """
+    mas_to_rad = np.deg2rad(1 / 3_600_000)
+    yr_to_s = 365.25 * 86400
+    tau_A = 499.0047838  # seconds
+
+    varpi = varpi_mas * mas_to_rad
+    sigma_theta = sigma_theta_mas * mas_to_rad
+    mu = mu_mas_yr * mas_to_rad / yr_to_s
+
+    if mu == 0:
+        raise ValueError("Proper motion must be nonzero.")
+
+    t1_squared = 2 * varpi * sigma_theta / (mu**3 * tau_A)
+   
+
+    if t1_squared < 0:
+        raise ValueError("Check input signs: t1 squared is negative.")
+
+    t1_yr = np.sqrt(t1_squared) / yr_to_s
+
+    return t1_yr
 
 
 def ltd_approx(v,format="years"): #lighttimedifference

@@ -1,7 +1,7 @@
 """Connect the separate Designer mass editors and priors to session state."""
 import numpy as np
 from PyQt6 import QtCore, QtWidgets
-from mass_parameterization import ensure_mass_settings
+from mass_parameterization import ensure_mass_settings, physical_mass_mode
 
 
 class MassParameterControls:
@@ -133,7 +133,7 @@ class MassParameterControls:
                 ('radioButton_plmass', session.mass_parameterization),
                 ('radioButton_K', not session.mass_parameterization)):
             self.set_checked(getattr(self.gui, name), checked)
-        property_name = 'massText' if session.mod_dynamical else 'minimumMassText'
+        property_name = 'massText' if physical_mass_mode(session) else 'minimumMassText'
         for label in self.gui.findChildren(QtWidgets.QLabel):
             if label.objectName().startswith('label_mp_input'):
                 label.setText(label.property(property_name))

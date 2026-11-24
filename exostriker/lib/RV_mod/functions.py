@@ -114,6 +114,12 @@ def extend_legacy_dataset_slots(session, defaults):
 
 
 def check_for_missing_instances(fit,fit_new):
+    # Selector defaults belong to the loaded session, never the currently open one.
+    if not hasattr(fit_new, 'ast_standard_solution'):
+        fit_new.ast_standard_solution = None
+    from astrometric_velocity import ensure_velocity_settings
+    ensure_velocity_settings(fit_new)
+
     # Old sessions must not inherit joint-activity selections from the open session.
     from activity_gp import ensure as ensure_activity_gp
     ensure_activity_gp(fit_new)
@@ -1598,9 +1604,9 @@ def _corner_mass_axes(obj, samples, labels, stellar_masses):
     for row, (orbit, stellar_mass) in enumerate(zip(elements, stellar_masses)):
         try:
             if getattr(obj, 'mass_parameterization', False):
-                from mass_parameterization import masses_to_k
+                from mass_parameterization import masses_to_k, physical_mass_mode
                 orbit = orbit.copy()
-                orbit[:, 0] = masses_to_k(orbit, orbit[:, 0].copy(), stellar_mass, obj.mod_dynamical)
+                orbit[:, 0] = masses_to_k(orbit, orbit[:, 0].copy(), stellar_mass, physical_mass_mode(obj))
             masses[row], axes[row] = mass_a_from_jacobi_el(orbit,len(slots),stellar_mass)
         except ValueError:
             continue

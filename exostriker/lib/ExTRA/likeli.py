@@ -5,14 +5,16 @@ from .hipparcos import *
 from .astrometry import *
 from .useful import *
 from .gaia import *
+from .vectorastrometry import *
 
 __all__ = [
-    "loglikelihood", "L_RVs", "L_RVs_comb", "L_sss", "L_hip_old", "L_hip",
-    "L_gaia_old", "L_gaia", "L_combined_old"
+    "chi_squared","loglikelihood", "L_RVs", "L_RVs_comb", "L_sss", "L_hip_old", "L_hip",
+    "L_gaia_old", "L_gaia", "L_combined_old","L_gaia_rigorous","L_hip_rigorous",
 ]
 
 
-
+def chi_squared(res, err, s):
+    return np.sum(res**2 / (err**2 + s**2))
 
 def loglikelihood(res,err,s): #s=jitter
     '''
@@ -32,9 +34,9 @@ def loglikelihood(res,err,s): #s=jitter
     
     #term 2 and term 3 are summation
     
-    term_2=-0.5*sum(np.log(err**2 +s**2))
+    term_2=-0.5*np.sum(np.log(err**2 +s**2))
     #residual function from before just calculates the diff between model and obs
-    term_3=-0.5*sum((res**2) /(err**2 +s**2))
+    term_3=-0.5*np.sum((res**2) /(err**2 +s**2))
         
         
     ln_L=term_1+(term_2+term_3)
@@ -79,7 +81,7 @@ def L_RVs(t,data, err, s, v0, K, P, e, om, T0):
     return L
 
 
-def L_RVs_comb(t,data,err,s,v0,planet,parallax):
+def L_RVs_comb(t,data,err,s,v0,planet):
     """
     Calculates the loglikelihood of RV data when combined with astrometry
         
@@ -99,9 +101,11 @@ def L_RVs_comb(t,data,err,s,v0,planet,parallax):
         The summed loglikelihood  *-1 -----> needs to be minimized
      """
     P,e,om,i,Om,T0,a=planet
+    
 
-    v_mod=RV_comb(v0,planet,parallax,t)
+    v_mod=RV_comb(v0,planet,t)
     RV_res=data-v_mod
+    #print(RV_res)
     L=loglikelihood(RV_res,err,s)
     return L
 
@@ -420,6 +424,33 @@ def L_gaia(gaia_ad,correction,par,Sepoch=J2017(),s_gaia=0):
 
 
 
+#def L_rigorous(par,correction,IAD,Sepoch=J2017(),s=0,instrument=None)
+#    
+#    A3,A4,A5,A6,A7,A8,A9=IAD
+#    
+#    
+#    #new residual due to standard model correction:
+#    propagator=EpochPropagation()
+#    pos_t=propagator.propagate_pos
+#    c_res=
+#
+#
+#
+#
+#
+#
+#    t_gaia=gaia_JD(gaia_ad)
+#    x_sum,y_sum=orbit_total(par,t_gaia)
+#    res_gaia_final=c_res_gaia-(A3*x_sum+A4*y_sum)
+#    #we multiply the orbit positions with the respective hipparcos derivation and subtract them from
+#    #the remaining residual
+#    #error of hip residual
+#    A9=np.array(A9)
+#    L_gaia=loglikelihood(res_gaia_final,A9,s_gaia)
+#    return L_gaia
+
+
+
 def L_combined_old(RV_data,RV_err,t_RVs,#RV data
                hip_ad,hip_stand, #HIP data
                gaia,
@@ -494,8 +525,65 @@ def L_combined_old(RV_data,RV_err,t_RVs,#RV data
 
         return final
 
+def L_hip_rigorous(planet_mas, sss_corr, iad_hip, sss_hip, cpo_gaia,
+                   sss_gaia, Sepoch=J2017(), v_rad=0, s=0):
+    """Evaluate Hipparcos centroids using a propagated reference solution.
+
+    The reference solution contains offsets in mas about cpo_gaia (degrees).
+    sss_hip supplies the Hipparcos comparison coordinates in degrees.
+    """
+    A3, A4, A5, A6, A7, A8, A9 = iad_hip
+    sss_lpc = np.asarray(sss_gaia) + np.asarray(sss_corr)
+    timestamps = hip_JD(iad_hip, format="jd")
+    xi, eta, parallax, orbit_times = propagate_lpc(
+        sss_lpc, cpo_gaia, timestamps, v_rad=v_rad, Sepoch=Sepoch,
+    )
+    orbit_x, orbit_y = orbit_total(planet_mas, orbit_times)
+    xi_hip, eta_hip = gaia_lpc_to_hip_lpc(
+        xi + orbit_x, eta + orbit_y, cpo_gaia, sss_hip[:2],
+    )
+    residuals = A8 - A3 * xi_hip - A4 * eta_hip - A5 * parallax
+    return loglikelihood(residuals, np.asarray(A9), s)
 
 
+def L_gaia_rigorous(planet_mas, sss_corr, gaia_iad, cpo_gaia, sss_gaia,
+                    Sepoch=J2017(), v_rad=0, s=0, iad_epoch=None):
+    """Evaluate one mission in its own comparison frame.
+
+    Sepoch is the reference-solution epoch in JD. iad_epoch independently
+    specifies the origin of the IAD time derivatives (Gaia 2017.5 by default,
+    Hipparcos 1991.25). Comparison coordinates are degrees, offsets are mas.
+    """
+
+    #print(len(gaia_iad))
+    
+    A3,A4,A5,A6,A7,A8,A9=gaia_iad
+
+    sss_lpc = np.asarray(sss_gaia) + np.asarray(sss_corr)
+
+    
+    #timestamps from data
+
+    
+    t_JD = gaia_JD(gaia_iad, format="jd", Sepoch=iad_epoch)
+
+
+    xi_g,eta_g,plx_g,t_ltd=propagate_lpc(sss_lpc,cpo_gaia,t_JD,v_rad=v_rad,Sepoch=Sepoch)
+    
+    x_sum,y_sum=orbit_total(planet_mas,t_ltd)
+
+    
+    
+
+    res_final=A8-(A3*(xi_g+x_sum)+A4*(eta_g+y_sum))-A5*plx_g
+    
+    
+    #error
+    A9=np.array(A9)
+
+    L_gaia=loglikelihood(res_final,A9,s)
+
+    return L_gaia
 
 
 
