@@ -11784,6 +11784,12 @@ will be highly appreciated!
         self.update_use_from_session()
         self.update_use()
         self.update_gui_params()
+        self.update_params()
+
+        # Joint orbits use the RV epoch. Saved ast_times can still contain
+        # the default astrometry epoch until Initialize has been pressed.
+        self.check_ast_params()
+
         self.update_errors() 
         self.update_a_mass()  
         self.update_plots() 
@@ -11791,7 +11797,6 @@ will be highly appreciated!
         self.update_labels()
         self.check_cornerplot_samples()          
 
-        self.update_params()
         self.update_RV_file_buttons() 
         
         #if fit.type_fit["Transit"] == True:

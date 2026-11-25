@@ -1627,6 +1627,60 @@ def _corner_nested_logl(sampler, samples):
     return np.full(len(samples), np.nan)
 
 
+def _corner_reference_parameters(obj, samples, labels, options, reference, logl):
+    """Align GUI markers with saved columns and restore missing summaries."""
+    if options['none']:
+        return np.zeros(len(labels))
+
+    posterior_reference = any(options[name] for name in ('mean', 'median', 'mode', 'best_samp'))
+    if posterior_reference:
+        if np.shape(reference) == (len(labels),):
+            return np.asarray(reference, dtype=float)
+        if options['mean']:
+            return np.mean(samples, axis=0)
+        if options['median']:
+            return np.median(samples, axis=0)
+        if options['mode']:
+            return np.asarray(get_mode_of_samples(samples, len(labels)))
+        if not np.isfinite(logl).any():
+            raise ValueError('No likelihoods aligned with the saved posterior samples.')
+        return samples[np.nanargmax(logl)].copy()
+
+    # The GUI's free-parameter list can change after sampling. Include fixed
+    # values as well, and never interpret its current order as sample order.
+    values = {}
+
+    def collect(parameter_labels, parameter_values):
+        if isinstance(parameter_labels, str):
+            if np.isscalar(parameter_values):
+                values[parameter_labels] = float(parameter_values)
+            return
+        if isinstance(parameter_labels, dict):
+            if np.isscalar(parameter_values):
+                if len(parameter_labels) == 1:
+                    collect(next(iter(parameter_labels.values())), parameter_values)
+                return
+            for key in parameter_labels:
+                collect(parameter_labels[key], parameter_values[key])
+        else:
+            for label, value in zip(parameter_labels, parameter_values):
+                collect(label, value)
+
+    for name, parameter_labels in vars(obj).items():
+        if name.endswith('_str') and hasattr(obj, name[:-4]):
+            collect(parameter_labels, getattr(obj, name[:-4]))
+    values.update(zip(obj.e_for_mcmc, obj.par_for_mcmc))
+
+    # Older sessions called the Cartesian systemic velocity v_abs.
+    velocity = float(getattr(obj, 'ast_radial_velocity', 0.))
+    values[r'$v_{\rm abs}$ [km/s]'] = velocity
+    values[r'$v_{rad}$ [km/s]'] = velocity
+    missing = [label for label in labels if label not in values]
+    if missing:
+        raise ValueError('No current GUI reference for saved parameters: ' + ', '.join(missing))
+    return np.asarray([values[label] for label in labels], dtype=float)
+
+
 def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
     """Plot posterior samples with optional external stellar measurements.
 
@@ -1730,6 +1784,9 @@ def cornerplot(obj, level=(100.0-68.3)/2.0, type_plot = 'mcmc', **kwargs):
 
     if statistics_only:
         best_fit_par = np.zeros(len(labels))
+    else:
+        best_fit_par = _corner_reference_parameters(
+            obj, samples, labels, mod_labels, best_fit_par, ln)
 
     m_s     = []
     r_s     = []
