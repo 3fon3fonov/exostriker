@@ -4,8 +4,9 @@ from astropy.time import Time
 from .astrometry import *
 from .hipparcos import *
 from .useful import *
+from .vectorastrometry import *
 
-__all__ = ["angle_trafo", "gaia_init", "gaia_JD", "res_to_orbit_gaia", "decode_gaia_flag", "decode_transit_proc_flags"]
+__all__ = ["angle_trafo", "gaia_init", "gaia_JD", "res_to_orbit_gaia", "decode_gaia_flag", "decode_transit_proc_flags","gres","gaia_residuals"]
 
 #### Psi=pi/2 - theta #psi=HIP2 theta=GAIADR4
 
@@ -243,28 +244,63 @@ def decode_transit_proc_flags(value):
     }
 
 
+def gres(planet_mas,sss_corr,gaia_iad,cpo_gaia,sss_gaia,Sepoch=J2017(),v_rad=0,s=0):    
 
-def gaia_residuals(planet_fit,sss_fit,gaia,cpo,dr4_lpc,v_r=0):
-    A3,A4,A5,A6,A7,A8,A9=gaia
+   
+    
+    A3,A4,A5,A6,A7,A8,A9=gaia_iad
 
-    #dr3_lpc=np.concatenate([[sss_fit[0],sss_fit[1]],dr3_sss[2:]+sss_fit[2:]])
-    #cpo=(dr3_sss[0],dr3_sss[1])
-    t_gaia=gaia_JD(gaia,Sepoch=J2017())
-    dr4_lpc_corr=dr4_lpc+sss_fit
-    prop=propagate_lpc(dr4_lpc_corr,cpo,t_gaia,v_rad=v_r,Sepoch=J2017())
-    t_ltd=prop[-1]
-    al_res=A8-prop[0]*A3-prop[1]*A4-prop[2]*A5
+    sss_lpc=sss_gaia+sss_corr
+
+    
+    #timestamps from data
+
+    
+    t_JD=gaia_JD(gaia_iad,format="jd")
 
 
+    xi_g,eta_g,plx_g,t_ltd=propagate_lpc(sss_lpc,cpo_gaia,t_JD,v_rad=v_rad,Sepoch=Sepoch)
+    
+    x_sum,y_sum=orbit_total(planet_mas,t_ltd)
+
+    
+    
+
+    res_final=A8-(A3*(xi_g+x_sum)+A4*(eta_g+y_sum))-A5*plx_g
+    
+    
+    #error
+
+   
+    A9=np.array(A9)
+    
+    return t_ltd,res_final,res_to_orbit_gaia(res_final,gaia_iad, planet_mas)
+
+def gaia_residuals(theta,gaia,hip,RVs,v_rad=0):
+    n_offsets=int(-1*len(RVs))
+    #n_jitters=int(-1*len(RVs))
+    ast_theta=theta[:n_offsets]
+    orb_par=np.array(ast_theta[5:])
+    v0=theta[n_offsets:]
+    #s=theta[n_jitters:]
+    #print(v0)
+    #print(s)
+    corr=ast_theta[:5]
+    
 
 
-    alpha=planet_fit[-1]*(dr4_lpc_corr[2])
-    #print(alpha)
-    par_star=np.copy(planet_fit)
-    par_star[-1]=alpha
+    iad_hip,sss_hip=hip
+    iad_gaia,cpo_gaia,sss_gaia=gaia
+    #print(iad_gaia)
 
-    x_sum,y_sum=orbit_total(par_star,t_ltd)
-    res_final=al_res-(A3*x_sum+A4*y_sum)
-    #fit_residuals=abs_res(gaia[-2],fit.x[0:5],np.zeros(5),gaia[:5])
 
-    return t_ltd,res_final,res_to_orbit_gaia(res_final,gaia, par_star)
+    #conversion of a for astrometry
+    planet_mas=np.copy(orb_par)
+    planet_mas[-1]=orb_par[-1]*(sss_gaia[2]+corr[2])
+    #gaia
+    g=gres(planet_mas,corr,iad_gaia,cpo_gaia,sss_gaia,v_rad=v_rad)
+    #hip
+
+
+    
+    return g

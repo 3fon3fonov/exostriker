@@ -1,0 +1,437 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from astropy.time import Time
+from .astrometry import *
+from .useful import *
+
+__all__ = [
+    "abs_res", "hip_JD", "scanangle", "hip_with_gaia", "rotation_counterclockwise",
+    "hip_2d", "plot_hip", "plot_hip_err", "hip_measurement", "hip_residuals",
+    "res_to_orbit", "hipparcos_covariance","hip_reconstruct_covariance"
+]
+
+
+
+
+#This function calculates the new abscissa residual if you change a parameter compared to the hipparchos solution.
+#For example if parallax_hipparchos=40mas , parallax_model=10mas, you will get a parameter_residual=-30mas.
+#This is done for all the standard model parameters.
+#The value of hipp_derivation, is given in the IAD of hipparchos.Namely IA3-IA7
+#They are different in the first and the second reduction
+#we will be working with the second reduction ONLY
+
+#the first old_residual is the hipparchos_residual given in mas
+def abs_res(old_res,parameter_fit,parameter,derivation):
+    parameter_residual=np.zeros(5)
+
+    parameter_residual[0]=np.array((parameter_fit[0]-parameter[0]))#*3.6e6
+    
+    
+    parameter_residual[1]=np.array((parameter_fit[1]-parameter[1]))#*3.6e6
+
+    #print(parameter_residual)
+
+    
+    
+    parameter_residual[2:]=np.array((parameter_fit[2:]-parameter[2:]))
+
+    
+    new_res=old_res
+    for i in range(5):
+        new_res=new_res-derivation[i]*parameter_residual[i]
+    
+    return new_res
+
+    
+
+
+def hip_JD(hip_ad,Sepoch=J1991(),format="jd"): #finds JD of measurement
+    A3,A4,A5,A6,A7,A8,A9=hip_ad
+    frac=A7/A4
+    epoch=frac+1991.25
+    if format=="jd":
+        JD=Sepoch+(epoch-1991.25)*365.25 #JD for standard epoch J1991
+        return JD
+    if format=="jyear":
+        return epoch
+    if format=="relative":
+        return frac
+
+
+def scanangle(hip_ad): #finds the scanangle between EAST and RGC(reference great circle) in radians
+
+    A3,A4,A5,A6,A7,A8,A9=hip_ad
+    angle=np.arctan2(A4,A3)
+    angle=angle
+    return angle
+
+#the scanangle opens in the direction of RA
+
+
+def hip_with_gaia(hip_ad,hip_stand,gaia_stand,gaia_standardepoch="2017.5"):
+
+
+    GAIA_EPOCH=Time(gaia_standardepoch, format='jyear',scale="tcb").jd
+    HIP_EPOCH=Time("1991.25",format="jyear",scale="tcb").jd
+
+    gaia1991_asc,gaia1991_dec=pos_recalc(gaia_stand,GAIA_EPOCH,HIP_EPOCH)
+
+    gaia1991=np.copy(gaia_stand)
+    gaia1991[0]=gaia1991_asc
+    gaia1991[1]=gaia1991_dec
+
+    new_hip_res=abs_res(hip_ad[-2],gaia1991,hip_stand,hip_ad)
+    
+    new_hip_ad=np.copy(hip_ad)
+
+    new_hip_ad[-2]=new_hip_res
+
+
+
+    return new_hip_ad
+
+
+
+
+
+##############################################
+
+
+
+
+def rotation_counterclockwise(x,y,theta):
+    x_new=+np.cos(theta)*x-np.sin(theta)*y
+    y_new=+np.sin(theta)*x+np.cos(theta)*y
+    return x_new,y_new
+    
+    
+
+
+def hip_2d(hip_ad): #rotates hip measurement into Dec RA* system
+    """rotates a hip measurement into Ra* ,Dec, returns x,x_err,y,y_err
+    
+    Parameters:
+    ----------
+    hip_ad: Hipparcos astrometric data
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    """
+
+    A3,A4,A5,A6,A7,A8,A9=hip_ad
+    angle=scanangle(hip_ad)
+    x=rotation_counterclockwise(A8,0,angle)[0]
+    y=rotation_counterclockwise(A8,0,angle)[1]
+    x_err=rotation_counterclockwise(A9,0,angle)[0]
+    y_err=rotation_counterclockwise(A9,0,angle)[1]
+    #print(np.degrees(scanangle))
+    return np.array([x,x_err,y,y_err])
+
+
+#This plots the dimension hipparchos DIDNT measure in, its just nice for plots but thats it
+#inputs: x0,y0 positon of measurement,x_err,y_err error in direction,get this from hip measurement,
+#size= length of line
+def plot_hip(x0,x_err,y0,y_err,size=1,co="r",s=10,linecolor="lightgrey"):
+#this part just adds the rotation of the error so they can be plot in the right direction
+
+    norm=1/((x_err**2 +y_err**2)**0.5)
+    x1=x0-y_err*norm*size
+    y1=y0+x_err*norm*size
+    x2=x0+y_err*norm*size
+    y2=y0-x_err*norm*size
+#then plots a line for each measurement in size and angle of the error    
+    plt.scatter(x0,y0,color=co,s=s)
+    plt.plot([x1,x2],[y1,y2],color=linecolor)
+    return
+    
+
+
+
+
+
+#This plots the dimension hipparchos measured
+#inputs: x0,y0 positon of measurement,x_err,y_err error in direction,get this from hip measurement,
+def plot_hip_err(x0,x_err,y0,y_err,co="r",s=1,linecolor="lightgrey"):
+#this part just adds the rotation of the error so they can be plot in the right direction
+
+    x1=x0-x_err
+    y1=y0-y_err
+    x2=x0+x_err
+    y2=y0+y_err
+#then plots a line for each measurement in size and angle of the error    
+    plt.scatter(x0,y0,color=co,s=s)
+    plt.plot([x1,x2],[y1,y2],color=linecolor)
+    return
+
+
+
+
+
+
+#hipp measurements with error, t_hip is an array of the hipparchos measurement times
+#ALL INPUTS MUST BE FROM THE HIPPARCHOS CATALOGUE!
+def hip_measurement(asc,dec,parallax,mu_a_star,mu_d,t_HIP,earth,hip_ad,tangential=1):
+    """Computes RAW 2D positions of hipparcos data given the hipparcos standard solution"""
+
+
+    A3,A4,A5,A6,A7,A8,A9=hip_ad
+    
+    #asc_star=asc*np.cos(dec)#hipp catalogue gives us asc, we need asc_star for the model
+    
+    
+
+
+    
+    #this sections rotates abscissa measurements into the Dec,RA* frame.
+    d=hip_2d(hip_ad)
+    d=np.array(d)
+    x=d[0]
+    x_err=d[1]
+    y=d[2]
+    y_err=d[3]
+    
+    #to get the actual hipp measurement, we need to subtract the abscissa residual
+    #from the hipparchos standard model solution
+    #J1991.25, or 2448349.0625JD
+    if tangential==0:
+        
+        x_mod,y_mod=standard_model(asc,dec,parallax,mu_a_star,mu_d,t_HIP,earth,Sepoch=2448349.0625,tangential=0)
+    
+        x0=x_mod-x
+        y0=y_mod-y
+    if tangential==1:
+        
+        x0=x
+        y0=y
+    return x0,x_err,y0,y_err    
+
+
+def hip_residuals(hip_ad,hip_stand,stand_fit,orbit_fit,Sepoch):
+         
+        #Hipparchos
+        #First, residual due to corrections
+        A3,A4,A5,A6,A7,A8,A9=hip_ad
+        
+        #hip_ad=np.array([A3,A4,A5,A6,A7])
+        
+        
+        
+        t_HIP=hip_JD(hip_ad)
+        hip_stand=np.array(hip_stand)
+        
+        #Since gaia has the values for J2016, we need to recompute asc_star and dec for year
+        #J1991 to calculate the new residuals
+        
+        
+        t_1991=2448349.0625
+        t_2016=2457389.0
+        
+        asc_91,dec_91=pos_recalc(stand_fit,Sepoch,t_1991)
+    
+        
+
+                                        
+        
+        #The derivations in A3 compute the change for the abscissa with given asc_star! 
+        #we need to multiply the catalogue values with the cos of their respective declination.
+        asc_91_star=asc_91*np.cos(np.radians(dec_91))
+        corr1991=np.array((asc_91_star,dec_91,stand_fit[2],stand_fit[3],stand_fit[4]))
+
+        #print(corr1991)
+        
+        hip_stand[0]=hip_stand[0]*np.cos(np.radians(hip_stand[1]))
+
+        
+        
+        hip_stand[1]=hip_stand[1]
+        A8=np.array(A8)
+
+        #print(corr1991-hip_stand)
+        
+        
+                                         
+                                         
+                                         
+        #the new residuals for gaia catalogue standard parameters:
+        
+        c_res_hip=abs_res(A8,corr1991,hip_stand,hip_ad)#abs_residual=a8
+    
+
+        
+        
+ 
+        #Now we have the remaining residuals, where the orbit will be fit too.
+        #To do that, we need to correct the hip residuals again, this time for an orbit:
+        x_O,y_O=orbit_total(orbit_fit,t_HIP)
+        
+        residuals_hip=c_res_hip-(A3*x_O+A4*y_O)
+
+        
+   
+        return residuals_hip #returns res
+
+
+
+def res_to_orbit(residuals,hip_ad,orbitfit):
+    
+     
+    #Hipparchos
+    
+
+    t=hip_JD(hip_ad)
+    res=hip_ad.copy()
+    res[-2]=residuals
+
+    
+
+    res_2D=hip_2d(res)
+
+    hip_x=res_2D[0]
+    hip_x_err=res_2D[1]
+    hip_y=res_2D[2]
+    hip_y_err=res_2D[3]
+
+    #print(res_2D)
+    orb_x,orb_y=orbit_total(orbitfit,t)
+
+    res_orb_x=hip_x+orb_x
+    res_orb_y=hip_y+orb_y
+
+    return res_orb_x,hip_x_err,res_orb_y,hip_y_err
+
+
+    
+def hipparcos_covariance(errors, parallax=None, vrad=0.0, vrad_error=None):
+    """Construct a Hipparcos covariance matrix from standard errors.
+
+    Parameters
+    ----------
+    errors : array_like, shape (5,)
+        Standard errors ``(sigma_alpha, sigma_delta, sigma_parallax,
+        sigma_mu_alpha, sigma_mu_delta)`` in the same units as the SSS.
+    parallax : float, optional
+        Source parallax in mas. Required when ``vrad_error`` is provided.
+    vrad : float, optional
+        Adopted radial velocity in km/s. Defaults to zero.
+    vrad_error : float, optional
+        Radial-velocity uncertainty in km/s. If provided, return a 6x6
+        covariance including radial velocity.
+
+    Returns
+    -------
+    ndarray
+        A 5x5 diagonal covariance matrix, or a 6x6 covariance matrix with
+        radial velocity as the sixth parameter.
+
+    Notes
+    -----
+    This approximation assumes zero correlations. The official Hipparcos
+    covariance requires the 15 upper-weight-matrix values. The 6x6 extension
+    follows the generalized radial-velocity prescription.
+    """
+    errors = np.asarray(errors, dtype=float)
+    if errors.shape != (5,) or np.any(errors <= 0):
+        raise ValueError("errors must contain five positive values")
+    covariance = np.diag(errors**2)
+    if vrad_error is None:
+        return covariance
+    if parallax is None:
+        raise ValueError("parallax is required when vrad_error is provided")
+    if vrad_error < 0:
+        raise ValueError("vrad_error must be a non-negative value")
+
+    if covariance.shape != (5, 5):
+        raise ValueError("covariance must have shape (5, 5)")
+
+    result = np.zeros((6, 6), dtype=float)
+    result[:5, :5] = covariance
+    scale = au_km_year_per_sec
+    result[:5, 5] = result[5, :5] = (vrad / scale) * covariance[:5, 2]
+    result[5, 5] = (
+        (vrad / scale) ** 2 * covariance[2, 2]
+        + (parallax / scale) ** 2 * vrad_error**2
+        + (vrad_error / scale) ** 2 * covariance[2, 2]
+    )
+    return result
+
+
+def hip_reconstruct_covariance(IAD,plx=0,vrad=0.0,vrad_error=0):  
+
+    cpsi,spsi,parf,A6,A7,res,sres=IAD
+    epoch=hip_JD(IAD,format="relative")
+    w = 1.0 / sres**2
+
+    # design matrix: [Δα*, Δδ, Δϖ, μα*, μδ]
+    A = np.column_stack([
+        spsi,
+        cpsi,
+        parf,
+        epoch * spsi,
+        epoch * cpsi,
+    ])
+
+    N = A.T @ (A * w[:, None])          # 5x5 normal matrix
+    b = A.T @ (w * res)
+    C = np.linalg.inv(N)
+    x_hat = C @ b                        # small correction to the ref. solution
+
+    resid = res - A @ x_hat
+    Q = np.sum(w * resid**2)
+    nu = len(res) - 5
+    u = np.sqrt(Q / nu)
+
+    C_corr = C * u**2 if u > 1 else C   # excess-noise rescale, Michalik+15 eq. B.7
+
+
+    result = np.zeros((6, 6), dtype=float)
+    result[:5, :5] = C_corr
+    scale = au_km_year_per_sec
+    result[:5, 5] = result[5, :5] = (vrad / scale) * C_corr[:5, 2]
+    result[5, 5] = (
+        (vrad / scale) ** 2 * C_corr[2, 2]
+        + (plx / scale) ** 2 * vrad_error**2
+        + (vrad_error / scale) ** 2 * C_corr[2, 2]
+    )
+
+    return result, u, nu
+
+
+
+def hip_residuals(planet_fit,sss_fit,hip_iad,hip_sss,cpo,dr4_lpc,v_r=0):
+    A3_h,A4_h,A5_h,A6_h,A7_h,A8_h,A9_h=hip_iad
+
+
+    # the first two entries of sss_gaia are the SHIFTS to the comparison point !
+    sss_lpc=dr4_lpc+sss_fit
+
+
+    #timestamps from data
+
+
+    t_hip_jd=hip_JD(hip_iad,format="jd")
+    xi_g,eta_g,plx_g,t_ltd=propagate_lpc(sss_lpc,cpo,t_hip_jd,v_rad=v_r)
+
+    alpha=planet_fit[-1]*(dr4_lpc[2])
+    par_star=np.copy(planet_fit)
+    par_star[-1]=alpha
+
+    x_sum,y_sum=orbit_total(par_star,t_ltd)
+
+    cpo_hip=hip_sss[:2]
+    xi_h,eta_h=gaia_lpc_to_hip_lpc(xi_g+x_sum, eta_g+y_sum ,cpo, hip_sss[:2])
+
+
+    #print(xi_h,eta_h)
+
+    res_final_h=A8_h-(A3_h*xi_h+A4_h*eta_h)-plx_g*A5_h
+
+    return t_ltd,res_final_h,res_to_orbit(res_final_h,hip_iad, par_star)

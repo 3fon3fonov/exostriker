@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from astropy.time import Time
 from .astrometry import *
 from .useful import *
+from .vectorastrometry import *
 
 __all__ = [
     "abs_res", "hip_JD", "scanangle", "hip_with_gaia", "rotation_counterclockwise",
@@ -406,32 +407,61 @@ def hip_reconstruct_covariance(IAD,plx=0,vrad=0.0,vrad_error=0):
 
 
 
-def hip_residuals(planet_fit,sss_fit,hip_iad,hip_sss,cpo,dr4_lpc,v_r=0):
-    A3_h,A4_h,A5_h,A6_h,A7_h,A8_h,A9_h=hip_iad
+
+def hres(planet_mas,sss_corr,hip_iad,sss_hip,cpo_gaia,sss_gaia,Sepoch=J2017(),v_rad=0,s=0):    
+    
+    A3,A4,A5,A6,A7,A8,A9=hip_iad
 
 
     # the first two entries of sss_gaia are the SHIFTS to the comparison point !
-    sss_lpc=dr4_lpc+sss_fit
+    sss_lpc=sss_gaia+sss_corr
 
-
+    
     #timestamps from data
 
+    
+    t_JD=hip_JD(hip_iad,format="jd")
 
-    t_hip_jd=hip_JD(hip_iad,format="jd")
-    xi_g,eta_g,plx_g,t_ltd=propagate_lpc(sss_lpc,cpo,t_hip_jd,v_rad=v_r)
-
-    alpha=planet_fit[-1]*(dr4_lpc[2])
-    par_star=np.copy(planet_fit)
-    par_star[-1]=alpha
-
-    x_sum,y_sum=orbit_total(par_star,t_ltd)
+    
+    xi_g,eta_g,plx_g,t_ltd=propagate_lpc(sss_lpc,cpo_gaia,t_JD,v_rad=v_rad,Sepoch=Sepoch)
+    x_sum,y_sum=orbit_total(planet_mas,t_ltd)
 
     cpo_hip=hip_sss[:2]
-    xi_h,eta_h=gaia_lpc_to_hip_lpc(xi_g+x_sum, eta_g+y_sum ,cpo, hip_sss[:2])
-
+    xi_h,eta_h=gaia_lpc_to_hip_lpc(xi_g+x_sum, eta_g+y_sum ,cpo_gaia, cpo_hip)
 
     #print(xi_h,eta_h)
+    
+    res_final=A8-(A3*xi_h+A4*eta_h)-plx_g*A5
 
-    res_final_h=A8_h-(A3_h*xi_h+A4_h*eta_h)-plx_g*A5_h
+    #print(L_hip)
 
-    return t_ltd,res_final_h,res_to_orbit(res_final_h,hip_iad, par_star)
+    return t_ltd,res_final,res_to_orbit(res_final,hip_iad, planet_mas)
+
+def hip_residuals(theta,gaia,hip,RVs,v_rad=0):
+    n_offsets=int(-1*len(RVs))
+    #n_jitters=int(-1*len(RVs))
+    ast_theta=theta[:n_offsets]
+    orb_par=np.array(ast_theta[5:])
+    v0=theta[n_offsets:]
+    #s=theta[n_jitters:]
+    #print(v0)
+    #print(s)
+    corr=ast_theta[:5]
+    
+
+
+    iad_hip,sss_hip=hip
+    iad_gaia,cpo_gaia,sss_gaia=gaia
+    #print(iad_gaia)
+
+
+    #conversion of a for astrometry
+    planet_mas=np.copy(orb_par)
+    planet_mas[-1]=orb_par[-1]*(sss_gaia[2]+corr[2])
+    #hip
+    h=hres(planet_mas,corr,iad_hip,sss_hip,cpo_gaia,sss_gaia,v_rad=v_rad)
+
+    
+    
+
+    return h

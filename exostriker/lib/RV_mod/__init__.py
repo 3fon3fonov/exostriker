@@ -550,9 +550,10 @@ def ast_loglik_all(par, vel_files, ast_files_hipp, ast_files_gaia, npl,
 def ast_loglik_hipp(par, vel_files, ast_files_hipp, npl, stellar_mass, times,
                     hkl, fit_results=False, return_model=False, model_max=0,
                     model_samp=1000, use_with_gaia=False, v_rad=0.0,
-                    ast_files_gaia=None):
+                    ast_files_gaia=None, plot_planet=None):
     """Fit Hipparcos alone, or propagate a selected Gaia solution onto it.
 
+    plot_planet isolates one orbit for display, preserving full-model residuals.
     Corrections refer to the Gaia solution when Gaia is selected; otherwise
     they refer to the Hipparcos catalogue at its reference epoch.
     """
@@ -628,9 +629,6 @@ def ast_loglik_hipp(par, vel_files, ast_files_hipp, npl, stellar_mass, times,
 
         T0 = transit_tperi(par[len(vel_files)*2 +7*i+1],ecc_, om_, Ma_ ,times[0])[0] #%par[len(vel_files)*2 +7*i+1] 
 
-        #om_ = (om_ - 180.0)%360.0
-        #Ma_ = (Ma_ + 180.0)%360.0
-        
         incl = par[len(vel_files)*2 +7*i+5]
         Om_ = (par[len(vel_files)*2 +7*i+6] + 0.0)%360.0
  
@@ -675,7 +673,6 @@ def ast_loglik_hipp(par, vel_files, ast_files_hipp, npl, stellar_mass, times,
 
     if return_model:
     
-    
         for slot in loaded_slots:
 
             # Read the observations and set the time range for the plotted orbit.
@@ -684,42 +681,55 @@ def ast_loglik_hipp(par, vel_files, ast_files_hipp, npl, stellar_mass, times,
 
             model_start = min(timestamps)
             model_end = max(timestamps) + model_max
+            
+            if plot_planet is not None:
+                model_end = model_start + pl_params[plot_planet, 0]
             model_times = np.linspace(model_start, model_end, model_samp)
 
             header = ast_files_hipp[slot][3]
             cpo_hip = np.array([header['RAdeg'], header['DEdeg']], dtype=float)
+            
             sss_reference, cpo_reference, reference_epoch = reference_solution(header)
+            
             xi, eta, parallax_at_data, orbit_times = ex.propagate_lpc(
                 sss_reference + correction, cpo_reference, timestamps,
                 v_rad=v_rad, Sepoch=reference_epoch,
             )
+            
             orbit_x, orbit_y = ex.orbit_total(pl_params, orbit_times)
             baseline_x, baseline_y = ex.gaia_lpc_to_hip_lpc(
                 xi, eta, cpo_reference, cpo_hip,
             )
+            
             total_x, total_y = ex.gaia_lpc_to_hip_lpc(
                 xi + orbit_x, eta + orbit_y, cpo_reference, cpo_hip,
             )
+            
             ast_x_data = total_x - baseline_x
             ast_y_data = total_y - baseline_y
+            
             corrected_residuals = (
                 data[-2] - data[0] * baseline_x - data[1] * baseline_y
                 - data[2] * parallax_at_data
             )
+            
             residuals = corrected_residuals - data[0] * ast_x_data - data[1] * ast_y_data
 
             model_xi, model_eta, _, model_orbit_times = ex.propagate_lpc(
                 sss_reference + correction, cpo_reference, model_times,
                 v_rad=v_rad, Sepoch=reference_epoch,
             )
+            
             model_orbit_x, model_orbit_y = ex.orbit_total(pl_params, model_orbit_times)
             baseline_model_x, baseline_model_y = ex.gaia_lpc_to_hip_lpc(
                 model_xi, model_eta, cpo_reference, cpo_hip,
             )
+            
             total_model_x, total_model_y = ex.gaia_lpc_to_hip_lpc(
                 model_xi + model_orbit_x, model_eta + model_orbit_y,
                 cpo_reference, cpo_hip,
             )
+            
             ast_x_model = total_model_x - baseline_model_x
             ast_y_model = total_model_y - baseline_model_y
 
@@ -739,6 +749,33 @@ def ast_loglik_hipp(par, vel_files, ast_files_hipp, npl, stellar_mass, times,
                 residual_y + ast_y_data, error_y,
             )
 
+            if plot_planet is not None:
+                # Transform the selected displacement into the Hipparcos frame.
+                selected = pl_params[plot_planet:plot_planet + 1]
+                selected_x, selected_y = ex.orbit_total(selected, orbit_times)
+                selected_total_x, selected_total_y = ex.gaia_lpc_to_hip_lpc(
+                    xi + selected_x, eta + selected_y, cpo_reference, cpo_hip,
+                )
+                selected_x = selected_total_x - baseline_x
+                selected_y = selected_total_y - baseline_y
+                other_al = data[0] * (ast_x_data - selected_x)
+                other_al += data[1] * (ast_y_data - selected_y)
+                plot_iad[-2] = corrected_residuals - other_al
+                observed = ex.hip_2d(plot_iad)
+                observations_on_orbit = (
+                    residual_x + selected_x, error_x,
+                    residual_y + selected_y, error_y,
+                )
+                selected_model_x, selected_model_y = ex.orbit_total(
+                    selected, model_orbit_times,
+                )
+                selected_total_x, selected_total_y = ex.gaia_lpc_to_hip_lpc(
+                    model_xi + selected_model_x, model_eta + selected_model_y,
+                    cpo_reference, cpo_hip,
+                )
+                ast_x_model = selected_total_x - baseline_model_x
+                ast_y_model = selected_total_y - baseline_model_y
+
             # Keep the original entries and append exact residuals at observation times.
             sky_residuals = (residual_x, error_x, residual_y, error_y)
             plot_data = np.empty(4, dtype=object)
@@ -753,8 +790,8 @@ def ast_loglik_hipp(par, vel_files, ast_files_hipp, npl, stellar_mass, times,
         return loglik_ast_hipp
 
  
-def ast_loglik_gaia(par,vel_files, ast_files_gaia,npl,stellar_mass, times, hkl, fit_results = False , return_model = False, model_max=0, model_samp=1000, v_rad=0.):
-    """Evaluate the Gaia likelihood and optionally prepare sky-plane plots."""
+def ast_loglik_gaia(par,vel_files, ast_files_gaia,npl,stellar_mass, times, hkl, fit_results = False , return_model = False, model_max=0, model_samp=1000, v_rad=0., plot_planet=None):
+    """Evaluate Gaia; plot_planet isolates an orbit without changing the fit."""
  
     loglik_ast_gaia = 0
     calc_data   = {kx: [] for kx in range(10)}
@@ -814,14 +851,18 @@ def ast_loglik_gaia(par,vel_files, ast_files_gaia,npl,stellar_mass, times, hkl, 
     for slot in dataset_slots:
         dataset = ast_files_gaia[slot]
         gaia_iad = prepare_gaia_dataset(dataset)
+        
         header = dataset[3]
+        
         cpo_gaia = np.array([header['RAdeg'], header['DEdeg']], dtype=float)
         sss_gaia = np.array([
             header.get('delta_RA', header.get('ALOffsetRA', 0.)),
             header.get('deltaDE', header.get('ALOffsetDE', 0.)),
             header['Plx'], header['pm_RA'], header['pm_DE'],
         ], dtype=float)
+        
         reference_epoch = 2451545. + (header.get('RefEpoch', 2017.5) - 2000.) * 365.25
+        
         loglik_ast_gaia -= ex.L_gaia_rigorous(
             pl_params, correction, gaia_iad, cpo_gaia, sss_gaia,
             Sepoch=reference_epoch, v_rad=v_rad,
@@ -836,6 +877,10 @@ def ast_loglik_gaia(par,vel_files, ast_files_gaia,npl,stellar_mass, times, hkl, 
 
             model_start = min(timestamps)
             model_end = max(timestamps) + model_max
+            
+            if plot_planet is not None:
+            
+                model_end = model_start + pl_params[plot_planet, 0]
             model_times = np.linspace(model_start, model_end, model_samp)
 
             header = ast_files_gaia[slot][3]
@@ -846,18 +891,22 @@ def ast_loglik_gaia(par,vel_files, ast_files_gaia,npl,stellar_mass, times, hkl, 
                 header['Plx'], header['pm_RA'], header['pm_DE'],
             ], dtype=float)
             reference_epoch = 2451545. + (header.get('RefEpoch', 2017.5) - 2000.) * 365.25
+            
             xi, eta, parallax_at_data, orbit_times = ex.propagate_lpc(
                 sss_gaia + correction, cpo_gaia, timestamps,
                 v_rad=v_rad, Sepoch=reference_epoch,
             )
+            
             corrected_residuals = (
                 data[-2] - data[0] * xi - data[1] * eta
                 - data[2] * parallax_at_data
             )
+            
             model_orbit_times = ex.propagate_lpc(
                 sss_gaia + correction, cpo_gaia, model_times,
                 v_rad=v_rad, Sepoch=reference_epoch,
             )[-1]
+            
             ast_x_model, ast_y_model = ex.orbit_total(pl_params, model_orbit_times)
             ast_x_model = np.broadcast_to(ast_x_model, model_times.shape)
             ast_y_model = np.broadcast_to(ast_y_model, model_times.shape)
@@ -873,14 +922,37 @@ def ast_loglik_gaia(par,vel_files, ast_files_gaia,npl,stellar_mass, times, hkl, 
             # as the rigorous likelihood.
             plot_iad = data.copy()
             plot_iad[-2] = corrected_residuals
+                        
+            
             observed = ex.hip_2d(plot_iad)
             residual_iad = data.copy()
             residual_iad[-2] = residuals
+            
             residual_x, error_x, residual_y, error_y = ex.hip_2d(residual_iad)
+            
             observations_on_orbit = (
                 residual_x + ast_x_data, error_x,
                 residual_y + ast_y_data, error_y,
             )
+
+            if plot_planet is not None:
+                # Isolate this orbit while retaining residuals of the full fit.
+                selected = pl_params[plot_planet:plot_planet + 1]
+                
+                selected_x, selected_y = ex.orbit_total(selected, orbit_times)
+                
+                other_al = scan_x * (ast_x_data - selected_x)
+                other_al += scan_y * (ast_y_data - selected_y)
+                
+                plot_iad[-2] = corrected_residuals - other_al
+                
+                observed = ex.hip_2d(plot_iad)
+                
+                observations_on_orbit = (
+                    residual_x + selected_x, error_x,
+                    residual_y + selected_y, error_y,
+                )
+                ast_x_model, ast_y_model = ex.orbit_total(selected, model_orbit_times)
 
             # Keep the original entries and append exact residuals at observation times.
             sky_residuals = (residual_x, error_x, residual_y, error_y)

@@ -6672,6 +6672,19 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             vel_files.append(fit.rv_data_sets[i][5]) 
 
        
+        plot_planet = None
+        phase_slot = self.ast_phase_planet.currentData()
+        if (self.ast_use_plot_ra_dec.isChecked()
+                and self.ast_show_phased.isChecked()
+                and isinstance(phase_slot, int)
+                and fit.use_planet[phase_slot]):
+            selected_period = float(fit.P[phase_slot])
+            if np.isfinite(selected_period) and selected_period > 0.:
+                planet_slots = (sorted(fit.use_planet) if isinstance(fit.use_planet, dict)
+                                else range(len(fit.use_planet)))
+                active_slots = [slot for slot in planet_slots if fit.use_planet[slot]]
+                plot_planet = active_slots.index(phase_slot)
+
         # Absolute astrometry belongs to the star/system, including npl=0.
         # Legacy planet-selector fields in the dataset do not select its orbit.
         ast_loglik = rv.ast_loglik_gaia(
@@ -6679,7 +6692,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             times, fit.hkl, fit_results=fit.fit_results if fit.rtg[0] else False,
             return_model=True, model_max=self.ast_model_max_range.value(),
             model_samp=self.ast_points_to_draw_model.value(),
-            v_rad=getattr(fit, "ast_radial_velocity", 0.0))
+            v_rad=getattr(fit, "ast_radial_velocity", 0.0),
+            plot_planet=plot_planet)
         if ast_loglik is None or np.isscalar(ast_loglik):
             return
         fit.ast_results = dill.copy(ast_loglik)
@@ -6967,6 +6981,19 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             vel_files.append(fit.rv_data_sets[i][5]) 
 
        
+        plot_planet = None
+        phase_slot = self.ast_phase_planet.currentData()
+        if (self.ast_use_plot_ra_dec.isChecked()
+                and self.ast_show_phased.isChecked()
+                and isinstance(phase_slot, int)
+                and fit.use_planet[phase_slot]):
+            selected_period = float(fit.P[phase_slot])
+            if np.isfinite(selected_period) and selected_period > 0.:
+                planet_slots = (sorted(fit.use_planet) if isinstance(fit.use_planet, dict)
+                                else range(len(fit.use_planet)))
+                active_slots = [slot for slot in planet_slots if fit.use_planet[slot]]
+                plot_planet = active_slots.index(phase_slot)
+
         # Absolute astrometry belongs to the star/system, including npl=0.
         # Legacy planet-selector fields in the dataset do not select its orbit.
         ast_loglik = rv.ast_loglik_hipp(
@@ -6975,7 +7002,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             return_model=True, model_max=self.ast_model_max_range.value(),
             model_samp=self.ast_points_to_draw_model.value(),
             ast_files_gaia=fit.ast_data_sets_gaia,
-            v_rad=getattr(fit, "ast_radial_velocity", 0.0))
+            v_rad=getattr(fit, "ast_radial_velocity", 0.0),
+            plot_planet=plot_planet)
         if ast_loglik is None or np.isscalar(ast_loglik):
             return
         fit.ast_results = dill.copy(ast_loglik)
