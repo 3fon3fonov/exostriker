@@ -283,9 +283,12 @@ def collect_fit_statistics(fit, backend):
                             errors.extend(dataset[0][-1])
                     velocity_options = {
                         'v_rad': getattr(prepared, 'ast_radial_velocity', 0.0),
+                        'astrometric_cartesian': getattr(prepared, 'astrometric_cartesian', False),
                     }
                     if attribute == 'ast_data_sets_hipp':
                         velocity_options['ast_files_gaia'] = prepared.ast_data_sets_gaia
+                    else:
+                        velocity_options['ast_files_hipp'] = prepared.ast_data_sets_hipp
                     loglik += function(*common, datasets, prepared.npl,
                         prepared.params.stellar_mass, prepared.ast_times, prepared.hkl,
                         fit_results=model_fit, return_model=False, **velocity_options)

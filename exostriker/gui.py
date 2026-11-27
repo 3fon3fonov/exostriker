@@ -81,7 +81,7 @@ from Jupyter_emb import ConsoleWidget_embed
 
 from stdout_pipe import MyDialog, DebugDialog
 from print_info_window import print_info
-from astrometric_velocity import ensure_velocity_settings
+from astrometric_velocity import ensure_velocity_settings, use_rigorous_astrometry
 from astrometry_binning import bin_astrometry
 from astrometry_phase import astrometry_plot_times
 from fit_statistics import collect_fit_statistics, dataset_statistics_html, joint_information_criteria, statistics_html
@@ -698,13 +698,28 @@ class Exo_striker(QtWidgets.QMainWindow, Ui_MainWindow):
         global fit
         ensure_velocity_settings(fit)
         fit.astrometric_cartesian = bool(cartesian)
+        self.sync_astrometric_velocity_controls()
+
+    def sync_astrometric_velocity_controls(self):
+        """Enable systemic RV for Cartesian fits with either mission selected."""
+        global fit
+        enabled = use_rigorous_astrometry(
+            getattr(fit, 'astrometric_cartesian', False),
+            fit.ast_data_sets_hipp, fit.ast_data_sets_gaia,
+        )
+        for widget in (
+                self.ast_radial_velocity, self.use_ast_radial_velocity,
+                self.ast_radial_velocity_label, self.err_ast_radial_velocity):
+            widget.setEnabled(enabled)
 
     def read_ast(self):
         global fit
             
         ensure_velocity_settings(fit)
         fit.astrometric_cartesian = self.radioButton_astrometry_cartesian.isChecked()
-        fit.ast_radial_velocity = self.ast_radial_velocity.value()
+        if use_rigorous_astrometry(
+                fit.astrometric_cartesian, fit.ast_data_sets_hipp, fit.ast_data_sets_gaia):
+            fit.ast_radial_velocity = self.ast_radial_velocity.value()
         fit.ast_alpha[0]    = self.param_gui_ast[0].value()
         fit.ast_delta[0]    = self.param_gui_ast[1].value()
         fit.ast_pi[0]       = self.param_gui_ast[2].value()
@@ -6470,6 +6485,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             panel.addItem(bars)
 
     def update_ast_plots(self):
+        self.sync_astrometric_velocity_controls()
         self.update_ast_phase_controls()
         
         self.update_ast_plots_img()
@@ -6693,6 +6709,8 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             return_model=True, model_max=self.ast_model_max_range.value(),
             model_samp=self.ast_points_to_draw_model.value(),
             v_rad=getattr(fit, "ast_radial_velocity", 0.0),
+            astrometric_cartesian=getattr(fit, "astrometric_cartesian", False),
+            ast_files_hipp=fit.ast_data_sets_hipp,
             plot_planet=plot_planet)
         if ast_loglik is None or np.isscalar(ast_loglik):
             return
@@ -7003,6 +7021,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
             model_samp=self.ast_points_to_draw_model.value(),
             ast_files_gaia=fit.ast_data_sets_gaia,
             v_rad=getattr(fit, "ast_radial_velocity", 0.0),
+            astrometric_cartesian=getattr(fit, "astrometric_cartesian", False),
             plot_planet=plot_planet)
         if ast_loglik is None or np.isscalar(ast_loglik):
             return
@@ -9497,6 +9516,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
         self.radioButton_astrometry_cartesian.setChecked(cartesian)
         self.radioButton_astrometry_standard.setChecked(not cartesian)
         self.check_std_ast_solution()
+        self.sync_astrometric_velocity_controls()
 
     def showDialog_ast_input_file_2(self):
         global fit
@@ -9606,6 +9626,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 continue
             else:
                 fit.ast_data_sets_hipp[i][2] = self.use_ast_data_to_planet_2[i].isChecked()
+        self.sync_astrometric_velocity_controls()
  
  
 
@@ -9740,6 +9761,7 @@ There is no good fix for that at the moment.... Maybe adjust the epoch and try a
                 continue
             else:
                 fit.ast_data_sets_gaia[i][2] = self.use_ast_data_to_planet_3[i].isChecked()
+        self.sync_astrometric_velocity_controls()
  
  
 

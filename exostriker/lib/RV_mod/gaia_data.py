@@ -5,14 +5,14 @@ _METADATA_KEY = '_exostriker_gaia_baseline_v1'
 _STANDARD_KEYS = ('RAdeg', 'DEdeg', 'Plx', 'pm_RA', 'pm_DE')
 
 
-def prepare_gaia_dataset(dataset):
+def prepare_gaia_dataset(dataset, allow_residuals=False):
     """Return raw along-scan measurements, restoring old cached residuals.
 
     Rigorous ExTRA propagates the catalogue solution itself. Older sessions
     may store subtracted measurements; their cache retains the original data.
     """
     data, header = dataset[0], dataset[3]
-    if header.get('ALModelRemoved', 0.):
+    if header.get('ALModelRemoved', 0.) and not allow_residuals:
         raise ValueError('Rigorous Gaia fitting needs original centroids; export with -m n')
     solution = tuple(float(header[key]) for key in _STANDARD_KEYS)
     offsets = (

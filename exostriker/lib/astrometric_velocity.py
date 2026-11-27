@@ -2,6 +2,17 @@
 import numpy as np
 
 
+def use_rigorous_astrometry(cartesian, hip_datasets, gaia_datasets):
+    """Use perspective propagation for Cartesian fits with either mission."""
+    if not cartesian:
+        return False
+    for datasets in (hip_datasets, gaia_datasets):
+        records = datasets.values() if isinstance(datasets, dict) else datasets
+        if any(len(record) and record[2] for record in records):
+            return True
+    return False
+
+
 def ensure_velocity_settings(session):
     """Add fit settings to older sessions while retaining their fixed RV."""
     defaults = {
@@ -23,7 +34,12 @@ def pack_velocity(session, parameters, flags, labels, bounds, gaussian, jeffreys
     """Pack systemic RV before the established six-entry astrometric tail."""
     ensure_velocity_settings(session)
     session.ast_radial_velocity_index = None
-    if not session.astrometric_cartesian:
+    rigorous = use_rigorous_astrometry(
+        session.astrometric_cartesian,
+        getattr(session, 'ast_data_sets_hipp', {}),
+        getattr(session, 'ast_data_sets_gaia', {}),
+    )
+    if not rigorous:
         return
     session.ast_radial_velocity_index = len(parameters)
     parameters.append(session.ast_radial_velocity)

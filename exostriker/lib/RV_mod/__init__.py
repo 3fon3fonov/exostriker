@@ -96,9 +96,11 @@ from .Warning_log import Warning_log
 from .functions import *
 from astrometric_velocity import (
     pack_velocity, publish_velocity, velocity_from_parameters,
+    use_rigorous_astrometry,
 )
 from .gaia_data import prepare_gaia_dataset
 from .hipparcos_data import prepare_hipparcos_dataset
+from .standard_astrometry import standard_astrometry_iad, standard_astrometry_plot
 
 from .errors import Error, InputError, FittingError
 from .rv_files import rvfile, rvfile_list
@@ -525,23 +527,26 @@ def ttvs_mod(par,vel_files,npl, stellar_mass, times, planet_N, hkl, fit_results=
  
 def ast_loglik_all(par, vel_files, ast_files_hipp, ast_files_gaia, npl,
                    stellar_mass, times, hkl, fit_results=False,
-                   return_model=False, model_max=0, model_samp=1000, v_rad=0.):
-    """Sum selected mission likelihoods, anchoring joint fits to Gaia."""
+                   return_model=False, model_max=0, model_samp=1000, v_rad=0.,
+                   astrometric_cartesian=False):
+    """Use classical or perspective likelihoods according to the selected mode."""
     hip_result = ast_loglik_hipp(
         par, vel_files, ast_files_hipp, npl, stellar_mass, times, hkl,
         fit_results=fit_results, return_model=return_model,
         model_max=model_max, model_samp=model_samp, v_rad=v_rad,
         ast_files_gaia=ast_files_gaia,
+        astrometric_cartesian=astrometric_cartesian,
     )
     gaia_result = ast_loglik_gaia(
         par, vel_files, ast_files_gaia, npl, stellar_mass, times, hkl,
         fit_results=fit_results, return_model=return_model,
         model_max=model_max, model_samp=model_samp, v_rad=v_rad,
+        ast_files_hipp=ast_files_hipp,
+        astrometric_cartesian=astrometric_cartesian,
     )
     
     
     if return_model:
-        print("TESSSSSTTTT")
         return [hip_result[0] + gaia_result[0], hip_result[1], hip_result[2],
                 gaia_result[1], gaia_result[2]]
     return hip_result + gaia_result
@@ -550,12 +555,13 @@ def ast_loglik_all(par, vel_files, ast_files_hipp, ast_files_gaia, npl,
 def ast_loglik_hipp(par, vel_files, ast_files_hipp, npl, stellar_mass, times,
                     hkl, fit_results=False, return_model=False, model_max=0,
                     model_samp=1000, use_with_gaia=False, v_rad=0.0,
-                    ast_files_gaia=None, plot_planet=None):
-    """Fit Hipparcos alone, or propagate a selected Gaia solution onto it.
+                    ast_files_gaia=None, plot_planet=None,
+                    astrometric_cartesian=False):
+    """Use L_hip in Standard mode and perspective propagation in Cartesian mode.
 
     plot_planet isolates one orbit for display, preserving full-model residuals.
-    Corrections refer to the Gaia solution when Gaia is selected; otherwise
-    they refer to the Hipparcos catalogue at its reference epoch.
+    Classical corrections refer to the local Hipparcos catalogue. Cartesian
+    joint corrections refer to the selected Gaia solution at its epoch.
     """
     
 
@@ -591,7 +597,10 @@ def ast_loglik_hipp(par, vel_files, ast_files_hipp, npl, stellar_mass, times,
         )
     if use_with_gaia and gaia_reference is None:
         raise ValueError('A selected Gaia dataset is needed to propagate its solution')
-    use_with_gaia = gaia_reference is not None
+    rigorous = use_rigorous_astrometry(
+        astrometric_cartesian, ast_files_hipp, ast_files_gaia or {},
+    )
+    use_with_gaia = rigorous and gaia_reference is not None
     reference = gaia_reference if use_with_gaia else ast_files_hipp[(dataset_slots or loaded_slots)[0]]
     parallax = reference[3]['Plx'] + par[-4]
     correction = np.array([par[-6], par[-5], par[-4], par[-3], par[-2]])
@@ -659,17 +668,22 @@ def ast_loglik_hipp(par, vel_files, ast_files_hipp, npl, stellar_mass, times,
         ], dtype=float)
         sss_reference, cpo_reference, reference_epoch = reference_solution(header)
         if use_with_gaia:
+            #print("TESTTTTT",v_rad)
             loglik_ast_hipp -= ex.L_hip_rigorous(
                 pl_params, correction, ast_files_hipp[slot][0], sss_hip,
                 cpo_reference, sss_reference, Sepoch=reference_epoch,
-                v_rad=v_rad, s=0,
+                v_rad=v_rad, s=0
             )
-        else:
+        elif rigorous:
             loglik_ast_hipp -= ex.L_gaia_rigorous(
                 pl_params, correction, ast_files_hipp[slot][0],
                 cpo_reference, sss_reference, Sepoch=reference_epoch,
                 v_rad=v_rad, s=0, iad_epoch=ex.J1991(),
             )
+        else:
+            #print("TESTTTTT  2",v_rad)        
+            residual_iad = standard_astrometry_iad(ast_files_hipp[slot][0], header)
+            loglik_ast_hipp -= ex.L_hip(residual_iad, correction, pl_params)
 
     if return_model:
     
@@ -678,6 +692,14 @@ def ast_loglik_hipp(par, vel_files, ast_files_hipp, npl, stellar_mass, times,
             # Read the observations and set the time range for the plotted orbit.
             data = ast_files_hipp[slot][0]
             timestamps = ex.hip_JD(data)
+
+            if not rigorous:
+                residual_iad = standard_astrometry_iad(data, ast_files_hipp[slot][3])
+                calc_data[slot], calc_model[slot] = standard_astrometry_plot(
+                    ex, residual_iad, correction, pl_params, timestamps,
+                    model_max, model_samp, plot_planet,
+                )
+                continue
 
             model_start = min(timestamps)
             model_end = max(timestamps) + model_max
@@ -790,8 +812,11 @@ def ast_loglik_hipp(par, vel_files, ast_files_hipp, npl, stellar_mass, times,
         return loglik_ast_hipp
 
  
-def ast_loglik_gaia(par,vel_files, ast_files_gaia,npl,stellar_mass, times, hkl, fit_results = False , return_model = False, model_max=0, model_samp=1000, v_rad=0., plot_planet=None):
-    """Evaluate Gaia; plot_planet isolates an orbit without changing the fit."""
+def ast_loglik_gaia(par, vel_files, ast_files_gaia, npl, stellar_mass, times,
+                    hkl, fit_results=False, return_model=False, model_max=0,
+                    model_samp=1000, v_rad=0., plot_planet=None,
+                    astrometric_cartesian=False, ast_files_hipp=None):
+    """Use L_gaia in Standard mode and perspective propagation in Cartesian mode."""
  
     loglik_ast_gaia = 0
     calc_data   = {kx: [] for kx in range(10)}
@@ -805,6 +830,9 @@ def ast_loglik_gaia(par,vel_files, ast_files_gaia,npl,stellar_mass, times, hkl, 
     dataset_slots = [slot for slot in loaded_slots if bool(ast_files_gaia[slot][2])]
     if not dataset_slots and not (return_model and loaded_slots):
         return [loglik_ast_gaia, calc_data, calc_model] if return_model else loglik_ast_gaia
+    rigorous = use_rigorous_astrometry(
+        astrometric_cartesian, ast_files_hipp or {}, ast_files_gaia,
+    )
     reference = ast_files_gaia[(dataset_slots or loaded_slots)[0]]
     parallax = reference[3]['Plx'] + par[-4]
     correction = np.array([par[-6], par[-5], par[-4], par[-3], par[-2]])
@@ -850,9 +878,14 @@ def ast_loglik_gaia(par,vel_files, ast_files_gaia,npl,stellar_mass, times, hkl, 
     
     for slot in dataset_slots:
         dataset = ast_files_gaia[slot]
-        gaia_iad = prepare_gaia_dataset(dataset)
+        gaia_iad = prepare_gaia_dataset(dataset, allow_residuals=not rigorous)
         
         header = dataset[3]
+
+        if not rigorous:
+            residual_iad = standard_astrometry_iad(gaia_iad, header, gaia=True)
+            loglik_ast_gaia -= ex.L_gaia(residual_iad, correction, pl_params)
+            continue
         
         cpo_gaia = np.array([header['RAdeg'], header['DEdeg']], dtype=float)
         sss_gaia = np.array([
@@ -872,8 +905,18 @@ def ast_loglik_gaia(par,vel_files, ast_files_gaia,npl,stellar_mass, times, hkl, 
         for slot in loaded_slots:
 
             # Read the observations and set the time range for the plotted orbit.
-            data = prepare_gaia_dataset(ast_files_gaia[slot])
+            data = prepare_gaia_dataset(ast_files_gaia[slot], allow_residuals=not rigorous)
             timestamps = ex.gaia_JD(data)
+
+            if not rigorous:
+                residual_iad = standard_astrometry_iad(
+                    data, ast_files_gaia[slot][3], gaia=True,
+                )
+                calc_data[slot], calc_model[slot] = standard_astrometry_plot(
+                    ex, residual_iad, correction, pl_params, timestamps,
+                    model_max, model_samp, plot_planet,
+                )
+                continue
 
             model_start = min(timestamps)
             model_end = max(timestamps) + model_max
@@ -1922,11 +1965,16 @@ def model_loglik(p, program, par, flags, npl, vel_files, tr_files, tr_model, tr_
  
     if(opt["AST"]):
 
+        rigorous_astrometry = use_rigorous_astrometry(
+            opt.get('astrometric_cartesian', False), ast_files_hipp, ast_files_gaia,
+        )
+        astrometric_velocity = velocity_from_parameters(par, opt) if rigorous_astrometry else 0.
         astr_loglik += ast_loglik_all(
             par, vel_files, ast_files_hipp, ast_files_gaia, npl,
             stmass, ast_times, hkl,
             fit_results=rvmod if rtg[0] else False,
-            v_rad=velocity_from_parameters(par, opt),
+            v_rad=astrometric_velocity,
+            astrometric_cartesian=opt.get("astrometric_cartesian", False),
         )
 
     if(opt["TTV"]):
@@ -2292,6 +2340,7 @@ def run_SciPyOp(obj,   threads=1,  kernel_id=-1,  save_means=False, fileoutput=F
            "AST_files_gaia":ast_files3,                                  
            "TTV_times":obj.ttv_times,
            "AST_times":obj.ast_times,
+           "astrometric_cartesian":getattr(obj, "astrometric_cartesian", False),
            "ast_radial_velocity":getattr(obj, "ast_radial_velocity", 0.0),
            "ast_radial_velocity_index":getattr(obj, "ast_radial_velocity_index", None),
            "AMD_stab":obj.optim_AMD_stab, 
@@ -2899,6 +2948,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
             obj.npl, obj.params.stellar_mass, obj.ast_times, obj.hkl,
             fit_results=obj.fit_results,return_model=False,
             v_rad=getattr(obj, "ast_radial_velocity", 0.0),
+            astrometric_cartesian=getattr(obj, "astrometric_cartesian", False),
         )
 
  
@@ -2919,6 +2969,7 @@ def return_results(obj, pp, ee, par,flags, npl,vel_files, tr_files, tr_model, tr
             par, vel_files, obj.ast_data_sets_hipp, obj.ast_data_sets_gaia,
             npl, stmass, obj.ast_times, obj.hkl, return_model=False,
             v_rad=getattr(obj, "ast_radial_velocity", 0.0),
+            astrometric_cartesian=getattr(obj, "astrometric_cartesian", False),
         )
         obj.loglik     =  astr_loglik
  
@@ -3272,6 +3323,7 @@ def run_nestsamp(obj, **kwargs):
            "AST_files_gaia":ast_files3,                                
            "TTV_times":obj.ttv_times,
            "AST_times":obj.ast_times,
+           "astrometric_cartesian":getattr(obj, "astrometric_cartesian", False),
            "ast_radial_velocity":getattr(obj, "ast_radial_velocity", 0.0),
            "ast_radial_velocity_index":getattr(obj, "ast_radial_velocity_index", None),
            "AMD_stab":obj.NS_AMD_stab, 
@@ -3847,6 +3899,7 @@ def run_mcmc(obj, **kwargs):
            "AST_files_gaia":ast_files3,                                 
            "TTV_times":obj.ttv_times,
            "AST_times":obj.ast_times,
+           "astrometric_cartesian":getattr(obj, "astrometric_cartesian", False),
            "ast_radial_velocity":getattr(obj, "ast_radial_velocity", 0.0),
            "ast_radial_velocity_index":getattr(obj, "ast_radial_velocity_index", None),
            "AMD_stab":obj.mcmc_AMD_stab, 
@@ -5660,7 +5713,8 @@ class signal_fit(object):
                     if headers[:1] == ["ALModelRemoved"]:
                         solution["ALModelRemoved"] = float(headers[1])
                         continue
-                    is_reference = headers == ["RAdeg", "DEdeg"]
+                    # DR4 comparison coordinates may include offset uncertainties.
+                    is_reference = headers[:2] == ["RAdeg", "DEdeg"]
                     is_solution = headers[:3] in (
                         ["RAdeg", "DEdeg", "Plx"],
                         ["delta_RA", "deltaDE", "Plx"],
@@ -5728,7 +5782,7 @@ class signal_fit(object):
 
         # Keep original centroids: rigorous ExTRA subtracts the propagated solution.
         try:
-            prepare_gaia_dataset(ast_data_set)
+            prepare_gaia_dataset(ast_data_set, allow_residuals=True)
         except ValueError as exc:
             print("Invalid Gaia astrometry data: %s" % exc)
             return

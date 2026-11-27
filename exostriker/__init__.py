@@ -1,4 +1,4 @@
-__version__ = "0.97.8"
+__version__ = "0.97.9"
 __author__ = "Trifon Trifonov"
 
 import importlib

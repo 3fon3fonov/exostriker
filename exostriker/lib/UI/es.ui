@@ -19641,7 +19641,7 @@
                </size>
               </property>
               <property name="toolTip">
-               <string>Systemic stellar radial velocity in km/s for rigorous Gaia/Hipparcos propagation. Enable its fit checkbox in Cartesian mode to optimize or sample it.</string>
+               <string>Systemic stellar radial velocity in km/s for Cartesian fits with Hipparcos, Gaia, or both. Standard fits ignore this value. Enable its fit checkbox to optimize or sample it.</string>
               </property>
               <property name="suffix">
                <string/>
@@ -20872,7 +20872,7 @@
                </size>
               </property>
               <property name="toolTip">
-               <string>Systemic stellar radial velocity in km/s for rigorous Gaia/Hipparcos propagation. Enable its fit checkbox in Cartesian mode to optimize or sample it.</string>
+               <string>Systemic stellar radial velocity in km/s for Cartesian fits with Hipparcos, Gaia, or both. Standard fits ignore this value. Enable its fit checkbox to optimize or sample it.</string>
               </property>
               <property name="text">
                <string>Abs. Radial Velocity [km/s]</string>

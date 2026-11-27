@@ -525,47 +525,64 @@ def L_combined_old(RV_data,RV_err,t_RVs,#RV data
 
         return final
 
-def L_hip_rigorous(planet_mas, sss_corr, iad_hip, sss_hip, cpo_gaia,
-                   sss_gaia, Sepoch=J2017(), v_rad=0, s=0):
-    """Evaluate Hipparcos centroids using a propagated reference solution.
-
-    The reference solution contains offsets in mas about cpo_gaia (degrees).
-    sss_hip supplies the Hipparcos comparison coordinates in degrees.
-    """
-    A3, A4, A5, A6, A7, A8, A9 = iad_hip
-    sss_lpc = np.asarray(sss_gaia) + np.asarray(sss_corr)
-    timestamps = hip_JD(iad_hip, format="jd")
-    xi, eta, parallax, orbit_times = propagate_lpc(
-        sss_lpc, cpo_gaia, timestamps, v_rad=v_rad, Sepoch=Sepoch,
-    )
-    orbit_x, orbit_y = orbit_total(planet_mas, orbit_times)
-    xi_hip, eta_hip = gaia_lpc_to_hip_lpc(
-        xi + orbit_x, eta + orbit_y, cpo_gaia, sss_hip[:2],
-    )
-    residuals = A8 - A3 * xi_hip - A4 * eta_hip - A5 * parallax
-    return loglikelihood(residuals, np.asarray(A9), s)
-
-
-def L_gaia_rigorous(planet_mas, sss_corr, gaia_iad, cpo_gaia, sss_gaia,
-                    Sepoch=J2017(), v_rad=0, s=0, iad_epoch=None):
-    """Evaluate one mission in its own comparison frame.
-
-    Sepoch is the reference-solution epoch in JD. iad_epoch independently
-    specifies the origin of the IAD time derivatives (Gaia 2017.5 by default,
-    Hipparcos 1991.25). Comparison coordinates are degrees, offsets are mas.
-    """
-
-    #print(len(gaia_iad))
+def L_hip_rigorous(planet_mas,sss_corr,hip_iad,hip_sss,cpo_gaia,gaia_sss,Sepoch=J2017(),v_rad=0,s=0):    
     
-    A3,A4,A5,A6,A7,A8,A9=gaia_iad
+    A3,A4,A5,A6,A7,A8,A9=hip_iad
 
-    sss_lpc = np.asarray(sss_gaia) + np.asarray(sss_corr)
+
+    # the first two entries of sss_gaia are the SHIFTS to the comparison point !
+    sss_lpc=gaia_sss+sss_corr
 
     
     #timestamps from data
 
     
-    t_JD = gaia_JD(gaia_iad, format="jd", Sepoch=iad_epoch)
+    t_JD=hip_JD(hip_iad,format="jd")
+
+    
+    xi_g,eta_g,plx_g,t_ltd=propagate_lpc(sss_lpc,cpo_gaia,t_JD,v_rad=v_rad,Sepoch=Sepoch)
+    x_sum,y_sum=orbit_total(planet_mas,t_ltd)
+
+    cpo_hip=hip_sss[:2]
+    xi_h,eta_h=gaia_lpc_to_hip_lpc(xi_g+x_sum, eta_g+y_sum ,cpo_gaia, cpo_hip)
+
+    #print(xi_h,eta_h)
+    
+    res_final=A8-(A3*xi_h+A4*eta_h)-plx_g*A5
+
+    
+
+
+    
+    #print(t_ltd-t_JD)
+    #error
+    A9=np.array(A9)
+
+    L_hip=loglikelihood(res_final,A9,s)
+    
+    #print(L_hip)
+
+    return L_hip
+
+
+def L_gaia_rigorous(planet_mas,sss_corr,gaia_iad,cpo_gaia,sss_gaia,Sepoch=J2017(),v_rad=0,s=0,
+                    iad_epoch=None):
+    """Evaluate one solution, keeping Hipparcos measurement epochs explicit."""
+
+    #print(len(gaia_iad))
+    
+    A3,A4,A5,A6,A7,A8,A9=gaia_iad
+
+    sss_lpc=sss_gaia+sss_corr
+
+    
+    #timestamps from data
+
+    
+    if iad_epoch is None:
+        t_JD=gaia_JD(gaia_iad,format="jd")
+    else:
+        t_JD=hip_JD(gaia_iad,Sepoch=iad_epoch,format="jd")
 
 
     xi_g,eta_g,plx_g,t_ltd=propagate_lpc(sss_lpc,cpo_gaia,t_JD,v_rad=v_rad,Sepoch=Sepoch)
